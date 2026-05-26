@@ -1,0 +1,44 @@
+[
+  {
+    "brand": "espressolab",
+    "positive": 68, "neutral": 21, "negative": 11,
+    "topComplaints": ["fiyat artışı", "yavaş servis yoğun saatlerde"],
+    "topPraises": ["özel lezzetler", "barista kalitesi", "atmosfer"]
+  },
+  {
+    "brand": "starbucks",
+    "positive": 41, "neutral": 22, "negative": 37,
+    "topComplaints": ["fiyat çok yüksek", "porsiyonlar küçüldü", "plastik ambalaj"],
+    "topPraises": ["marka bilinirliği", "uygulama kolaylığı"]
+  },
+  {
+    "brand": "kahvedunyasi",
+    "positive": 38, "neutral": 24, "negative": 38,
+    "topComplaints": ["personel tutarsızlığı", "temizlik sorunları", "kahve kalitesi düştü"],
+    "topPraises": ["uygun fiyat", "şube çokluğu"]
+  },
+  {
+    "brand": "coffy",
+    "positive": 55, "neutral": 28, "negative": 17,
+    "topComplaints": ["şube sayısı az", "park yeri"],
+    "topPraises": ["taze kahve", "samimi servis"]
+  },
+  {
+    "brand": "gloriajeans",
+    "positive": 62, "neutral": 23, "negative": 15,
+    "topComplaints": ["sınırlı menü", "küçük mekan"],
+    "topPraises": ["kahve kalitesi", "rahat ortam"]
+  },
+  {
+    "brand": "caffenero",
+    "positive": 71, "neutral": 18, "negative": 11,
+    "topComplaints": ["şube sayısı az", "online sipariş yok"],
+    "topPraises": ["İtalyan tarzı", "çalışma ortamı", "Wi-Fi kalitesi"]
+  },
+  {
+    "brand": "gua",
+    "positive": 74, "neutral": 16, "negative": 10,
+    "topComplaints": ["şube sayısı çok az", "sadece büyük şehirler"],
+    "topPraises": ["özgün lezzetler", "kahve kültürü", "barista eğitimi"]
+  }
+]

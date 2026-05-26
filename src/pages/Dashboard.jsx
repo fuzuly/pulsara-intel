@@ -1,0 +1,345 @@
+import { AlertTriangle } from 'lucide-react';
+import {
+  LineChart, Line,
+  BarChart, Bar, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, ReferenceLine,
+} from 'recharts';
+import SectionHeader from '../components/common/SectionHeader';
+import DataFreshnessBar from '../components/common/DataFreshnessBar';
+import useNewsData from '../hooks/useNewsData';
+import { Link } from 'react-router-dom';
+import clsx from 'clsx';
+
+const SENTIMENT_DOT = {
+  positive: 'bg-success',
+  neutral:  'bg-muted',
+  negative: 'bg-danger',
+};
+
+const KPI_CARDS = [
+  {
+    label: 'Analiz Edilen Marka',
+    value: '7',
+    sub: 'Türkiye kahve sektörü',
+    trend: null,
+    icon: '🏪',
+  },
+  {
+    label: 'Toplam Şube (İzlenen)',
+    value: '108',
+    sub: 'Google Maps verisi',
+    trend: null,
+    icon: '📍',
+  },
+  {
+    label: 'En Yüksek Engagement',
+    value: '%2.43',
+    sub: 'Espressolab — sektör ort. %0.51',
+    trend: 'up',
+    icon: '🔥',
+  },
+  {
+    label: 'Risk Altındaki Şube',
+    value: '34',
+    sub: '4.0 altı Google puanı',
+    trend: 'down',
+    icon: '⚠️',
+  },
+];
+
+const engagementTrend = [
+  { month: "Ara '24", espressolab: 2.1,  starbucks: 0.38, kahveDunyasi: 0.09 },
+  { month: "Oca '25", espressolab: 2.2,  starbucks: 0.41, kahveDunyasi: 0.10 },
+  { month: "Şub '25", espressolab: 2.0,  starbucks: 0.39, kahveDunyasi: 0.11 },
+  { month: "Mar '25", espressolab: 2.4,  starbucks: 0.42, kahveDunyasi: 0.10 },
+  { month: "Nis '25", espressolab: 2.3,  starbucks: 0.40, kahveDunyasi: 0.12 },
+  { month: "May '25", espressolab: 2.43, starbucks: 0.40, kahveDunyasi: 0.11 },
+];
+
+const ratingsData = [
+  { brand: 'Espressolab',   rating: 4.54, fill: '#10b981' },
+  { brand: "Gloria Jean's", rating: 4.28, fill: '#3b82f6' },
+  { brand: 'Caffe Nero',    rating: 3.86, fill: '#f59e0b' },
+  { brand: 'Kahve Dünyası', rating: 3.67, fill: '#f97316' },
+  { brand: 'Starbucks',     rating: 3.48, fill: '#ef4444' },
+];
+
+const EngagementTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-surface border border-navy-border rounded-lg px-3 py-2 shadow-xl text-xs">
+      <p className="font-semibold text-white mb-1">{label}</p>
+      {payload.map(p => (
+        <p key={p.dataKey} style={{ color: p.color }}>
+          {p.name}: <strong>%{p.value}</strong>
+        </p>
+      ))}
+    </div>
+  );
+};
+
+const RatingsTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="bg-surface border border-navy-border rounded-lg px-3 py-2 shadow-xl text-xs">
+      <p className="font-semibold text-white">{d.brand}</p>
+      <p style={{ color: d.fill }}>⭐ {d.rating} / 5.0</p>
+    </div>
+  );
+};
+
+const RatingsLabel = ({ x, y, width, value }) => (
+  <text
+    x={x + width + 6}
+    y={y + 10}
+    fill="#e2e8f0"
+    fontSize={11}
+    fontWeight="600"
+  >
+    {value}
+  </text>
+);
+
+export default function Dashboard() {
+  const { articles, loading: newsLoading, error: newsError, refetch: refetchNews } = useNewsData();
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <DataFreshnessBar
+        sources={[{ label: 'NewsData.io' }, { label: 'Rakip Analizi' }]}
+        interval={300_000}
+        onRefresh={refetchNews}
+      />
+
+      {/* Alert Banner */}
+      <div className="flex items-start gap-3 bg-warning/10 border border-warning/30 rounded-xl px-4 py-3">
+        <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-warning font-semibold mb-1">Güncel Rakip Hareketleri</p>
+          <ul className="text-xs text-white/80 space-y-0.5 list-none">
+            <li>• <strong className="text-white">Starbucks</strong> "Baharın Tatlı Renkleri": Ube Vanilla Latte &amp; Lemon Vanilla Latte lansmanı — 9 Mart 2026 <span className="text-success text-[10px]">✅ starbucks.com.tr</span></li>
+            <li>• <strong className="text-white">Caribou</strong> Cinnamon Sugar Latte + Amy's Blend bahar lansmanı — 5 Mart 2026 <span className="text-success text-[10px]">✅ cariboucoffee.com</span></li>
+            <li>• <strong className="text-white">Starbucks</strong> fiyat güncellemesi sosyal medyada gündem — rakipler için fiyat avantajı fırsatı <span className="text-warning text-[10px]">⚠️ kısmen doğrulandı</span></li>
+          </ul>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div>
+        <SectionHeader
+          title="Rekabet İstihbarat Özeti"
+          subtitle="İzlenen markalar, sosyal medya ve Google Maps verisinden türetilmiştir"
+        />
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
+          {KPI_CARDS.map(card => (
+            <div key={card.label} className="card flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-2xl">{card.icon}</span>
+                {card.trend === 'up' && (
+                  <span className="text-success text-sm font-bold">↑</span>
+                )}
+                {card.trend === 'down' && (
+                  <span className="text-danger text-sm font-bold">↓</span>
+                )}
+              </div>
+              <div className={clsx(
+                'text-2xl font-bold',
+                card.trend === 'up' ? 'text-success'
+                  : card.trend === 'down' ? 'text-danger'
+                  : 'text-white'
+              )}>
+                {card.value}
+              </div>
+              <div>
+                <p className="text-xs font-medium text-white">{card.label}</p>
+                <p className="text-[10px] text-muted mt-0.5">{card.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+        {/* Engagement Trend */}
+        <div className="card flex flex-col">
+          <div className="mb-3">
+            <h3 className="text-base font-semibold text-white">Sosyal Medya Engagement Trendi</h3>
+            <p className="text-xs text-muted mt-0.5">Instagram etkileşim oranı (%)</p>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={engagementTrend} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
+              <XAxis
+                dataKey="month"
+                tick={{ fill: '#8B9BB4', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fill: '#8B9BB4', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={v => `%${v}`}
+              />
+              <Tooltip content={<EngagementTooltip />} />
+              <Legend
+                formatter={val => <span style={{ color: '#8B9BB4', fontSize: 11 }}>{val}</span>}
+              />
+              <Line
+                type="monotone"
+                dataKey="espressolab"
+                name="Espressolab"
+                stroke="#10b981"
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: '#10b981' }}
+                activeDot={{ r: 5 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="starbucks"
+                name="Starbucks"
+                stroke="#3b82f6"
+                strokeWidth={1.5}
+                dot={{ r: 3, fill: '#3b82f6' }}
+                activeDot={{ r: 5 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="kahveDunyasi"
+                name="Kahve Dünyası"
+                stroke="#f59e0b"
+                strokeWidth={1.5}
+                dot={{ r: 3, fill: '#f59e0b' }}
+                activeDot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Google Maps Ratings */}
+        <div className="card flex flex-col">
+          <div className="mb-3">
+            <h3 className="text-base font-semibold text-white">Google Maps Ortalama Puan</h3>
+            <p className="text-xs text-muted mt-0.5">Doğrulanmış Google Maps verisi — Mart 2026</p>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart
+              data={ratingsData}
+              layout="vertical"
+              margin={{ top: 5, right: 50, left: 10, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" horizontal={false} />
+              <XAxis
+                type="number"
+                domain={[0, 5]}
+                tick={{ fill: '#8B9BB4', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                ticks={[0, 1, 2, 3, 4, 5]}
+              />
+              <YAxis
+                type="category"
+                dataKey="brand"
+                tick={{ fill: '#8B9BB4', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                width={90}
+              />
+              <Tooltip content={<RatingsTooltip />} />
+              <ReferenceLine
+                x={4.0}
+                stroke="#ef4444"
+                strokeDasharray="4 3"
+                label={{ value: 'Sektör Eşiği', position: 'insideTopRight', fill: '#ef4444', fontSize: 10 }}
+              />
+              <Bar dataKey="rating" radius={[0, 6, 6, 0]} label={<RatingsLabel />}>
+                {ratingsData.map(entry => (
+                  <Cell key={entry.brand} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        {/* Rakip Analizi linki */}
+        <div className="card xl:col-span-1 flex flex-col items-center justify-center text-center py-8 gap-3">
+          <div className="text-4xl">🏆</div>
+          <h3 className="text-base font-semibold text-white">Rakip Skor Analizi</h3>
+          <p className="text-xs text-muted leading-relaxed">
+            Google Maps puanları, şube büyümesi ve menü analizinden türetilen canlı rakip skorları.
+          </p>
+          <Link to="/rakip-analizi" className="btn btn-primary text-xs mt-2">
+            Rakip Analizini Görüntüle →
+          </Link>
+        </div>
+
+        {/* Son Dakika */}
+        <div className="card xl:col-span-2 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white">Son Dakika</h3>
+              {!newsLoading && !newsError && articles.length > 0 && (
+                <span className="flex items-center gap-1 text-[10px] bg-success/10 text-success px-2 py-0.5 rounded-full">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                  CANLI
+                </span>
+              )}
+            </div>
+            <Link to="/son-dakika" className="text-xs text-caramel hover:underline">
+              Tümünü Gör →
+            </Link>
+          </div>
+
+          {newsLoading && (
+            <div className="flex items-center gap-2 text-xs text-muted py-4">
+              <span className="animate-spin text-caramel">⟳</span> Haberler yükleniyor...
+            </div>
+          )}
+          {newsError && (
+            <div className="text-xs text-warning bg-warning/10 border border-warning/20 rounded-lg px-3 py-2 mb-3">
+              ⚠️ API hatası: {newsError}
+            </div>
+          )}
+
+          <div className="space-y-2 flex-1">
+            {articles.slice(0, 4).map(article => (
+              <div key={article.id} className="flex items-start gap-3 p-3 rounded-lg bg-surface2/50 hover:bg-surface2 transition-colors border border-navy-border/50">
+                <span className={clsx('h-2 w-2 rounded-full flex-shrink-0 mt-1.5', SENTIMENT_DOT[article.sentiment] || 'bg-muted')} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-white leading-snug font-medium line-clamp-2">{article.title}</p>
+                  <div className="flex items-center gap-2 mt-1 text-[10px] text-muted">
+                    <span>{article.source}</span>
+                    <span>{article.date}</span>
+                    {article.url && article.url !== '#' && (
+                      <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-caramel hover:underline ml-auto">
+                        Git →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {!newsLoading && articles.length === 0 && !newsError && (
+              <p className="text-xs text-muted text-center py-4">Haber bulunamadı.</p>
+            )}
+          </div>
+
+          {articles.length > 4 && (
+            <Link
+              to="/son-dakika"
+              className="mt-3 pt-3 border-t border-navy-border text-center text-xs text-caramel hover:underline"
+            >
+              + {articles.length - 4} haber daha — Haber Akışı sayfasına git →
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

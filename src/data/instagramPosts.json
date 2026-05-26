@@ -1,0 +1,9 @@
+[
+  {"username": "espressolabtr",      "avgLikes": 4520, "maxLikes": 52701, "avgComments": 89,  "maxViews": 4900000, "engagementRate": 2.43},
+  {"username": "starbucks_tr",       "avgLikes": 953,  "maxLikes": 3180,  "avgComments": 24,  "maxViews": null,    "engagementRate": 0.40},
+  {"username": "kahvedunyasi",       "avgLikes": 373,  "maxLikes": 2100,  "avgComments": 12,  "maxViews": null,    "engagementRate": 0.11},
+  {"username": "gloriajeanscoffees", "avgLikes": 116,  "maxLikes": 890,   "avgComments": 8,   "maxViews": null,    "engagementRate": 0.48},
+  {"username": "coffy_tr",           "avgLikes": 37,   "maxLikes": 128,   "avgComments": 3,   "maxViews": null,    "engagementRate": 0.18},
+  {"username": "caffenero",          "avgLikes": 290,  "maxLikes": 1200,  "avgComments": 15,  "maxViews": null,    "engagementRate": 0.40},
+  {"username": "guacoffeecompany",   "avgLikes": 180,  "maxLikes": 650,   "avgComments": 9,   "maxViews": null,    "engagementRate": 1.15}
+]

@@ -1,0 +1,26 @@
+[
+  {"brand": "Espressolab", "brandId": "espressolab", "avgRating": 4.54, "totalBranches": 28, "totalReviews": 26019, "below4": 0, "between4and45": 6, "above45": 22,
+   "worstBranch": {"name": "Espressolab Beylikdüzü Ferah", "rating": 4.4, "reviews": 312},
+   "bestBranch": {"name": "Espressolab Çobançeşme", "rating": 4.8, "reviews": 891},
+   "topBranch": {"name": "Türk Telekom Prime Espressolab Roastery", "rating": 4.4, "reviews": 7456}},
+
+  {"brand": "Gloria Jeans", "brandId": "gloriajeans", "avgRating": 4.28, "totalBranches": 25, "totalReviews": 8844, "below4": 3, "between4and45": 15, "above45": 7,
+   "worstBranch": {"name": "Gloria Jean's Coffee Cihangir", "rating": 3.2, "reviews": 125},
+   "bestBranch": {"name": "Gloria Jean's Coffees Haliç Üniversitesi", "rating": 4.8, "reviews": 58},
+   "topBranch": {"name": "Gloria Jean's Coffees", "rating": 4.0, "reviews": 1354}},
+
+  {"brand": "Caffe Nero", "brandId": "caffenero", "avgRating": 3.86, "totalBranches": 17, "totalReviews": 7156, "below4": 7, "between4and45": 8, "above45": 2,
+   "worstBranch": {"name": "Caffè Nero", "rating": 2.5, "reviews": 131},
+   "bestBranch": {"name": "Caffe Nero", "rating": 4.8, "reviews": 203},
+   "topBranch": {"name": "Caffè Nero", "rating": 4.2, "reviews": 1351}},
+
+  {"brand": "Kahve Dünyası", "brandId": "kahvedunyasi", "avgRating": 3.67, "totalBranches": 25, "totalReviews": 25014, "below4": 16, "between4and45": 9, "above45": 0,
+   "worstBranch": {"name": "Kahve Dünyası - Galataport", "rating": 2.7, "reviews": 618},
+   "bestBranch": {"name": "Kahve Dünyası - Veliefendi Atölye Şubesi", "rating": 4.3, "reviews": 4215},
+   "topBranch": {"name": "Kahve Dünyası - Veliefendi Atölye Şubesi", "rating": 4.3, "reviews": 4215}},
+
+  {"brand": "Starbucks", "brandId": "starbucks", "avgRating": 3.48, "totalBranches": 13, "totalReviews": 4674, "below4": 8, "between4and45": 4, "above45": 1,
+   "worstBranch": {"name": "Starbucks", "rating": 2.0, "reviews": 31},
+   "bestBranch": {"name": "Starbucks", "rating": 4.1, "reviews": 1283},
+   "topBranch": {"name": "Starbucks", "rating": 4.1, "reviews": 1283}}
+]

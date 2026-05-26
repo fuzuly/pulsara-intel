@@ -1,0 +1,9 @@
+[
+  {"brand": "espressolab",  "rating": 4.4, "reviewCount": 12800, "branches": 685,  "ratingTrend": "stable"},
+  {"brand": "starbucks",    "rating": 4.1, "reviewCount": 98400, "branches": 685,  "ratingTrend": "down"},
+  {"brand": "kahvedunyasi", "rating": 3.8, "reviewCount": 67200, "branches": 620,  "ratingTrend": "down"},
+  {"brand": "coffy",        "rating": 4.2, "reviewCount": 4100,  "branches": 120,  "ratingTrend": "up"},
+  {"brand": "gloriajeans",  "rating": 4.3, "reviewCount": 5600,  "branches": 95,   "ratingTrend": "stable"},
+  {"brand": "caffenero",    "rating": 4.5, "reviewCount": 8900,  "branches": 120,  "ratingTrend": "up"},
+  {"brand": "gua",          "rating": 4.6, "reviewCount": 2300,  "branches": 80,   "ratingTrend": "up"}
+]
