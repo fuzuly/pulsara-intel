@@ -14,15 +14,30 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 400));
-    const ok = login(username.trim(), password);
-    setLoading(false);
-    if (ok) {
-      navigate('/', { replace: true });
-    } else {
-      setError('Kullanıcı adı veya şifre hatalı.');
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('isAuthenticated', 'true');
+        login();
+        navigate('/');
+      } else {
+        setError('Geçersiz kullanıcı adı veya şifre');
+      }
+    } catch (err) {
+      setError('Bağlantı hatası. Lütfen tekrar deneyin.');
+    } finally {
+      setLoading(false);
     }
   };
 
