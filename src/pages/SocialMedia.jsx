@@ -157,7 +157,7 @@ export default function SocialMedia() {
         {own && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Espressolab Takipçi',   value: formatLargeNumber(own.followers),      color: 'text-caramel', icon: '👥' },
+              { label: 'Takipçi Sayısı',   value: formatLargeNumber(own.followers),      color: 'text-caramel', icon: '👥' },
               { label: 'Etkileşim Oranı',        value: `%${own.engagementRate}`,              color: 'text-success', icon: '💬' },
               { label: 'Etkileşim Sıralaması',   value: `#${ownRank} / ${igData.length}`,     color: 'text-success', icon: '🏆' },
               { label: 'Takip Edilen Hesap',     value: igData.length,                         color: 'text-info',    icon: '📊' },
@@ -247,8 +247,7 @@ export default function SocialMedia() {
                         <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>
                           {d.brandName}
                         </span>
-                        {d.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
-                      </div>
+                              </div>
                       <div className="text-[10px] text-muted mt-0.5">@{d.username}</div>
                     </td>
                     <td className="table-cell text-white font-medium">{formatLargeNumber(d.followers)}</td>
@@ -296,7 +295,7 @@ export default function SocialMedia() {
               <p className="text-xs text-white/80">
                 Google Maps ortalaması <strong className="text-danger">3.8 ⭐</strong> ile en düşük seviyede ve düşüş eğiliminde.
                 67.200+ yorum — personel tutarsızlığı ve temizlik şikayetleri dominant.
-                Espressolab için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti vurgulanmalı.
+                Rakip açığı için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti vurgulanmalı.
               </p>
             </div>
           </div>
@@ -344,8 +343,7 @@ export default function SocialMedia() {
                           <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>
                             {d.brandName}
                           </span>
-                          {d.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
-                        </div>
+                                  </div>
                       </td>
                       <td className="table-cell">
                         <span className={clsx('font-bold', d.rating >= 4.4 ? 'text-success' : d.rating >= 4.0 ? 'text-warning' : 'text-danger')}>
@@ -391,7 +389,7 @@ export default function SocialMedia() {
               <div key={k.label} className={`card border ${k.bg} text-center`}>
                 <div className="text-2xl mb-1">{k.icon}</div>
                 <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
-                <div className="text-xs text-muted">Espressolab {k.label}</div>
+                <div className="text-xs text-muted">{k.label}</div>
               </div>
             ))}
           </div>
@@ -420,7 +418,6 @@ export default function SocialMedia() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
                 <span className={clsx('text-sm font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>{d.fullName}</span>
-                {d.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded ml-1">BİZ</span>}
                 <span className="ml-auto text-xs font-bold text-success">%{d.positive}</span>
               </div>
               <div className="space-y-1.5">
@@ -453,7 +450,7 @@ export default function SocialMedia() {
             <div className="text-2xl mb-2">📈</div>
             <h4 className="text-sm font-semibold text-white mb-2">Instagram Avantajını Koru</h4>
             <p className="text-xs text-muted leading-relaxed">
-              Espressolab <strong className="text-success">%2.43 etkileşim</strong> ile tüm rakiplerin önünde.
+              Marka <strong className="text-success">%2.43 etkileşim</strong> ile tüm rakiplerin önünde.
               Bu oran endüstri ortalamasının (~%1) 2 katı. Reels formatına yatırım sürdürülmeli;
               4.9M görüntülenme alan içerik formatı artırılmalı.
             </p>
@@ -463,7 +460,7 @@ export default function SocialMedia() {
             <h4 className="text-sm font-semibold text-white mb-2">Kahve Dünyası Açığını Değerlendir</h4>
             <p className="text-xs text-muted leading-relaxed">
               KD'nin 3.8 ⭐ skoru ve düşüş trendi, özellikle temizlik ve personel şikayetleri
-              doğrudan Espressolab'a yönlendirme fırsatı. Google My Business yanıt hızı ve
+              doğrudan markaya yönlendirme fırsatı. Google My Business yanıt hızı ve
               &ldquo;temiz — sıcak&rdquo; mesajlaşması kampanyaya alınmalı.
             </p>
           </div>

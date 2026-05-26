@@ -93,7 +93,7 @@ export default function BranchRatings() {
         <span className="text-blue-400 text-base mt-0.5">🗺️</span>
         <p className="text-muted">
           <strong className="text-blue-300">Kaynak: </strong>
-          Google Maps Places API — şube bazlı puan ve yorum analizi. Espressolab (28), Kahve Dünyası (25),
+          Google Maps Places API — şube bazlı puan ve yorum analizi. Marka (28), Kahve Dünyası (25),
           Gloria Jean's (25), Caffe Nero (17), Starbucks (13) şubesi incelenmiştir. Veri: Mart 2026.
         </p>
       </div>
@@ -356,7 +356,7 @@ export default function BranchRatings() {
           <AlertTriangle size={14} className="text-danger flex-shrink-0 mt-0.5" />
           <p className="text-muted leading-relaxed">
             <strong className="text-danger">Kahve Dünyası kritik risk:</strong> 25 şubenin 16'sı (%64) 4.0 puanın altında.
-            Espressolab için doğrudan müşteri kazanım fırsatı — "Güvenilir kahve deneyimi" mesajlaşması etkili olabilir.
+            Doğrudan müşteri kazanım fırsatı — "Güvenilir kahve deneyimi" mesajlaşması etkili olabilir.
           </p>
         </div>
       </div>

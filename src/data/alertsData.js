@@ -121,7 +121,7 @@ export const ALERTS = [
     id: 'a11',
     type: 'price_change',
     brand: 'espressolab',
-    message: 'Fırsat: Starbucks fiyat artışı sonrası specialty segment Espressolab için avantaj yaratıyor',
+    message: 'Fırsat: Starbucks fiyat artışı sonrası specialty segment için avantaj yaratıyor',
     timestamp: '2026-03-20T10:00:00',
     severity: 'success',
     icon: '📈',
