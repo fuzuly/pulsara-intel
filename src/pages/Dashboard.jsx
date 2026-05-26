@@ -35,7 +35,7 @@ const KPI_CARDS = [
   {
     label: 'En Yüksek Engagement',
     value: '%2.43',
-    sub: 'Marka — sektör ort. %0.51',
+    sub: 'Espressolab — sektör ort. %0.51',
     trend: 'up',
     icon: '🔥',
   },
@@ -58,7 +58,7 @@ const engagementTrend = [
 ];
 
 const ratingsData = [
-  { brand: 'Marka',   rating: 4.54, fill: '#10b981' },
+  { brand: 'Espressolab',   rating: 4.54, fill: '#10b981' },
   { brand: "Gloria Jean's", rating: 4.28, fill: '#3b82f6' },
   { brand: 'Caffe Nero',    rating: 3.86, fill: '#f59e0b' },
   { brand: 'Kahve Dünyası', rating: 3.67, fill: '#f97316' },
@@ -191,7 +191,7 @@ export default function Dashboard() {
               <Line
                 type="monotone"
                 dataKey="espressolab"
-                name="Marka"
+                name="Espressolab"
                 stroke="#10b981"
                 strokeWidth={2.5}
                 dot={{ r: 3, fill: '#10b981' }}

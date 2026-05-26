@@ -712,7 +712,7 @@ export default function CompetitorAnalysis() {
           <p className="text-white font-semibold">Veri Kaynakları ve Doğruluk Notu</p>
           <p>
             <strong className="text-success">Starbucks:</strong> 722 şube — verikaynagi.com / euronews.tr (2024) |{' '}
-            <strong className="text-caramel">Marka:</strong> ~270 TR + 338 global — perakende.org / foodinlife.com (Oca 2025) |{' '}
+            <strong className="text-caramel">Espressolab:</strong> ~270 TR + 338 global — perakende.org / foodinlife.com (Oca 2025) |{' '}
             <strong className="text-red-400">Kahve Dünyası:</strong> ~320 şube, 2025 hedef 500 — ekonomim.com |{' '}
             <strong className="text-orange-400">Gloria Jean's:</strong> 203 şube — franchisemarketturkiye.com (2024)
           </p>

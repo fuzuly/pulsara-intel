@@ -20,8 +20,8 @@ export const BRANDS = [
   // ── KENDİ MARKAMIZ ──────────────────────────────────────────────────────────
   {
     id: 'espressolab',
-    name: 'Marka',
-    shortName: 'MRK',
+    name: 'Espressolab',
+    shortName: 'ESL',
     color: '#C4922A',
     bgColor: '#C4922A20',
     textColor: '#C4922A',

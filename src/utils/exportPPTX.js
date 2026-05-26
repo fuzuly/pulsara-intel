@@ -80,7 +80,7 @@ export async function exportToPPTX(config = {}) {
     fontSize: 120, align: 'center',
   });
 
-  slide1.addText('MARKA', {
+  slide1.addText('ESPRESSOLAB', {
     x: 0.6, y: 1.5, w: 7.5, h: 0.8,
     fontSize: 36, bold: true, color: THEME.caramel, fontFace: 'Calibri',
   });

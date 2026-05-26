@@ -138,7 +138,7 @@ export default function MenuComparison() {
           </ResponsiveContainer>
           <div className="flex items-center justify-between mt-2 text-xs text-muted">
             <span>🟢 = En ucuz</span>
-            <span>Marka: ₺{BRAND_AVG_PRICES.espressolab}</span>
+            <span>Espressolab: ₺{BRAND_AVG_PRICES.espressolab}</span>
             <span>🔴 = En pahalı</span>
           </div>
         </div>
@@ -258,7 +258,7 @@ export default function MenuComparison() {
           <div className="text-2xl mb-2">💡</div>
           <h4 className="text-sm font-semibold text-white mb-2">Fiyat Konumlama</h4>
           <p className="text-xs text-muted leading-relaxed">
-            Marka ortalama ₺138 ile <strong className="text-white">premium segment</strong>te konumlanıyor.
+            Espressolab ortalama ₺138 ile <strong className="text-white">premium segment</strong>te konumlanıyor.
             Starbucks (₺163) ve Costa Coffee (₺153) en pahalı markalar; Nevada (₺97) ve Coffy (₺89) en ucuz segment.
           </p>
         </div>
