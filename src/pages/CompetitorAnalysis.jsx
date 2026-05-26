@@ -626,9 +626,6 @@ export default function CompetitorAnalysis() {
                         <span className={clsx('text-sm font-bold', brand.isOwn ? 'text-caramel' : 'text-white')}>
                           {brand.name}
                         </span>
-                        {brand.isOwn && (
-                          <span className="text-[9px] bg-caramel/20 text-caramel px-1.5 py-0.5 rounded-full font-semibold">BİZİZ</span>
-                        )}
                       </div>
                       <div className="text-xs text-muted">{brand.country} · {brand.type === 'specialty' ? 'Specialty' : brand.type === 'premium' ? 'Premium' : 'Orta Segment'}</div>
                     </div>
@@ -763,7 +760,6 @@ export default function CompetitorAnalysis() {
                         <span className={clsx('font-semibold', brand.isOwn ? 'text-caramel' : 'text-white')}>
                           {brand.name}
                         </span>
-                        {brand.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
                       </div>
                     </td>
                     <td className="table-cell text-white">{s.branches}</td>

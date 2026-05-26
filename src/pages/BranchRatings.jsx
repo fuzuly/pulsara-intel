@@ -170,9 +170,6 @@ export default function BranchRatings() {
                       <span className={clsx('text-sm font-bold', isOwn ? 'text-caramel' : 'text-white')}>
                         {d.brand}
                       </span>
-                      {isOwn && (
-                        <span className="text-[9px] bg-caramel/20 text-caramel px-1.5 py-0.5 rounded-full font-semibold">BİZİZ</span>
-                      )}
                     </div>
                     <div className="flex items-center gap-1 mt-0.5">
                       <Stars rating={d.avgRating} />
@@ -302,7 +299,6 @@ export default function BranchRatings() {
                         <span className={clsx('font-semibold', isOwn ? 'text-caramel' : 'text-white')}>
                           {d.brand}
                         </span>
-                        {isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
                         {isKD  && <span className="text-[9px] bg-danger/20 text-danger px-1 rounded">⚠️ Risk</span>}
                       </div>
                     </td>
