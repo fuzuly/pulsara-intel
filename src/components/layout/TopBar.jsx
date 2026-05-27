@@ -28,71 +28,107 @@ export default function TopBar({ sidebarCollapsed }) {
   }, []);
 
   const timeStr = clock.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const dateStr = clock.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-
+  const dateStr = clock.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
   const newAlerts = ALERTS.filter(a => a.severity === 'warning' || a.severity === 'danger').length;
 
   return (
     <header
+      style={{ background: 'var(--bg-panel)', borderBottom: '1px solid var(--border-primary)' }}
       className={clsx(
-        'fixed top-0 right-0 z-20 h-16 flex flex-col bg-navy border-b border-navy-border transition-all duration-300',
+        'fixed top-0 right-0 z-20 h-16 flex flex-col transition-all duration-300',
         sidebarCollapsed ? 'left-16' : 'left-60'
       )}
     >
+      {/* Top accent line */}
+      <div style={{ height: '1px', background: 'linear-gradient(90deg, var(--accent-primary), transparent)', opacity: 0.5 }} />
+
       {/* Main bar */}
-      <div className="flex items-center gap-4 px-5 h-full">
+      <div className="flex items-center gap-4 px-5 flex-1">
         {/* Page title */}
         <div className="flex items-center gap-2 min-w-0">
-          {currentPage?.icon && <currentPage.icon size={18} className="text-caramel flex-shrink-0" />}
-          <h1 className="text-base font-semibold text-white truncate">
+          {currentPage?.icon && (
+            <currentPage.icon size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+          )}
+          <h1 style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: '0.65rem',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--text-primary)',
+            fontWeight: 600,
+          }}>
             {currentPage?.label || 'Dashboard'}
           </h1>
         </div>
 
         {/* Ticker */}
-        <div className="flex-1 min-w-0 bg-surface2 rounded-lg px-3 py-1.5 border border-navy-border overflow-hidden">
+        <div
+          style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: '1px' }}
+          className="flex-1 min-w-0 px-3 py-1.5 overflow-hidden"
+        >
           <LiveTicker />
         </div>
 
         {/* Right section */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Theme toggle */}
           <ThemeToggle compact />
 
           {/* Clock */}
           <div className="hidden lg:flex flex-col items-end">
-            <span className="text-sm font-mono font-semibold text-white">{timeStr}</span>
-            <span className="text-[10px] text-muted">{dateStr}</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.75rem', color: 'var(--text-primary)', fontWeight: 500, letterSpacing: '0.05em' }}>
+              {timeStr}
+            </span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              {dateStr}
+            </span>
           </div>
 
           {/* Notifications */}
           <div className="relative">
             <button
               onClick={() => setShowNotif(!showNotif)}
-              className="relative p-2 rounded-lg text-muted hover:text-white hover:bg-surface2 transition-colors"
+              style={{ padding: '0.4rem', background: 'transparent', border: '1px solid transparent', borderRadius: '1px', color: 'var(--text-muted)', transition: 'all 0.15s', cursor: 'pointer' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; e.currentTarget.style.background = 'var(--bg-tertiary)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
             >
-              <Bell size={18} />
+              <Bell size={16} />
               {newAlerts > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-warning text-[9px] font-bold text-espresso">
+                <span style={{
+                  position: 'absolute', top: 2, right: 2,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: '14px', height: '14px', borderRadius: '1px',
+                  background: 'var(--accent-warning)',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: '0.5rem', fontWeight: 700,
+                  color: 'var(--bg-primary)',
+                }}>
                   {newAlerts}
                 </span>
               )}
             </button>
 
             {showNotif && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-surface border border-navy-border rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-navy-border">
-                  <span className="text-sm font-semibold text-white">Bildirimler</span>
-                  <span className="badge-warning badge">{newAlerts} yeni</span>
+              <div
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: '1px', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
+                className="absolute right-0 top-full mt-2 w-80 z-50 overflow-hidden animate-fade-in"
+              >
+                <div style={{ borderBottom: '1px solid var(--border-primary)', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+                    // Bildirimler
+                  </span>
+                  <span className="intel-badge warning">{newAlerts} yeni</span>
                 </div>
                 <div className="max-h-72 overflow-y-auto">
                   {ALERTS.slice(0, 6).map(alert => (
-                    <div key={alert.id} className="px-4 py-3 border-b border-navy-border hover:bg-surface2 transition-colors">
+                    <div key={alert.id} style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-primary)', transition: 'background 0.1s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
                       <div className="flex items-start gap-2">
                         <span className="text-base flex-shrink-0">{alert.icon}</span>
                         <div className="min-w-0">
-                          <p className="text-xs text-white leading-relaxed">{alert.message}</p>
-                          <p className="text-[10px] text-muted mt-1">
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>{alert.message}</p>
+                          <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', color: 'var(--text-muted)', marginTop: '0.25rem', letterSpacing: '0.05em' }}>
                             {new Date(alert.timestamp).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
@@ -100,12 +136,12 @@ export default function TopBar({ sidebarCollapsed }) {
                     </div>
                   ))}
                 </div>
-                <div className="px-4 py-2 text-center">
+                <div style={{ padding: '0.5rem', textAlign: 'center' }}>
                   <button
-                    className="text-xs text-caramel hover:underline"
+                    style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-primary)', background: 'transparent', border: 'none', cursor: 'pointer' }}
                     onClick={() => setShowNotif(false)}
                   >
-                    Tümünü gör
+                    Tümünü gör →
                   </button>
                 </div>
               </div>
@@ -114,36 +150,42 @@ export default function TopBar({ sidebarCollapsed }) {
 
           {/* Quick export */}
           <div className="relative group">
-            <button
-              disabled={isExporting}
-              className="btn-primary text-xs disabled:opacity-50"
-            >
-              {isExporting ? (
-                <RefreshCw size={14} className="animate-spin" />
-              ) : (
-                <Download size={14} />
-              )}
-              <span className="hidden sm:inline">Rapor İndir</span>
+            <button disabled={isExporting} className="btn-primary" style={{ fontSize: '0.6rem' }}>
+              {isExporting ? <RefreshCw size={12} className="animate-spin" /> : <Download size={12} />}
+              <span className="hidden sm:inline">Rapor</span>
             </button>
-            <div className="absolute right-0 top-full mt-1 hidden group-hover:flex flex-col bg-surface border border-navy-border rounded-lg shadow-xl z-50 overflow-hidden min-w-36">
-              <button
-                onClick={() => exportToExcel()}
-                className="px-4 py-2.5 text-xs text-left text-white hover:bg-surface2 transition-colors flex items-center gap-2"
+            <div
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: '1px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}
+              className="absolute right-0 top-full mt-1 hidden group-hover:flex flex-col z-50 overflow-hidden min-w-36"
+            >
+              <button onClick={() => exportToExcel()}
+                style={{ padding: '0.6rem 1rem', fontSize: '0.7rem', color: 'var(--text-primary)', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'background 0.1s', textAlign: 'left' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span>📊</span> Excel İndir
+                <span>📊</span> Excel
               </button>
-              <button
-                onClick={() => exportToPPTX()}
-                className="px-4 py-2.5 text-xs text-left text-white hover:bg-surface2 transition-colors flex items-center gap-2"
+              <button onClick={() => exportToPPTX()}
+                style={{ padding: '0.6rem 1rem', fontSize: '0.7rem', color: 'var(--text-primary)', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'background 0.1s', textAlign: 'left' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span>📑</span> PowerPoint İndir
+                <span>📑</span> PowerPoint
               </button>
             </div>
           </div>
 
           {/* User avatar */}
           <div
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-caramel to-espresso flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+            style={{
+              width: '32px', height: '32px', borderRadius: '1px',
+              background: 'var(--bg-tertiary)',
+              border: '1px solid var(--accent-primary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.05em',
+              color: 'var(--accent-primary)',
+            }}
             title={user?.name || ''}
           >
             {user?.initials || '?'}
@@ -151,7 +193,6 @@ export default function TopBar({ sidebarCollapsed }) {
         </div>
       </div>
 
-      {/* Click outside to close notifications */}
       {showNotif && (
         <div className="fixed inset-0 z-40" onClick={() => setShowNotif(false)} />
       )}
