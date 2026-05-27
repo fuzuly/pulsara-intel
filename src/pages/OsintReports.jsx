@@ -1,48 +1,65 @@
 import { useState, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import BrandBadge from '../components/common/BrandBadge';
 import { BRANDS } from '../constants/brands';
-import { TRENDING_KEYWORDS, MENTION_SOURCES } from '../data/osintData';
-import useScrapedNews from '../hooks/useScrapedNews';
+import { TRENDING_KEYWORDS, SENTIMENT_SCORES } from '../data/osintData';
+import { NEW_PRODUCTS } from '../data/newProductData';
 import clsx from 'clsx';
 
-const SOURCE_TYPE_MAP = {
-  'google-news':   'news',
-  'brand-website': 'blog',
-};
+const TODAY = '27 Mayıs 2026';
+
+// NEW_PRODUCTS → mention formatına dönüştür
+const STATIC_MENTIONS = NEW_PRODUCTS.map((item, i) => ({
+  id:        i,
+  brand:     item.brand,
+  title:     `${item.name} — ${item.description}`,
+  date:      item.launchDate,
+  source:    item.source,
+  type:      'blog',
+  sentiment: 'neutral',
+  summary:   item.description,
+  url:       null,
+}));
+
+// Recharts tooltip
+function SentimentTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-navy border border-navy-border rounded-lg px-3 py-2 text-xs shadow-xl">
+      <p className="font-semibold text-white mb-1">{label}</p>
+      {payload.map(p => (
+        <p key={p.name} style={{ color: p.color }}>{p.name}: {p.value}%</p>
+      ))}
+    </div>
+  );
+}
 
 export default function OsintReports() {
-  const [selectedBrand, setSelectedBrand]       = useState('all');
-  const [selectedSentiment, setSelectedSentiment] = useState('all');
-  const [selectedSource, setSelectedSource]     = useState('all');
+  const [selectedBrand, setSelectedBrand] = useState('all');
 
-  // Gerçek haber akışı — scraper API
-  const { news, loading, isLive, refetch } = useScrapedNews();
+  const filtered = useMemo(() => STATIC_MENTIONS.filter(m =>
+    selectedBrand === 'all' || m.brand === selectedBrand
+  ), [selectedBrand]);
 
-  // Scraper haberlerini mention formatına dönüştür
-  const liveMentions = useMemo(() => news.map((item, i) => ({
-    id: `live-${i}`,
-    brand:     item.brandId,
-    source:    item.source || 'Google News',
-    type:      SOURCE_TYPE_MAP[item.sourceType] || 'news',
-    title:     item.title,
-    url:       item.url,
-    date:      item.publishedAt ? new Date(item.publishedAt).toISOString().slice(0, 10) : '',
-    sentiment: 'neutral',   // NLP entegrasyonu olmadan varsayılan: nötr
-    score:     50,
-    summary:   item.snippet || '',
-    keywords:  [],
-    reach:     0,
-  })), [news]);
+  // Sentiment chart verisi — tüm markalar
+  const sentimentData = useMemo(() =>
+    Object.entries(SENTIMENT_SCORES).map(([id, s]) => {
+      const brand = BRANDS.find(b => b.id === id);
+      return {
+        name:     brand?.shortName || id,
+        Pozitif:  s.positive,
+        Nötr:     s.neutral,
+        Negatif:  s.negative,
+        color:    brand?.color || '#8B9BB4',
+      };
+    }).sort((a, b) => b.Pozitif - a.Pozitif)
+  , []);
 
-  const filtered = useMemo(() => liveMentions.filter(m => {
-    const brandMatch = selectedBrand === 'all' || m.brand === selectedBrand;
-    const sentMatch  = selectedSentiment === 'all' || m.sentiment === selectedSentiment;
-    const srcMatch   = selectedSource === 'all' || m.type === selectedSource;
-    return brandMatch && sentMatch && srcMatch;
-  }), [liveMentions, selectedBrand, selectedSentiment, selectedSource]);
-
+  const brandOptions = useMemo(() => {
+    const ids = [...new Set(NEW_PRODUCTS.map(p => p.brand))];
+    return BRANDS.filter(b => ids.includes(b.id));
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -50,29 +67,28 @@ export default function OsintReports() {
         title="OSINT Raporları"
         subtitle="Açık kaynak istihbaratı — Web mentions, duygu analizi ve trend takibi"
       />
-      <DataFreshnessBar
-        sources={[{ label: 'Google News RSS' }, { label: 'Marka Siteleri' }, { label: 'Haber' }]}
-        interval={60_000}
-      />
 
-      {/* Veri kaynağı notu */}
-      <div className="flex items-start gap-3 bg-info/10 border border-info/20 rounded-xl p-4">
-        <div className="text-xl">🛰️</div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-white mb-1">Veri Kaynakları</p>
-          <p className="text-xs text-muted leading-relaxed">
-            <strong className="text-white">Haber akışı:</strong> Scraper → Google News RSS + marka web siteleri (her 6 saatte güncellenir).<br />
-            <strong className="text-white">Trend kelimeler:</strong> Resmi web siteleri ve basın bültenlerinden doğrulanmıştır.
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className={clsx('text-xs font-medium px-2 py-0.5 rounded-full', isLive ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning')}>
-              {isLive ? `● Canlı — ${news.length} haber` : '○ Scraper bağlantısı yok'}
-            </span>
-            <button onClick={refetch} className="text-xs text-muted hover:text-white transition-colors">
-              ↺ Yenile
-            </button>
-          </div>
+      {/* Freshness bar */}
+      <div className="flex flex-wrap items-center gap-3 px-4 py-2 rounded-lg border text-xs bg-surface2 border-navy-border">
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-info" />
+          </span>
+          <span className="font-semibold tracking-wide text-info">Demo Modu</span>
         </div>
+        <span className="text-muted">Son güncelleme: <span className="text-white font-medium">{TODAY}</span></span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-muted">Kaynaklar:</span>
+          <span className="bg-navy-border text-muted px-1.5 py-0.5 rounded text-[10px] font-medium">Marka Siteleri</span>
+          <span className="bg-navy-border text-muted px-1.5 py-0.5 rounded text-[10px] font-medium">Basın Bültenleri</span>
+          <span className="bg-navy-border text-muted px-1.5 py-0.5 rounded text-[10px] font-medium">Google Maps</span>
+        </div>
+      </div>
+
+      {/* Demo banner */}
+      <div className="flex items-center gap-3 rounded-xl px-4 py-3 text-xs bg-info/10 border border-info/20">
+        <span className="h-2 w-2 rounded-full flex-shrink-0 bg-info" />
+        <span className="text-info">Demo verisi — Gerçek zamanlı izleme aktif değil</span>
       </div>
 
       {/* Trending Keywords */}
@@ -107,60 +123,82 @@ export default function OsintReports() {
         </div>
       </div>
 
-      {/* Haber Akışı Filtreleri */}
+      {/* Sentiment Scores */}
       <div className="card">
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">Marka:</span>
-            <select value={selectedBrand} onChange={e => setSelectedBrand(e.target.value)} className="input text-xs py-1.5">
-              <option value="all">Tümü</option>
-              {BRANDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">Kaynak:</span>
-            <select value={selectedSource} onChange={e => setSelectedSource(e.target.value)} className="input text-xs py-1.5">
-              <option value="all">Tümü</option>
-              {MENTION_SOURCES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-            </select>
-          </div>
-          <span className="text-xs text-muted ml-auto">{filtered.length} haber</span>
+        <h3 className="text-sm font-semibold text-white mb-1">Marka Sentiment Skorları</h3>
+        <p className="text-xs text-muted mb-4">Google Maps ortalama puanından türetilmiştir. Pozitif / Nötr / Negatif dağılımı.</p>
+        <div className="space-y-2">
+          {sentimentData.map(d => (
+            <div key={d.name} className="flex items-center gap-3">
+              <span className="text-[10px] text-muted w-20 flex-shrink-0 text-right">{d.name}</span>
+              <div className="flex-1 h-3 rounded-full overflow-hidden flex">
+                <div
+                  className="h-full bg-success/70 transition-all"
+                  style={{ width: `${d.Pozitif}%` }}
+                  title={`Pozitif: ${d.Pozitif}%`}
+                />
+                <div
+                  className="h-full bg-surface2 transition-all"
+                  style={{ width: `${d.Nötr}%` }}
+                  title={`Nötr: ${d.Nötr}%`}
+                />
+                <div
+                  className="h-full bg-danger/60 transition-all"
+                  style={{ width: `${d.Negatif}%` }}
+                  title={`Negatif: ${d.Negatif}%`}
+                />
+              </div>
+              <span className="text-[10px] text-success w-8 text-right flex-shrink-0">{d.Pozitif}%</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-4 mt-4 text-[10px] text-muted">
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-success/70 inline-block" />Pozitif</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-surface2 border border-navy-border inline-block" />Nötr</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-danger/60 inline-block" />Negatif</span>
         </div>
       </div>
 
-      {/* Haber Akışı */}
-      {loading ? (
-        <div className="card text-center py-12">
-          <div className="text-3xl mb-3 animate-pulse">📡</div>
-          <p className="text-muted text-sm">Scraper'dan haberler yükleniyor...</p>
+      {/* Haber filtresi */}
+      <div className="card flex flex-wrap gap-3 items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted">Marka:</span>
+          <button
+            onClick={() => setSelectedBrand('all')}
+            className={clsx('btn text-xs', selectedBrand === 'all' ? 'btn-primary' : 'btn-secondary')}
+          >
+            Tümü
+          </button>
+          {brandOptions.map(b => (
+            <button
+              key={b.id}
+              onClick={() => setSelectedBrand(b.id)}
+              className={clsx('btn text-xs transition-all', selectedBrand === b.id ? 'text-white border' : 'btn-secondary')}
+              style={selectedBrand === b.id ? { backgroundColor: `${b.color}20`, borderColor: b.color, color: b.color } : {}}
+            >
+              {b.shortName}
+            </button>
+          ))}
         </div>
-      ) : !isLive ? (
-        <div className="card text-center py-12 border border-warning/20 bg-warning/5">
-          <div className="text-3xl mb-3">⚠️</div>
-          <p className="text-white text-sm font-medium mb-1">Scraper bağlantısı kurulamadı</p>
-          <p className="text-muted text-xs mb-4">
-            Haber akışı için scraper servisinin çalışıyor olması gerekiyor.<br />
-            Railway'de dağıtıldığında otomatik olarak bağlanır.
-          </p>
-          <button onClick={refetch} className="btn btn-secondary text-xs">↺ Tekrar Dene</button>
-        </div>
-      ) : filtered.length === 0 ? (
+        <span className="text-xs text-muted ml-auto">{filtered.length} kayıt</span>
+      </div>
+
+      {/* Haber akışı */}
+      {filtered.length === 0 ? (
         <div className="card text-center py-12">
           <div className="text-3xl mb-3">🔍</div>
-          <p className="text-muted text-sm">Seçilen filtrelere uygun haber bulunamadı.</p>
+          <p className="text-muted text-sm">Seçilen filtrelere uygun kayıt bulunamadı.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map(mention => {
-            const srcInfo = MENTION_SOURCES.find(s => s.id === mention.type);
-            const brand   = BRANDS.find(b => b.id === mention.brand);
             const daysAgo = mention.date
               ? Math.floor((Date.now() - new Date(mention.date)) / 86400000)
               : null;
             return (
               <div key={mention.id} className="card-hover">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 text-2xl">{srcInfo?.icon || '📄'}</div>
+                  <div className="flex-shrink-0 text-2xl">✍️</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <BrandBadge brandId={mention.brand} size="xs" />
@@ -171,22 +209,11 @@ export default function OsintReports() {
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-semibold text-white mb-1 leading-snug">
-                      {mention.url && mention.url !== '#' ? (
-                        <a href={mention.url} target="_blank" rel="noopener noreferrer"
-                          className="hover:text-caramel transition-colors">
-                          {mention.title}
-                        </a>
-                      ) : mention.title}
+                    <h4 className="text-sm font-semibold text-white mb-1 leading-snug line-clamp-2">
+                      {mention.title}
                     </h4>
                     {mention.summary && (
                       <p className="text-xs text-muted leading-relaxed line-clamp-2">{mention.summary}</p>
-                    )}
-                    {mention.url && mention.url !== '#' && (
-                      <a href={mention.url} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] text-caramel/70 hover:text-caramel mt-1 inline-block transition-colors">
-                        → Habere git
-                      </a>
                     )}
                   </div>
                 </div>
