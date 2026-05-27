@@ -10,49 +10,36 @@ export default function Sidebar({ collapsed, onToggle }) {
 
   return (
     <aside
-      style={{ background: 'var(--bg-panel)', borderRight: '1px solid var(--border-primary)' }}
       className={clsx(
         'fixed top-0 left-0 h-screen z-30 flex flex-col transition-all duration-300 ease-in-out',
+        'bg-navy border-r border-navy-border',
         collapsed ? 'w-16' : 'w-60'
       )}
     >
       {/* Logo */}
-      <div
-        style={{ borderBottom: '1px solid var(--border-primary)' }}
-        className={clsx('flex items-center gap-3 px-4 py-5', collapsed && 'justify-center px-2')}
-      >
-        <div
-          style={{ background: 'linear-gradient(135deg, #0ea5e9, #818cf8)', borderRadius: '2px' }}
-          className="flex-shrink-0 w-9 h-9 flex items-center justify-center shadow-lg"
-        >
+      <div className={clsx(
+        'flex items-center gap-3 px-4 py-5 border-b border-navy-border',
+        collapsed && 'justify-center px-2'
+      )}>
+        <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-caramel to-espresso flex items-center justify-center shadow-lg">
           <Coffee size={18} className="text-white" />
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <div
-              style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-primary)' }}
-            >
-              Rekabet Analizi
-            </div>
-            <div
-              style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginTop: '2px' }}
-            >
-              Intel Platform
-            </div>
+            <div className="text-sm font-bold text-white leading-tight">Rekabet Analizi</div>
+            <div className="text-[10px] text-muted leading-tight">İstihbarat Platformu</div>
           </div>
         )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 overflow-y-auto no-scrollbar">
+      <nav className="flex-1 py-3 px-2 overflow-y-auto no-scrollbar">
         {!collapsed && (
-          <div
-            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-muted)', padding: '0 1rem 0.5rem' }}
-          >
-            // Navigation
+          <div className="px-2 mb-2">
+            <span className="text-[10px] font-semibold text-muted uppercase tracking-widest">Menü</span>
           </div>
         )}
-        <ul className="space-y-0">
+        <ul className="space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = item.path === '/'
@@ -64,40 +51,23 @@ export default function Sidebar({ collapsed, onToggle }) {
                 <NavLink
                   to={item.path}
                   title={collapsed ? item.label : ''}
-                  style={isActive ? {
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: collapsed ? '0.65rem 0' : '0.65rem 1rem',
-                    justifyContent: collapsed ? 'center' : 'flex-start',
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: '0.63rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--accent-primary)',
-                    background: 'rgba(14, 165, 233, 0.07)',
-                    borderLeft: '2px solid var(--accent-primary)',
-                  } : {
-                    display: 'flex', alignItems: 'center', gap: '0.75rem',
-                    padding: collapsed ? '0.65rem 0' : '0.65rem 1rem',
-                    justifyContent: collapsed ? 'center' : 'flex-start',
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: '0.63rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--text-muted)',
-                    borderLeft: '2px solid transparent',
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.borderLeftColor = 'var(--accent-primary)'; }}}
-                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderLeftColor = 'transparent'; }}}
+                  className={clsx(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                    collapsed && 'justify-center px-2',
+                    isActive
+                      ? 'text-white bg-surface2 border-l-2 border-caramel pl-[10px]'
+                      : 'text-muted hover:text-white hover:bg-surface2/60'
+                  )}
                 >
                   <Icon
-                    size={16}
-                    className="flex-shrink-0"
-                    style={{ color: isActive ? 'var(--accent-primary)' : 'inherit' }}
+                    size={18}
+                    className={clsx('flex-shrink-0', isActive ? 'text-caramel' : '')}
                   />
                   {!collapsed && (
                     <>
                       <span className="truncate flex-1">{item.label}</span>
                       {item.badge && (
-                        <span
-                          style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.05em', padding: '1px 4px', border: '1px solid var(--accent-danger)', color: 'var(--accent-danger)', background: 'rgba(239,68,68,0.1)', borderRadius: '1px' }}
-                        >
+                        <span className="text-[8px] bg-danger text-white px-1.5 py-0.5 rounded-full font-bold animate-pulse-slow flex-shrink-0">
                           {item.badge}
                         </span>
                       )}
@@ -111,52 +81,37 @@ export default function Sidebar({ collapsed, onToggle }) {
       </nav>
 
       {/* Footer */}
-      <div style={{ borderTop: '1px solid var(--border-primary)', padding: '0.75rem' }}>
+      <div className="border-t border-navy-border p-3 space-y-2">
         {/* Logout */}
         <button
           onClick={logout}
           title="Çıkış Yap"
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            padding: '0.5rem 0.75rem',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase',
-            color: 'var(--text-muted)',
-            background: 'transparent', border: '1px solid transparent', borderRadius: '1px',
-            transition: 'all 0.15s', cursor: 'pointer',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-danger)'; e.currentTarget.style.background = 'rgba(239,68,68,0.06)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
+          className={clsx(
+            'w-full flex items-center gap-2 py-2 px-3 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors text-xs',
+            collapsed && 'justify-center'
+          )}
         >
-          <LogOut size={14} className="flex-shrink-0" />
+          <LogOut size={15} className="flex-shrink-0" />
           {!collapsed && <span>Çıkış Yap</span>}
         </button>
 
-        {/* Version */}
+        {/* Collapse toggle */}
         {!collapsed && (
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.08em', color: 'var(--text-muted)', padding: '0.5rem 0.75rem 0', textTransform: 'uppercase' }}>
-            v1.0.0 © 2026
+          <div className="text-[10px] text-muted px-2">
+            <div>Dashboard v1.0.0</div>
+            <div>© 2026 Rekabet Analizi</div>
           </div>
         )}
-
-        {/* Collapse toggle */}
         <button
           onClick={onToggle}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-            padding: '0.4rem',
-            fontFamily: "'IBM Plex Mono', monospace", fontSize: '0.55rem', letterSpacing: '0.06em', textTransform: 'uppercase',
-            color: 'var(--text-muted)',
-            background: 'transparent', border: '1px solid transparent', borderRadius: '1px',
-            transition: 'all 0.15s', cursor: 'pointer', marginTop: '0.25rem',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-primary)'; e.currentTarget.style.borderColor = 'var(--border-primary)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'transparent'; }}
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-muted hover:text-white hover:bg-surface2 transition-colors text-xs"
           title={collapsed ? 'Genişlet' : 'Daralt'}
         >
-          {collapsed ? <ChevronRight size={14} /> : (
-            <><ChevronLeft size={14} /><span>Daralt</span></>
+          {collapsed ? <ChevronRight size={16} /> : (
+            <>
+              <ChevronLeft size={16} />
+              <span>Daralt</span>
+            </>
           )}
         </button>
       </div>
