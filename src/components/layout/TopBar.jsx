@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Bell, Download, RefreshCw } from 'lucide-react';
 import { NAV_ITEMS } from '../../constants/routes';
-import LiveTicker from './LiveTicker';
 import { useExport } from '../../hooks/useExport';
 import { useAuth } from '../../context/AuthContext';
 import { ALERTS } from '../../data/alertsData';
@@ -61,13 +60,7 @@ export default function TopBar({ sidebarCollapsed }) {
           </h1>
         </div>
 
-        {/* Ticker */}
-        <div
-          style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: '1px' }}
-          className="flex-1 min-w-0 px-3 py-1.5 overflow-hidden"
-        >
-          <LiveTicker />
-        </div>
+        <div className="flex-1" />
 
         {/* Right section */}
         <div className="flex items-center gap-3 flex-shrink-0">
