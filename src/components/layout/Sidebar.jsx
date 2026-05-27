@@ -32,17 +32,6 @@ export default function Sidebar({ collapsed, onToggle }) {
         )}
       </div>
 
-      {/* Live indicator */}
-      {!collapsed && (
-        <div className="mx-3 mt-3 mb-1 px-3 py-2 rounded-lg bg-surface2 border border-navy-border flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
-          </span>
-          <span className="text-xs text-success font-medium">Canlı İzleme Aktif</span>
-        </div>
-      )}
-
       {/* Navigation */}
       <nav className="flex-1 py-3 px-2 overflow-y-auto no-scrollbar">
         {!collapsed && (
