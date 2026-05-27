@@ -81,7 +81,7 @@ const RATING_INSIGHTS = {
     summary: 'Sektörde en yüksek büyüme + iyi puan — bütçe segmentinde ciddi tehdit.',
     guclu: ['Fiyat-kalite dengesi rakipsiz bütçe segmentinde', 'Hızlı servis, pratik konsept', 'Genç müşteri kitlesine güçlü hitap'],
     zayif: ['Premium kahve imajı yok', 'Specialty ürün çeşitliliği sınırlı', 'Mekan kalitesi değişken'],
-    aksiyon: 'Coffy\'nin %72 büyüme hızı görmezden gelinemez. Orta ve üst segment için fiyat-kalite farkını net mesajlaştır. Coffy müşterisinin "bir üst basamağı" Espressolab olabilir.',
+    aksiyon: 'Coffy\'nin %72 büyüme hızı görmezden gelinemez. Orta ve üst segment için fiyat-kalite farkını net mesajlaştır. Coffy müşterisinin "bir üst basamağı" olmak için konumlanma fırsatı güçlü.',
   },
   gua: {
     summary: 'Küçük ama yüksek sadakat yaratan butik konsept — Instagram ve keşif odaklı kitle.',
@@ -93,7 +93,7 @@ const RATING_INSIGHTS = {
     summary: 'En düşük puanlardan biri — hızlı büyüme kalite kontrolünü zorluyor.',
     guclu: ['Genç, modern marka kimliği', 'Uygun fiyat politikası', 'Sosyal medya görünürlüğü iyi'],
     zayif: ['Hizmet tutarsızlığı yoğun şikayet konusu', 'Kahve kalitesi beklentilerin altında', 'Hızlı büyümede eğitim altyapısı yetersiz kaldı'],
-    aksiyon: 'LUUQ\'un düşük puanı, Espressolab\'ın aynı yaş ve fiyat segmentinde güvenilir alternatif olduğunu öne çıkarma fırsatı. "Kaliteden ödün vermeden büyüme" mesajı güçlü.',
+    aksiyon: 'LUUQ\'un düşük puanı, aynı yaş ve fiyat segmentinde güvenilir alternatif olduğunu öne çıkarma fırsatı. "Kaliteden ödün vermeden büyüme" mesajı güçlü.',
   },
   caffenero: {
     summary: 'Uluslararası standart tutarlılık sağlıyor ama yerel adaptasyon eksik.',
@@ -117,7 +117,7 @@ const RATING_INSIGHTS = {
     summary: 'Geniş menü odak eksikliği yaratıyor — kahve kimliği net değil.',
     guclu: ['Çok geniş menü farklı kitlelere hitap ediyor', 'Oturma kapasitesi yüksek', 'Uzun çalışma saatleri avantaj'],
     zayif: ['Kahve odaklı kimlik yok, restoran mı cafe mi belirsiz', 'Kahve kalitesi ikinci plana düşüyor', 'Marka mesajı dağınık'],
-    aksiyon: 'Coffeemania\'nın kimlik karmaşası net kahve markalarına fırsat veriyor. "Biz sadece kahve yapıyoruz ve en iyi biz yapıyoruz" mesajı bu segmentte güçlü.',
+    aksiyon: 'Coffeemania\'nın kimlik karmaşası net kahve markalarına fırsat veriyor. "Sadece kahve yapıyoruz ve en iyisini yapıyoruz" mesajı bu segmentte güçlü.',
   },
   mikel: {
     summary: 'Yunan zinciri iyi kahve-fiyat dengesiyle istikrarlı puan alıyor.',
@@ -129,7 +129,7 @@ const RATING_INSIGHTS = {
     summary: 'Hibrit perakende+cafe modeli güven veriyor — ev kahvesi markası olarak gelen müşteri memnun ayrılıyor.',
     guclu: ['Perakende ürünlerle cafe deneyiminin birleşimi', 'Güçlü marka güveni ve tanınırlığı', 'Ev ve ofis müşterisi kazanım potansiyeli'],
     zayif: ['Cafe deneyimi çoğu zaman ikincil planda kalıyor', 'Specialty kahve imajı yok', 'Ambiyans kahve odaklı değil'],
-    aksiyon: 'Tchibo\'nun perakende-cafe köprüsü ilginç model. Espressolab\'ın kahve çekirdek satışını cafe ziyaretiyle birleştirmek müşteri yaşam boyu değerini artırır.',
+    aksiyon: 'Tchibo\'nun perakende-cafe köprüsü ilginç model. Kahve çekirdek satışını cafe ziyaretiyle birleştirmek müşteri yaşam boyu değerini artırır.',
   },
   caribou: {
     summary: 'Güçlü uluslararası marka imajı ama Türkiye\'de henüz az şubeyle tanınırlık sınırlı.',
@@ -153,7 +153,7 @@ const RATING_INSIGHTS = {
     summary: 'Az şube ama yüksek kalite standardı — büyüyemeyen gizli kalite şampiyonu.',
     guclu: ['Kahve kalitesi çok yüksek ve tutarlı', 'Barista uzmanlığı öne çıkıyor', 'Özgün ve samimi konsept'],
     zayif: ['Ölçeklenme başarılamamış, şube sayısı çok az', 'Pazarlama neredeyse yok, bilinirlik sınırlı', 'Yatırım eksikliği büyümeyi engelliyor'],
-    aksiyon: 'Coffee 1401 "kaliteyi ölçeklendiremeyen" örneği. Espressolab\'ın en büyük fırsatı tam da bu — kaliteyi korurken hızlı ve doğru büyümek.',
+    aksiyon: 'Coffee 1401 "kaliteyi ölçeklendiremeyen" örneği. En büyük fırsat tam da bu — kaliteyi korurken hızlı ve doğru büyümek.',
   },
   costacoffee: {
     summary: 'Küresel #1 ama Türkiye\'de neredeyse yok — yerel varlık çok sınırlı.',
@@ -511,7 +511,6 @@ export default function CompetitorAnalysis() {
                 style={{ backgroundColor: brand.color }}
               />
               {brand.name}
-              {brand.isOwn && <span className="text-[9px] opacity-70">(Biz)</span>}
             </button>
           ))}
         </div>
@@ -627,9 +626,6 @@ export default function CompetitorAnalysis() {
                         <span className={clsx('text-sm font-bold', brand.isOwn ? 'text-caramel' : 'text-white')}>
                           {brand.name}
                         </span>
-                        {brand.isOwn && (
-                          <span className="text-[9px] bg-caramel/20 text-caramel px-1.5 py-0.5 rounded-full font-semibold">BİZİZ</span>
-                        )}
                       </div>
                       <div className="text-xs text-muted">{brand.country} · {brand.type === 'specialty' ? 'Specialty' : brand.type === 'premium' ? 'Premium' : 'Orta Segment'}</div>
                     </div>
@@ -764,7 +760,6 @@ export default function CompetitorAnalysis() {
                         <span className={clsx('font-semibold', brand.isOwn ? 'text-caramel' : 'text-white')}>
                           {brand.name}
                         </span>
-                        {brand.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
                       </div>
                     </td>
                     <td className="table-cell text-white">{s.branches}</td>

@@ -247,8 +247,7 @@ export default function SocialMedia() {
                         <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>
                           {d.brandName}
                         </span>
-                        {d.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
-                      </div>
+                              </div>
                       <div className="text-[10px] text-muted mt-0.5">@{d.username}</div>
                     </td>
                     <td className="table-cell text-white font-medium">{formatLargeNumber(d.followers)}</td>
@@ -344,8 +343,7 @@ export default function SocialMedia() {
                           <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>
                             {d.brandName}
                           </span>
-                          {d.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded">BİZ</span>}
-                        </div>
+                                  </div>
                       </td>
                       <td className="table-cell">
                         <span className={clsx('font-bold', d.rating >= 4.4 ? 'text-success' : d.rating >= 4.0 ? 'text-warning' : 'text-danger')}>
@@ -420,7 +418,6 @@ export default function SocialMedia() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
                 <span className={clsx('text-sm font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>{d.fullName}</span>
-                {d.isOwn && <span className="text-[9px] bg-caramel/20 text-caramel px-1 rounded ml-1">BİZ</span>}
                 <span className="ml-auto text-xs font-bold text-success">%{d.positive}</span>
               </div>
               <div className="space-y-1.5">
