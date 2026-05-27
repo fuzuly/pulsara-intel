@@ -4,10 +4,10 @@ import { BRAND_MAP } from '../constants/brands';
 import branchData from '../data/branchRatings.json';
 import clsx from 'clsx';
 
-const TOTAL_BRANCHES = branchData.reduce((s, d) => s + d.totalBranches, 0);
-const TOTAL_REVIEWS  = branchData.reduce((s, d) => s + d.totalReviews, 0);
-const BEST_BRAND     = [...branchData].sort((a, b) => b.avgRating - a.avgRating)[0];
-const WORST_BRAND    = [...branchData].sort((a, b) => a.avgRating - b.avgRating)[0];
+const TOTAL_BRANCHES = 517;
+const TOTAL_REVIEWS  = 199507;
+const BEST_BRAND     = branchData.find(d => d.brandId === 'laos');
+const RISKIEST_BRAND = branchData.find(d => d.brandId === 'kahvedunyasi');
 
 function ratingColor(r) {
   if (r >= 4.5) return '#22C55E';
@@ -85,7 +85,7 @@ export default function BranchRatings() {
     <div className="space-y-6 animate-fade-in">
       <SectionHeader
         title="Şube Google Puanları"
-        subtitle={`${TOTAL_BRANCHES} şube · ${branchData.length} marka · ${TOTAL_REVIEWS.toLocaleString('tr-TR')} Google yorumu — Mart 2026`}
+        subtitle={`${TOTAL_BRANCHES} şube · ${branchData.length} marka · ${TOTAL_REVIEWS.toLocaleString('tr-TR')} Google yorumu — Mayıs 2026`}
       />
 
       {/* Veri kaynağı notu */}
@@ -93,8 +93,8 @@ export default function BranchRatings() {
         <span className="text-blue-400 text-base mt-0.5">🗺️</span>
         <p className="text-muted">
           <strong className="text-blue-300">Kaynak: </strong>
-          Google Maps Places API — şube bazlı puan ve yorum analizi. Espressolab (28), Kahve Dünyası (25),
-          Gloria Jean's (25), Caffe Nero (17), Starbucks (13) şubesi incelenmiştir. Veri: Mart 2026.
+          Google Maps Places API — şube bazlı puan ve yorum analizi. Her markadan 60'a kadar şube taranmıştır
+          (Laos Coffee: 22 şube, LUUQ Coffee: 15 şube, diğerleri: 60 şube). Toplam 517 şube, 199.507 yorum. Veri: Mayıs 2026.
         </p>
       </div>
 
@@ -103,23 +103,23 @@ export default function BranchRatings() {
         {/* En iyi marka */}
         <div className="card border-success/20">
           <div className="text-2xl mb-1">🏆</div>
-          <div className="text-2xl font-bold text-success">{BEST_BRAND.avgRating.toFixed(2)} ⭐</div>
-          <div className="text-xs font-semibold text-white mt-0.5">{BEST_BRAND.brand}</div>
+          <div className="text-2xl font-bold text-success">4.62 ⭐</div>
+          <div className="text-xs font-semibold text-white mt-0.5">Laos Coffee</div>
           <div className="text-xs text-muted">En iyi ortalama puan</div>
         </div>
 
         {/* En riskli */}
         <div className="card border-danger/20">
           <div className="text-2xl mb-1">⚠️</div>
-          <div className="text-2xl font-bold text-danger">{WORST_BRAND.below4}/{WORST_BRAND.totalBranches}</div>
-          <div className="text-xs font-semibold text-white mt-0.5">{WORST_BRAND.brand}</div>
-          <div className="text-xs text-muted">şube 4.0 altında</div>
+          <div className="text-2xl font-bold text-danger">%70 Risk</div>
+          <div className="text-xs font-semibold text-white mt-0.5">Kahve Dünyası</div>
+          <div className="text-xs text-muted">42/60 şube 4.0 altında</div>
         </div>
 
         {/* Toplam şube */}
         <div className="card border-info/20">
           <div className="text-2xl mb-1">🏪</div>
-          <div className="text-2xl font-bold text-info">{TOTAL_BRANCHES}</div>
+          <div className="text-2xl font-bold text-info">517</div>
           <div className="text-xs font-semibold text-white mt-0.5">Analiz Edilen Şube</div>
           <div className="text-xs text-muted">{branchData.length} marka</div>
         </div>
@@ -127,9 +127,9 @@ export default function BranchRatings() {
         {/* Toplam yorum */}
         <div className="card border-caramel/20">
           <div className="text-2xl mb-1">💬</div>
-          <div className="text-2xl font-bold text-caramel">{(TOTAL_REVIEWS / 1000).toFixed(1)}K</div>
+          <div className="text-2xl font-bold text-caramel">199.5K</div>
           <div className="text-xs font-semibold text-white mt-0.5">Toplam Google Yorumu</div>
-          <div className="text-xs text-muted">{TOTAL_REVIEWS.toLocaleString('tr-TR')} yorum</div>
+          <div className="text-xs text-muted">199.507 yorum</div>
         </div>
       </div>
 
@@ -235,7 +235,7 @@ export default function BranchRatings() {
               <div className="space-y-0">
                 <BranchInfoRow icon="🏅" label="En İyi Şube" name={d.bestBranch.name} rating={d.bestBranch.rating} reviews={d.bestBranch.reviews} />
                 <BranchInfoRow icon="⚠️" label="En Düşük Şube" name={d.worstBranch.name} rating={d.worstBranch.rating} reviews={d.worstBranch.reviews} />
-                <BranchInfoRow icon="💬" label="En Çok Yorum Alan" name={d.topBranch.name} rating={d.topBranch.rating} reviews={d.topBranch.reviews} />
+                <BranchInfoRow icon="💬" label="En Çok Yorum Alan" name={d.mostReviewedBranch.name} rating={d.mostReviewedBranch.rating} reviews={d.mostReviewedBranch.reviews} />
               </div>
 
               {/* Risk badge */}
@@ -351,7 +351,7 @@ export default function BranchRatings() {
         <div className="mt-4 flex items-start gap-3 bg-danger/10 border border-danger/20 rounded-xl p-3 text-xs">
           <AlertTriangle size={14} className="text-danger flex-shrink-0 mt-0.5" />
           <p className="text-muted leading-relaxed">
-            <strong className="text-danger">Kahve Dünyası kritik risk:</strong> 25 şubenin 16'sı (%64) 4.0 puanın altında.
+            <strong className="text-danger">Kahve Dünyası kritik risk:</strong> 60 şubenin 42'si (%70) 4.0 puanın altında.
             Espressolab için doğrudan müşteri kazanım fırsatı — "Güvenilir kahve deneyimi" mesajlaşması etkili olabilir.
           </p>
         </div>
