@@ -1,9 +1,13 @@
 [
-  {"username": "espressolabtr",      "avgLikes": 4520, "maxLikes": 52701, "avgComments": 89,  "maxViews": 4900000, "engagementRate": 2.43},
-  {"username": "starbucks_tr",       "avgLikes": 953,  "maxLikes": 3180,  "avgComments": 24,  "maxViews": null,    "engagementRate": 0.40},
-  {"username": "kahvedunyasi",       "avgLikes": 373,  "maxLikes": 2100,  "avgComments": 12,  "maxViews": null,    "engagementRate": 0.11},
-  {"username": "gloriajeanscoffees", "avgLikes": 116,  "maxLikes": 890,   "avgComments": 8,   "maxViews": null,    "engagementRate": 0.48},
-  {"username": "coffy_tr",           "avgLikes": 37,   "maxLikes": 128,   "avgComments": 3,   "maxViews": null,    "engagementRate": 0.18},
-  {"username": "caffenero",          "avgLikes": 290,  "maxLikes": 1200,  "avgComments": 15,  "maxViews": null,    "engagementRate": 0.40},
-  {"username": "guacoffeecompany",   "avgLikes": 180,  "maxLikes": 650,   "avgComments": 9,   "maxViews": null,    "engagementRate": 1.15}
+  { "username": "espressolabtr",    "engagementRate": 1.28, "avgLikes": 2433, "avgComments": 28,  "maxLikes": 52736, "maxViews": null },
+  { "username": "gjcsturkey",       "engagementRate": 0.11, "avgLikes": 65,   "avgComments": 4,   "maxLikes": 2093,  "maxViews": null },
+  { "username": "kahvedunyasi",     "engagementRate": 0.19, "avgLikes": 578,  "avgComments": 29,  "maxLikes": 8704,  "maxViews": null },
+  { "username": "starbucks_tr",     "engagementRate": 0.42, "avgLikes": 987,  "avgComments": 16,  "maxLikes": 6946,  "maxViews": null },
+  { "username": "caffeneroturkiye", "engagementRate": 0.22, "avgLikes": 154,  "avgComments": 7,   "maxLikes": 726,   "maxViews": null },
+  { "username": "nevadacoffee.tr",  "engagementRate": 0.08, "avgLikes": 124,  "avgComments": 46,  "maxLikes": 11129, "maxViews": null },
+  { "username": "luuqcoffee",       "engagementRate": null, "avgLikes": null, "avgComments": null, "maxLikes": null,  "maxViews": null },
+  { "username": "mikelcoffee_tr",   "engagementRate": 0.27, "avgLikes": 1,    "avgComments": 104, "maxLikes": 122,   "maxViews": null },
+  { "username": "coffy_tr",         "engagementRate": 0.32, "avgLikes": 63,   "avgComments": 3,   "maxLikes": 1522,  "maxViews": null },
+  { "username": "guacoffeecompany", "engagementRate": 0.82, "avgLikes": 125,  "avgComments": 3,   "maxLikes": 3666,  "maxViews": null },
+  { "username": "laos.coffee",      "engagementRate": 0.30, "avgLikes": 66,   "avgComments": 1,   "maxLikes": 915,   "maxViews": null }
 ]

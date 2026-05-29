@@ -13,13 +13,17 @@ import sentimentData from '../data/sentimentData.json';
 import clsx from 'clsx';
 
 const USERNAME_TO_BRAND = {
-  espressolabtr:      'espressolab',
-  coffy_tr:           'coffy',
-  starbucks_tr:       'starbucks',
-  kahvedunyasi:       'kahvedunyasi',
-  gloriajeanscoffees: 'gloriajeans',
-  caffenero:          'caffenero',
-  guacoffeecompany:   'gua',
+  espressolabtr:       'espressolab',
+  coffy_tr:            'coffy',
+  starbucks_tr:        'starbucks',
+  kahvedunyasi:        'kahvedunyasi',
+  gjcsturkey:          'gloriajeans',
+  caffeneroturkiye:    'caffenero',
+  guacoffeecompany:    'gua',
+  luuqcoffee:          'luuq',
+  mikelcoffee_tr:      'mikel',
+  'nevadacoffee.tr':   'nevada',
+  'laos.coffee':       'laos',
 };
 
 const igData = instagramProfiles.map(p => {
@@ -40,6 +44,9 @@ const igData = instagramProfiles.map(p => {
     engagementRate: post.engagementRate || 0,
     maxLikes: post.maxLikes || 0,
     maxViews: post.maxViews || null,
+    verified: p.verified ?? false,
+    isBusinessAccount: p.isBusinessAccount ?? false,
+    following: p.following ?? 0,
   };
 }).sort((a, b) => b.engagementRate - a.engagementRate);
 
@@ -144,7 +151,7 @@ export default function SocialMedia() {
       />
       <SectionHeader
         title="Sosyal Medya & İtibar Analizi"
-        subtitle="Instagram performansı · Google Maps itibarı · Duygu analizi — Mart 2026"
+        subtitle="Instagram performansı · Google Maps itibarı · Duygu analizi — Mayıs 2026"
       />
 
       {/* ── SECTION 1: Instagram ─────────────────────────────────── */}
@@ -170,6 +177,27 @@ export default function SocialMedia() {
             ))}
           </div>
         )}
+
+        {/* Öne Çıkan Bulgular */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {[
+            { icon: '🏆', color: 'text-success',  border: 'border-success/20',     title: 'Espressolab Açık Ara Lider',      desc: '%1.28 etkileşim · 52.736 max beğeni (viral post) — sektörün en yüksek engagement oranı' },
+            { icon: '📉', color: 'text-danger',   border: 'border-danger/20',      title: 'Gloria Jean\'s: Boş Kalabalık',   desc: '61.749 takipçiyle %0.11 etkileşim — içerik stratejisi çalışmıyor, pazar fırsatı var' },
+            { icon: '💬', color: 'text-warning',  border: 'border-warning/20',     title: 'Nevada: Tartışmalı İçerik',       desc: 'Ort. 46 yorum — like oranı düşük ama yorum yüksek, negatif tartışma riski taşıyor' },
+            { icon: '🔍', color: 'text-blue-400', border: 'border-blue-500/20',    title: 'Mikel: Like Gizleme Anomalisi',   desc: 'Ort. 1 beğeni · 104 yorum — Instagram like gizleme politikası uyguluyor olabilir' },
+            { icon: '💡', color: 'text-caramel',  border: 'border-caramel/20',     title: 'GUA: Az Takipçi, Güçlü Etki',    desc: '15.651 takipçiyle %0.82 etkileşim — Kahve Dünyası\'nın etkileşim oranını geçiyor' },
+          ].map(f => (
+            <div key={f.title} className={`card border ${f.border}`}>
+              <div className="flex items-start gap-2">
+                <span className="text-lg flex-shrink-0">{f.icon}</span>
+                <div>
+                  <p className={`text-xs font-semibold ${f.color} mb-1`}>{f.title}</p>
+                  <p className="text-[11px] text-muted leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Charts row */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
@@ -233,7 +261,7 @@ export default function SocialMedia() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-navy-border">
-                  {['Hesap', 'Takipçi', 'Gönderi', 'Ort. Beğeni', 'Max Beğeni', 'Ort. Yorum', 'Etkileşim', 'Max Görüntülenme'].map(h => (
+                  {['Hesap', 'Takipçi', 'Takip', 'Gönderi', 'Ort. Beğeni', 'Max Beğeni', 'Ort. Yorum', 'Etkileşim', 'Max Görüntülenme', 'Doğrulandı', 'Hesap Türü'].map(h => (
                     <th key={h} className="table-header py-3 px-3 text-left whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -251,6 +279,7 @@ export default function SocialMedia() {
                       <div className="text-[10px] text-muted mt-0.5">@{d.username}</div>
                     </td>
                     <td className="table-cell text-white font-medium">{formatLargeNumber(d.followers)}</td>
+                    <td className="table-cell text-muted">{d.following.toLocaleString('tr-TR')}</td>
                     <td className="table-cell text-muted">{d.posts.toLocaleString('tr-TR')}</td>
                     <td className="table-cell text-white">{formatLargeNumber(d.avgLikes)}</td>
                     <td className="table-cell text-white">{formatLargeNumber(d.maxLikes)}</td>
@@ -267,6 +296,16 @@ export default function SocialMedia() {
                     </td>
                     <td className="table-cell text-muted">
                       {d.maxViews ? formatLargeNumber(d.maxViews) : '—'}
+                    </td>
+                    <td className="table-cell">
+                      {d.verified
+                        ? <span className="text-xs font-semibold text-blue-400 bg-blue-400/10 border border-blue-400/30 rounded-full px-2 py-0.5">✓ Doğrulandı</span>
+                        : <span className="text-xs text-muted">—</span>}
+                    </td>
+                    <td className="table-cell">
+                      {d.isBusinessAccount
+                        ? <span className="text-xs font-semibold text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">İşletme</span>
+                        : <span className="text-xs text-muted bg-muted/10 border border-muted/20 rounded-full px-2 py-0.5">Kişisel</span>}
                     </td>
                   </tr>
                 ))}
@@ -468,7 +507,7 @@ export default function SocialMedia() {
             <div className="text-2xl mb-2">💡</div>
             <h4 className="text-sm font-semibold text-white mb-2">Takipçi Büyütme Hedefi</h4>
             <p className="text-xs text-muted leading-relaxed">
-              Mevcut 185.9K takipçiyle Starbucks TR (235K) ve KD (327K) arasında anlamlı açık var.
+              Mevcut 192K takipçiyle Starbucks TR (235K) ve KD (327K) arasında anlamlı açık var.
               Etkileşim kalitesi üstün olsa da kitle genişletmek için influencer iş birlikleri ve
               şehir bazlı kampanyalar kritik öncelik.
             </p>
@@ -480,7 +519,7 @@ export default function SocialMedia() {
           <span className="text-blue-400 text-base mt-0.5">🔍</span>
           <p className="text-muted">
             <strong className="text-blue-300">Kaynaklar: </strong>
-            Instagram takipçi ve etkileşim verileri BoomSocial.com (Mart 2026) ile çapraz doğrulanmıştır.
+            Instagram takipçi ve etkileşim verileri 100'er post analizi (Mayıs 2026) ile doğrulanmıştır.
             Google Maps puanları Google Places API ve manuel doğrulama kombinasyonuyla alınmıştır.
             Duygu analizi sosyal medya yorumları ve Google Maps yorumlarının yapısal analizine dayanmaktadır.
           </p>

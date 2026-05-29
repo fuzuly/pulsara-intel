@@ -1,9 +1,13 @@
 [
-  {"username": "espressolabtr",      "followers": 185927, "posts": 1236},
-  {"username": "coffy_tr",           "followers": 20481,  "posts": 1748},
-  {"username": "starbucks_tr",       "followers": 235480, "posts": 2800},
-  {"username": "kahvedunyasi",       "followers": 327185, "posts": 2466},
-  {"username": "gloriajeanscoffees", "followers": 23928,  "posts": 1152},
-  {"username": "caffenero",          "followers": 73124,  "posts": 1759},
-  {"username": "guacoffeecompany",   "followers": 15663,  "posts": 242}
+  { "username": "espressolabtr",    "fullName": "Espressolab",       "followers": 192095, "posts": 1237, "following": 4,   "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "gjcsturkey",       "fullName": "Gloria Jean's",     "followers": 61749,  "posts": 1718, "following": 1,   "verified": true,  "isBusinessAccount": false, "collectedAt": "2026-05-29" },
+  { "username": "kahvedunyasi",     "fullName": "Kahve Dünyası",     "followers": 327292, "posts": 2466, "following": 24,  "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "starbucks_tr",     "fullName": "Starbucks Türkiye", "followers": 235854, "posts": 2801, "following": 12,  "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "caffeneroturkiye", "fullName": "Caffè Nero",        "followers": 73171,  "posts": 1760, "following": 126, "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "nevadacoffee.tr",  "fullName": "Nevada Coffee",     "followers": 211000, "posts": 100,  "following": null,"verified": false, "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "luuqcoffee",       "fullName": "LUUQ COFFEE",       "followers": 29813,  "posts": 668,  "following": 58,  "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "mikelcoffee_tr",   "fullName": "Mikel Coffee",      "followers": 39439,  "posts": 687,  "following": 13,  "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "coffy_tr",         "fullName": "COFFY",             "followers": 20513,  "posts": 1749, "following": 2,   "verified": false, "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "guacoffeecompany", "fullName": "GUA Coffee",        "followers": 15651,  "posts": 243,  "following": 8,   "verified": true,  "isBusinessAccount": true,  "collectedAt": "2026-05-29" },
+  { "username": "laos.coffee",      "fullName": "Laos Coffee",       "followers": 22000,  "posts": 97,   "following": null,"verified": false, "isBusinessAccount": true,  "collectedAt": "2026-05-29" }
 ]
