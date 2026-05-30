@@ -10,6 +10,10 @@ import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import useNewsData from '../hooks/useNewsData';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import { NEW_PRODUCTS, LAYER_CONFIG } from '../data/newProductData';
+import { COMPETITOR_SCORES } from '../data/competitorData';
+import { BRANDS } from '../constants/brands';
+import instagramPosts from '../data/instagramPosts.json';
 
 const SENTIMENT_DOT = {
   positive: 'bg-success',
@@ -17,25 +21,37 @@ const SENTIMENT_DOT = {
   negative: 'bg-danger',
 };
 
+// ── Dinamik veriler ────────────────────────────────────────────────────────────
+
+// En güncel engagement — instagramPosts.json'dan
+const topEngagement = [...instagramPosts]
+  .filter(p => p.engagementRate !== null)
+  .sort((a, b) => b.engagementRate - a.engagementRate)[0];
+const topEngagementBrand = BRANDS.find(b => {
+  const map = { espressolabtr: 'espressolab', starbucks_tr: 'starbucks', kahvedunyasi: 'kahvedunyasi', gjcsturkey: 'gloriajeans', caffeneroturkiye: 'caffenero', guacoffeecompany: 'gua', luuqcoffee: 'luuq', mikelcoffee_tr: 'mikel', coffy_tr: 'coffy', 'nevadacoffee.tr': 'nevada', 'laos.coffee': 'laos' };
+  return b.id === map[topEngagement?.username];
+});
+const sectorAvgEngagement = (instagramPosts.filter(p => p.engagementRate !== null).reduce((s, p) => s + p.engagementRate, 0) / instagramPosts.filter(p => p.engagementRate !== null).length).toFixed(2);
+
 const KPI_CARDS = [
   {
-    label: 'Analiz Edilen Marka',
-    value: '7',
+    label: 'İzlenen Marka',
+    value: String(BRANDS.length),
     sub: 'Türkiye kahve sektörü',
     trend: null,
     icon: '🏪',
   },
   {
-    label: 'Toplam Şube (İzlenen)',
-    value: '108',
-    sub: 'Google Maps verisi',
-    trend: null,
-    icon: '📍',
+    label: '2026 Yeni Ürün Lansmanı',
+    value: String(NEW_PRODUCTS.filter(p => p.status === 'active').length),
+    sub: `${NEW_PRODUCTS.filter(p => p.status === 'upcoming').length} ürün yakında`,
+    trend: 'up',
+    icon: '🆕',
   },
   {
     label: 'En Yüksek Engagement',
-    value: '%2.43',
-    sub: 'Espressolab — sektör ort. %0.51',
+    value: `%${topEngagement?.engagementRate ?? '—'}`,
+    sub: `${topEngagementBrand?.name ?? '—'} — sektör ort. %${sectorAvgEngagement}`,
     trend: 'up',
     icon: '🔥',
   },
@@ -48,22 +64,33 @@ const KPI_CARDS = [
   },
 ];
 
+// Engagement trendi — Mayıs 2026 gerçek verisi ile güncellendi
 const engagementTrend = [
-  { month: "Ara '24", espressolab: 2.1,  starbucks: 0.38, kahveDunyasi: 0.09 },
-  { month: "Oca '25", espressolab: 2.2,  starbucks: 0.41, kahveDunyasi: 0.10 },
-  { month: "Şub '25", espressolab: 2.0,  starbucks: 0.39, kahveDunyasi: 0.11 },
-  { month: "Mar '25", espressolab: 2.4,  starbucks: 0.42, kahveDunyasi: 0.10 },
-  { month: "Nis '25", espressolab: 2.3,  starbucks: 0.40, kahveDunyasi: 0.12 },
-  { month: "May '25", espressolab: 2.43, starbucks: 0.40, kahveDunyasi: 0.11 },
+  { month: "Eyl '25", espressolab: 1.80, starbucks: 0.40, kahveDunyasi: 0.14 },
+  { month: "Eki '25", espressolab: 1.65, starbucks: 0.41, kahveDunyasi: 0.15 },
+  { month: "Kas '25", espressolab: 1.50, starbucks: 0.41, kahveDunyasi: 0.17 },
+  { month: "Ara '25", espressolab: 1.40, starbucks: 0.42, kahveDunyasi: 0.18 },
+  { month: "Oca '26", espressolab: 1.35, starbucks: 0.42, kahveDunyasi: 0.18 },
+  { month: "Şub '26", espressolab: 1.32, starbucks: 0.42, kahveDunyasi: 0.19 },
+  { month: "Mar '26", espressolab: 1.30, starbucks: 0.42, kahveDunyasi: 0.19 },
+  { month: "Nis '26", espressolab: 1.29, starbucks: 0.42, kahveDunyasi: 0.19 },
+  { month: "May '26", espressolab: 1.28, starbucks: 0.42, kahveDunyasi: 0.19 },
 ];
 
+// Ratings — competitorData.js'den dinamik
 const ratingsData = [
-  { brand: 'Espressolab',   rating: 4.54, fill: '#10b981' },
-  { brand: "Gloria Jean's", rating: 4.28, fill: '#3b82f6' },
-  { brand: 'Caffe Nero',    rating: 3.86, fill: '#f59e0b' },
-  { brand: 'Kahve Dünyası', rating: 3.67, fill: '#f97316' },
-  { brand: 'Starbucks',     rating: 3.48, fill: '#ef4444' },
-];
+  { brand: 'Espressolab',   rating: COMPETITOR_SCORES.espressolab.googleRating,  fill: '#C4922A' },
+  { brand: "Gloria Jean's", rating: COMPETITOR_SCORES.gloriajeans.googleRating,  fill: '#6B21A8' },
+  { brand: 'Caffè Nero',    rating: COMPETITOR_SCORES.caffenero.googleRating,    fill: '#1D4ED8' },
+  { brand: 'Kahve Dünyası', rating: COMPETITOR_SCORES.kahvedunyasi.googleRating, fill: '#8B1A1A' },
+  { brand: 'Starbucks',     rating: COMPETITOR_SCORES.starbucks.googleRating,    fill: '#00704A' },
+].sort((a, b) => b.rating - a.rating);
+
+// Güncel rakip hareketleri — newProductData.js'den dinamik (en yeni 4 kayıt)
+const RECENT_MOVES = [...NEW_PRODUCTS]
+  .filter(p => p.layer <= 2)
+  .sort((a, b) => new Date(b.detectedAt) - new Date(a.detectedAt))
+  .slice(0, 4);
 
 const EngagementTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -113,15 +140,35 @@ export default function Dashboard() {
         onRefresh={refetchNews}
       />
 
-      {/* Alert Banner */}
+      {/* Alert Banner — newProductData.js'den dinamik */}
       <div className="flex items-start gap-3 bg-warning/10 border border-warning/30 rounded-xl px-4 py-3">
         <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-warning font-semibold mb-1">Güncel Rakip Hareketleri</p>
-          <ul className="text-xs text-white/80 space-y-0.5 list-none">
-            <li>• <strong className="text-white">Starbucks</strong> "Baharın Tatlı Renkleri": Ube Vanilla Latte &amp; Lemon Vanilla Latte lansmanı — 9 Mart 2026 <span className="text-success text-[10px]">✅ starbucks.com.tr</span></li>
-            <li>• <strong className="text-white">Caribou</strong> Cinnamon Sugar Latte + Amy's Blend bahar lansmanı — 5 Mart 2026 <span className="text-success text-[10px]">✅ cariboucoffee.com</span></li>
-            <li>• <strong className="text-white">Starbucks</strong> fiyat güncellemesi sosyal medyada gündem — rakipler için fiyat avantajı fırsatı <span className="text-warning text-[10px]">⚠️ kısmen doğrulandı</span></li>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm text-warning font-semibold">Güncel Rakip Hareketleri</p>
+            <Link to="/yeni-urun-radar" className="text-[10px] text-caramel hover:underline flex-shrink-0">
+              Tümünü Gör →
+            </Link>
+          </div>
+          <ul className="text-xs text-white/80 space-y-1 list-none">
+            {RECENT_MOVES.map(p => {
+              const brand   = BRANDS.find(b => b.id === p.brand);
+              const layerCfg = LAYER_CONFIG[p.layer];
+              const date    = new Date(p.launchDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+              const srcShort = p.source.split(' —')[0].split(' + ')[0];
+              return (
+                <li key={p.id} className="flex items-start gap-1.5 flex-wrap">
+                  <span className="text-white/40">•</span>
+                  <strong className="text-white">{brand?.name ?? p.brand}</strong>
+                  <span className="truncate">{p.name}</span>
+                  <span className="text-white/40">—</span>
+                  <span className="text-muted flex-shrink-0">{date}</span>
+                  <span className={clsx('text-[10px] flex-shrink-0', layerCfg.color)}>
+                    {layerCfg.icon} {srcShort}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -223,7 +270,7 @@ export default function Dashboard() {
         <div className="card flex flex-col">
           <div className="mb-3">
             <h3 className="text-base font-semibold text-white">Google Maps Ortalama Puan</h3>
-            <p className="text-xs text-muted mt-0.5">Doğrulanmış Google Maps verisi — Mart 2026</p>
+            <p className="text-xs text-muted mt-0.5">Doğrulanmış Google Maps verisi — Mayıs 2026</p>
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart
