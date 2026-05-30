@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Coffee, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Coffee, LogOut, ExternalLink } from 'lucide-react';
 import { NAV_ITEMS } from '../../constants/routes';
 import { useAuth } from '../../context/AuthContext';
 import clsx from 'clsx';
@@ -42,6 +42,35 @@ export default function Sidebar({ collapsed, onToggle }) {
         <ul className="space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
+
+            // ── Dış link (external) ──────────────────────────────────────
+            if (item.external) {
+              return (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={collapsed ? item.label : ''}
+                    className={clsx(
+                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                      'text-muted hover:text-white hover:bg-surface2/60',
+                      collapsed && 'justify-center px-2'
+                    )}
+                  >
+                    <Icon size={18} className="flex-shrink-0" />
+                    {!collapsed && (
+                      <>
+                        <span className="truncate flex-1">{item.label}</span>
+                        <ExternalLink size={11} className="flex-shrink-0 opacity-50" />
+                      </>
+                    )}
+                  </a>
+                </li>
+              );
+            }
+
+            // ── İç link (internal) ──────────────────────────────────────
             const isActive = item.path === '/'
               ? location.pathname === '/'
               : location.pathname.startsWith(item.path);

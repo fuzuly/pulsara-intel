@@ -10,6 +10,7 @@ import {
   Newspaper,
   MapPin,
   Building2,
+  Monitor,
 } from 'lucide-react';
 
 export const NAV_ITEMS = [
@@ -84,6 +85,14 @@ export const NAV_ITEMS = [
     icon: Building2,
     description: "Gloria Jean's marka istihbaratı",
     badge: 'YENİ',
+  },
+  {
+    href: 'https://gloriajeans.pulsaraai.com/admin/login',
+    label: 'Müşteri Deneyimi Paneli',
+    labelShort: 'MDP',
+    icon: Monitor,
+    description: 'Gloria Jean\'s müşteri deneyimi yönetimi',
+    external: true,
   },
   {
     path: '/raporlar',
