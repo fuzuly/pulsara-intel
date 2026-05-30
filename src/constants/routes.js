@@ -9,6 +9,7 @@ import {
   FileDown,
   Newspaper,
   MapPin,
+  Building2,
 } from 'lucide-react';
 
 export const NAV_ITEMS = [
@@ -75,6 +76,14 @@ export const NAV_ITEMS = [
     labelShort: 'Şubeler',
     icon: MapPin,
     description: 'Google Maps şube bazlı puanlar',
+  },
+  {
+    path: '/gloria-jeans',
+    label: "Gloria Jean's",
+    labelShort: "GJ's",
+    icon: Building2,
+    description: "Gloria Jean's marka istihbaratı",
+    badge: 'YENİ',
   },
   {
     path: '/raporlar',

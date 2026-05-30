@@ -13,6 +13,7 @@ import OsintReports from './pages/OsintReports';
 import Reports from './pages/Reports';
 import BreakingNews from './pages/BreakingNews';
 import BranchRatings from './pages/BranchRatings';
+import GloriaJeans from './pages/GloriaJeans';
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -45,6 +46,7 @@ function AppRoutes() {
         <Route path="osint-raporlari" element={<OsintReports />} />
         <Route path="son-dakika" element={<BreakingNews />} />
         <Route path="sube-puanlari" element={<BranchRatings />} />
+        <Route path="gloria-jeans" element={<GloriaJeans />} />
         <Route path="raporlar" element={<Reports />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

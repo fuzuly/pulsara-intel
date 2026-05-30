@@ -67,7 +67,10 @@ export default function Sidebar({ collapsed, onToggle }) {
                     <>
                       <span className="truncate flex-1">{item.label}</span>
                       {item.badge && (
-                        <span className="text-[8px] bg-danger text-white px-1.5 py-0.5 rounded-full font-bold animate-pulse-slow flex-shrink-0">
+                        <span className={clsx(
+                          'text-[8px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0',
+                          item.badge === 'CANLI' ? 'bg-danger text-white animate-pulse-slow' : 'bg-purple-600 text-white'
+                        )}>
                           {item.badge}
                         </span>
                       )}
