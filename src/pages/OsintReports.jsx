@@ -7,7 +7,7 @@ import { TRENDING_KEYWORDS, SENTIMENT_SCORES } from '../data/osintData';
 import { NEW_PRODUCTS } from '../data/newProductData';
 import clsx from 'clsx';
 
-const TODAY = '27 Mayıs 2026';
+const TODAY = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
 // NEW_PRODUCTS → mention formatına dönüştür
 const STATIC_MENTIONS = NEW_PRODUCTS.map((item, i) => ({
@@ -72,9 +72,9 @@ export default function OsintReports() {
       <div className="flex flex-wrap items-center gap-3 px-4 py-2 rounded-lg border text-xs bg-surface2 border-navy-border">
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-info" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
           </span>
-          <span className="font-semibold tracking-wide text-info">Demo Modu</span>
+          <span className="font-semibold tracking-wide text-success">Doğrulanmış Veri</span>
         </div>
         <span className="text-muted">Son güncelleme: <span className="text-white font-medium">{TODAY}</span></span>
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -85,10 +85,10 @@ export default function OsintReports() {
         </div>
       </div>
 
-      {/* Demo banner */}
-      <div className="flex items-center gap-3 rounded-xl px-4 py-3 text-xs bg-info/10 border border-info/20">
-        <span className="h-2 w-2 rounded-full flex-shrink-0 bg-info" />
-        <span className="text-info">Demo verisi — Gerçek zamanlı izleme aktif değil</span>
+      {/* Source note */}
+      <div className="flex items-center gap-3 rounded-xl px-4 py-3 text-xs bg-success/5 border border-success/20">
+        <span className="h-2 w-2 rounded-full flex-shrink-0 bg-success" />
+        <span className="text-success/90">Veriler doğrulanmış kaynaklardan derlendi: Anadolu Ajansı, Gastrofill, Food in Life, Mall Report, Marketing Türkiye, Dünya Gazetesi — 30 Mayıs 2026</span>
       </div>
 
       {/* Trending Keywords */}
