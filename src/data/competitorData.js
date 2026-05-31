@@ -95,7 +95,7 @@ export const COMPETITOR_SCORES = {
   },
   gloriajeans: {
     marketShare: 7,
-    avgPrice: 132,
+    avgPrice: 190,
     branches: 214,
     googleRating: 4.13,
     nps: 50,
@@ -112,7 +112,7 @@ export const COMPETITOR_SCORES = {
     employees: 3200,
     annualRevenue: '₺428M ⚠️',
     growth: 5.8,
-    dataNote: 'gloriajeans.com.tr/subeler (May 2026): 214 şube sayıldı — "hakkımızda" sayfasındaki 240+ rakamı hedef/aspirasyonel | Fiyat: 65-150₺ arası → ort. 132₺ | googleRating: Maps ortalaması 108 şube (May 2026)',
+    dataNote: 'gloriajeans.com.tr/subeler (May 2026): 214 şube sayıldı | Fiyat: Americano 160₺, Latte 185₺ → ort. 190₺ (menufiyatlar.com May 2026) | googleRating: Maps ortalaması 108 şube (May 2026)',
   },
   sencay: {
     marketShare: 2,

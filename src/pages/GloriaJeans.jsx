@@ -63,7 +63,7 @@ const swot = {
     'Avustralya kökenli uluslararası marka güvencesi',
     'Dinçerler Group finansal güç ve operasyonel deneyim',
     '214 şube — 43+ ilde erişim',
-    'Uygun fiyat konumlandırması (ort. 132₺)',
+    'Orta-premium fiyat konumlandırması (Americano 160₺, Latte 185₺ — ort. 190₺)',
     'Yeni fırın tatlı serisi (Nisan 2026) — ürün çeşitliliği artışı',
   ],
   weaknesses: [
@@ -84,7 +84,7 @@ const swot = {
   ],
   threats: [
     'Espressolab\'ın hızlı büyümesi (+%4.8) ve yüksek kalite algısı',
-    'Coffy\'nin uygun fiyat avantajı (ort. 105₺) — alt segment baskısı',
+    'Coffy\'nin uygun fiyat avantajı (ort. 155₺) — benzer fiyat bandında doğrudan rekabet',
     'Starbucks loyalty app gücü — dijital müşteri bağlılığı',
     'Yeni girişlerin (LUUQ, GUA) Instagram\'da organik büyümesi',
     'Genel enflasyon baskısı altında orta segment sıkışması',
@@ -465,9 +465,9 @@ export default function GloriaJeans() {
             <div className="text-2xl mb-2">💰</div>
             <h4 className="text-sm font-semibold text-white mb-2">Fiyat Konumlandırması</h4>
             <p className="text-xs text-muted leading-relaxed">
-              GJ ort. 132₺ ile Espressolab'ın 182₺'sinin altında konumlanmış.
-              "Kalite için premium ödemeye değer" mesajı bu fark üzerinden
-              <strong className="text-info"> güçlendirilmeli</strong>.
+              GJ ort. <strong className="text-white">190₺</strong> ile Espressolab'ın <strong className="text-white">245₺</strong>'sinin altında konumlanmış.
+              55₺'lik fark üzerinden "aynı kalite, daha uygun fiyat" algısı oluşturabilir.
+              ESL için <strong className="text-info">kalite + deneyim farklılaştırması</strong> mesajı kritik.
             </p>
           </div>
         </div>
