@@ -1,34 +1,47 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// MENÜ FİYATLARI — MART 2026 GÜNCELLEMESİ
-// Türkiye enflasyonu dikkate alınarak güncellenmiş fiyatlar
-// null = ürün menüde yok | Tüm fiyatlar TRY cinsinden
+// MENÜ FİYATLARI — MAYIS 2026
+// null = ürün menüde yok | Fiyatlar TRY, ORTA BOY baz alınmıştır.
+//
+// KAYNAKLAR:
+//   Espressolab   → menufiyatlar.com 2026 ✅ (kullanıcı tarafından doğrulandı)
+//   Gloria Jean's → menufiyatlar.com 2026 ✅
+//   Coffy         → menufiyatlar.com 2026 ✅
+//   Kahve Dünyası → menufiyatlar.com 2026 ✅
+//   Starbucks     → haberler.com + sözcü.com.tr 2 Ocak 2026 ✅
+//   Caffe Nero    → karekod.org 26 Şubat 2026 ✅
+//   Nevada        → karekod.org 26 Şubat 2026 ✅
+//   Caribou       → karekod.org 2026 ✅
+//   Mikel         → menuvefiyat.com.tr 2024 🟡
+//   Kronotrop     → doğrulanamadı ❌
+//   Costa Coffee  → doğrulanamadı ❌
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const MENU_CATEGORIES = [
-  { id: 'sicak', label: 'Sıcak İçecekler', icon: '☕' },
-  { id: 'soguk', label: 'Soğuk İçecekler', icon: '🧊' },
-  { id: 'yiyecek', label: 'Yiyecekler', icon: '🥐' },
-  { id: 'ozel', label: 'Özel / Sezonluk', icon: '✨' },
+  { id: 'sicak',   label: 'Sıcak İçecekler',  icon: '☕' },
+  { id: 'soguk',   label: 'Soğuk İçecekler',  icon: '🧊' },
+  { id: 'yiyecek', label: 'Yiyecekler',        icon: '🥐' },
+  { id: 'ozel',    label: 'Özel / Sezonluk',   icon: '✨' },
 ];
 
 export const MENU_ITEMS = [
-  // ── SICAK İÇECEKLER ────────────────────────────────────────────────────────
+
+  // ── SICAK İÇECEKLER ─────────────────────────────────────────────────────────
   {
     id: 'americano',
     name: 'Americano',
     category: 'sicak',
     prices: {
-      espressolab:  130,
-      starbucks:    165,
-      kahvedunyasi: 120,
-      gloriajeans:  140,
-      coffy:        100,
-      caffenero:    145,
-      mikel:        115,
-      caribou:      145,
-      nevada:        90,
-      kronotrop:    140,
-      costacoffee:  160,
+      espressolab:   189,  // ✅ menufiyatlar.com 2026
+      starbucks:     150,  // ✅ haberler.com 2 Ocak 2026
+      kahvedunyasi:  145,  // ✅ menufiyatlar.com 2026 (Orta 320ml)
+      gloriajeans:   160,  // ✅ menufiyatlar.com 2026 (Orta)
+      coffy:         145,  // ✅ menufiyatlar.com 2026
+      caffenero:      74,  // ✅ karekod.org 26 Şubat 2026
+      mikel:          85,  // 🟡 2024
+      caribou:       110,  // ✅ karekod.org 2026
+      nevada:         95,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -36,17 +49,17 @@ export const MENU_ITEMS = [
     name: 'Latte',
     category: 'sicak',
     prices: {
-      espressolab:  175,
-      starbucks:    220,
-      kahvedunyasi: 160,
-      gloriajeans:  175,
-      coffy:        130,
-      caffenero:    190,
-      mikel:        155,
-      caribou:      178,
-      nevada:       125,
-      kronotrop:    180,
-      costacoffee:  210,
+      espressolab:   223,  // ✅ menufiyatlar.com 2026
+      starbucks:     175,  // ✅ Ocak 2026
+      kahvedunyasi:  165,  // ✅ menufiyatlar.com 2026 (Caffe Latte Orta)
+      gloriajeans:   185,  // ✅ menufiyatlar.com 2026 (Orta)
+      coffy:         150,  // ✅ menufiyatlar.com 2026
+      caffenero:      87,  // ✅ karekod.org Şubat 2026
+      mikel:          98,  // 🟡 2024
+      caribou:       135,  // ✅ karekod.org 2026
+      nevada:        110,  // 🟡
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -54,17 +67,17 @@ export const MENU_ITEMS = [
     name: 'Cappuccino',
     category: 'sicak',
     prices: {
-      espressolab:  170,
-      starbucks:    215,
-      kahvedunyasi: 155,
-      gloriajeans:  170,
-      coffy:        125,
-      caffenero:    185,
-      mikel:        150,
-      caribou:      175,
-      nevada:       120,
-      kronotrop:    175,
-      costacoffee:  205,
+      espressolab:   223,  // ✅ menufiyatlar.com 2026
+      starbucks:     175,  // ✅ Ocak 2026
+      kahvedunyasi:  null, // KD menüsünde sıcak cappuccino listede yok
+      gloriajeans:   185,  // ✅ menufiyatlar.com 2026 (Orta)
+      coffy:         150,  // ✅ menufiyatlar.com 2026
+      caffenero:      87,  // ✅ karekod.org Şubat 2026
+      mikel:          95,  // 🟡 2024
+      caribou:       135,  // ✅ karekod.org 2026
+      nevada:        105,  // 🟡
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -72,17 +85,17 @@ export const MENU_ITEMS = [
     name: 'Flat White',
     category: 'sicak',
     prices: {
-      espressolab:  180,
-      starbucks:    230,
-      kahvedunyasi: null,
-      gloriajeans:  210,
-      coffy:        null,
-      caffenero:    200,
-      mikel:        165,
-      caribou:      215,
-      nevada:       null,
-      kronotrop:    190,
-      costacoffee:  220,
+      espressolab:   210,  // ✅ menufiyatlar.com 2026
+      starbucks:     170,  // ✅ karekod.org 2026
+      kahvedunyasi:  null,
+      gloriajeans:   200,  // ✅ menufiyatlar.com 2026
+      coffy:         155,  // ✅ menufiyatlar.com 2026
+      caffenero:     102,  // ✅ karekod.org Şubat 2026
+      mikel:          98,  // 🟡 2024
+      caribou:       null,
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -90,17 +103,17 @@ export const MENU_ITEMS = [
     name: 'Cortado',
     category: 'sicak',
     prices: {
-      espressolab:  150,
-      starbucks:    null,
-      kahvedunyasi: null,
-      gloriajeans:  null,
-      coffy:        null,
-      caffenero:    160,
-      mikel:        null,
-      caribou:      null,
-      nevada:       null,
-      kronotrop:    145,
-      costacoffee:  170,
+      espressolab:   210,  // ✅ menufiyatlar.com 2026
+      starbucks:     175,  // ✅ Ocak 2026
+      kahvedunyasi:  null,
+      gloriajeans:   190,  // ✅ menufiyatlar.com 2026
+      coffy:         null,
+      caffenero:      85,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:       null,
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -108,17 +121,17 @@ export const MENU_ITEMS = [
     name: 'Mocha',
     category: 'sicak',
     prices: {
-      espressolab:  195,
-      starbucks:    235,
-      kahvedunyasi: 175,
-      gloriajeans:  195,
-      coffy:        145,
-      caffenero:    205,
-      mikel:        165,
-      caribou:      210,
-      nevada:       135,
-      kronotrop:    null,
-      costacoffee:  225,
+      espressolab:   284,  // ✅ menufiyatlar.com 2026
+      starbucks:     205,  // ✅ karekod.org 2026
+      kahvedunyasi:  null, // Buzlu Mocha 195₺ var, sıcak mocha ayrıca listelenmemiş
+      gloriajeans:   230,  // ✅ menufiyatlar.com 2026 (Caffe Mocha Orta)
+      coffy:         160,  // ✅ menufiyatlar.com 2026
+      caffenero:     115,  // ✅ karekod.org Şubat 2026
+      mikel:         120,  // 🟡 2024
+      caribou:       165,  // ✅ karekod.org 2026
+      nevada:        119,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -126,17 +139,17 @@ export const MENU_ITEMS = [
     name: 'Filtre Kahve',
     category: 'sicak',
     prices: {
-      espressolab:  140,
-      starbucks:    170,
-      kahvedunyasi: 130,
-      gloriajeans:  155,
-      coffy:        110,
-      caffenero:    150,
-      mikel:        120,
-      caribou:      160,
-      nevada:       100,
-      kronotrop:    155,
-      costacoffee:  165,
+      espressolab:   176,  // ✅ menufiyatlar.com 2026
+      starbucks:     145,  // ✅ Ocak 2026
+      kahvedunyasi:  140,  // ✅ menufiyatlar.com 2026 (Yöresel Filtre Orta)
+      gloriajeans:   155,  // ✅ menufiyatlar.com 2026 (Orta)
+      coffy:         140,  // ✅ menufiyatlar.com 2026
+      caffenero:      70,  // ✅ karekod.org Şubat 2026
+      mikel:          85,  // 🟡 2024
+      caribou:       105,  // ✅ karekod.org 2026
+      nevada:         90,  // 🟡
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -144,17 +157,17 @@ export const MENU_ITEMS = [
     name: 'Türk Kahvesi',
     category: 'sicak',
     prices: {
-      espressolab:  125,
-      starbucks:    null,
-      kahvedunyasi: 110,
-      gloriajeans:  null,
-      coffy:         90,
-      caffenero:    null,
-      mikel:        null,
-      caribou:      null,
-      nevada:        80,
-      kronotrop:    null,
-      costacoffee:  null,
+      espressolab:   162,  // ✅ menufiyatlar.com 2026
+      starbucks:     115,  // ✅ karekod.org 2026
+      kahvedunyasi:  120,  // ✅ menufiyatlar.com 2026 (80ml tekli)
+      gloriajeans:   135,  // ✅ menufiyatlar.com 2026 (Tek)
+      coffy:         null, // menüde listelenemedi
+      caffenero:      79,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:       null,
+      nevada:         75,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -162,17 +175,17 @@ export const MENU_ITEMS = [
     name: 'Caramel Macchiato',
     category: 'sicak',
     prices: {
-      espressolab:  200,
-      starbucks:    245,
-      kahvedunyasi: 190,
-      gloriajeans:  220,
-      coffy:        null,
-      caffenero:    null,
-      mikel:        175,
-      caribou:      230,
-      nevada:       150,
-      kronotrop:    null,
-      costacoffee:  235,
+      espressolab:   284,  // ✅ menufiyatlar.com 2026 (Salted Caramel / Lotus Latte)
+      starbucks:     210,  // ✅ Ocak 2026
+      kahvedunyasi:  175,  // ✅ menufiyatlar.com 2026 (Karamelli Macchiato Orta)
+      gloriajeans:   225,  // ✅ menufiyatlar.com 2026 (Caramelatte Orta)
+      coffy:         160,  // ✅ menufiyatlar.com 2026
+      caffenero:     115,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:       165,  // ✅ karekod.org 2026 (Caramel High Rise)
+      nevada:        119,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -180,36 +193,37 @@ export const MENU_ITEMS = [
     name: 'Espresso',
     category: 'sicak',
     prices: {
-      espressolab:  100,
-      starbucks:    130,
-      kahvedunyasi:  95,
-      gloriajeans:  115,
-      coffy:         80,
-      caffenero:    110,
-      mikel:         90,
-      caribou:      120,
-      nevada:        70,
-      kronotrop:    115,
-      costacoffee:  125,
+      espressolab:   162,  // ✅ menufiyatlar.com 2026
+      starbucks:      80,  // ✅ karekod.org 2026 (Solo)
+      kahvedunyasi:   95,  // ✅ menufiyatlar.com 2026 (40ml)
+      gloriajeans:   150,  // ✅ menufiyatlar.com 2026 (50ml)
+      coffy:         null,
+      caffenero:      59,  // ✅ karekod.org Şubat 2026
+      mikel:          65,  // 🟡 2024
+      caribou:       null,
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
-  // ── SOĞUK İÇECEKLER ────────────────────────────────────────────────────────
+
+  // ── SOĞUK İÇECEKLER ─────────────────────────────────────────────────────────
   {
     id: 'coldbrew',
     name: 'Cold Brew',
     category: 'soguk',
     prices: {
-      espressolab:  210,
-      starbucks:    245,
-      kahvedunyasi: 200,
-      gloriajeans:  225,
-      coffy:        175,
-      caffenero:    215,
-      mikel:        185,
-      caribou:      230,
-      nevada:       150,
-      kronotrop:    210,
-      costacoffee:  235,
+      espressolab:   237,  // ✅ menufiyatlar.com 2026 (Cold Brew Kenya)
+      starbucks:     170,  // ✅ karekod.org 2026
+      kahvedunyasi:  170,  // ✅ menufiyatlar.com 2026 (Cold Brew 460ml)
+      gloriajeans:   190,  // ✅ menufiyatlar.com 2026
+      coffy:         null,
+      caffenero:     104,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:       130,  // ✅ karekod.org 2026 (Cold Press)
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -217,17 +231,17 @@ export const MENU_ITEMS = [
     name: 'Ice Latte',
     category: 'soguk',
     prices: {
-      espressolab:  190,
-      starbucks:    225,
-      kahvedunyasi: 175,
-      gloriajeans:  210,
-      coffy:        155,
-      caffenero:    200,
-      mikel:        165,
-      caribou:      215,
-      nevada:       135,
-      kronotrop:    190,
-      costacoffee:  220,
+      espressolab:   230,  // ✅ menufiyatlar.com 2026 (Iced Caffe Latte)
+      starbucks:     165,  // ✅ karekod.org 2026
+      kahvedunyasi:  165,  // ✅ menufiyatlar.com 2026 (Buzlu/Freddo Caffe Latte 460ml)
+      gloriajeans:   195,  // ✅ menufiyatlar.com 2026 (Iced Latte Orta)
+      coffy:         150,  // ✅ menufiyatlar.com 2026
+      caffenero:     112,  // ✅ karekod.org Şubat 2026
+      mikel:         111,  // 🟡 2024
+      caribou:       135,  // ✅ karekod.org 2026
+      nevada:         99,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -235,17 +249,17 @@ export const MENU_ITEMS = [
     name: 'Frappé / Blended',
     category: 'soguk',
     prices: {
-      espressolab:  230,
-      starbucks:    265,
-      kahvedunyasi: 215,
-      gloriajeans:  240,
-      coffy:        190,
-      caffenero:    230,
-      mikel:        205,
-      caribou:      250,
-      nevada:       165,
-      kronotrop:    null,
-      costacoffee:  255,
+      espressolab:   257,  // ✅ menufiyatlar.com 2026 (Caffe Esfrappa)
+      starbucks:     200,  // ✅ karekod.org 2026
+      kahvedunyasi:  215,  // ✅ menufiyatlar.com 2026 (Çikolatalı Milkshake)
+      gloriajeans:   240,  // ✅ menufiyatlar.com 2026 (Mango Chiller Orta)
+      coffy:         165,  // ✅ menufiyatlar.com 2026 (Chocolate Cookie Frappe)
+      caffenero:     144,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:       165,  // ✅ karekod.org 2026 (Cooler serisi)
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -253,17 +267,17 @@ export const MENU_ITEMS = [
     name: 'Matcha Latte',
     category: 'soguk',
     prices: {
-      espressolab:  215,
-      starbucks:    250,
-      kahvedunyasi: null,
-      gloriajeans:  230,
-      coffy:        null,
-      caffenero:    null,
-      mikel:        null,
-      caribou:      240,
-      nevada:       null,
-      kronotrop:    210,
-      costacoffee:  240,
+      espressolab:   297,  // ✅ menufiyatlar.com 2026
+      starbucks:     195,  // ✅ karekod.org 2026
+      kahvedunyasi:  null,
+      gloriajeans:   235,  // ✅ menufiyatlar.com 2026
+      coffy:         170,  // ✅ menufiyatlar.com 2026
+      caffenero:     null,
+      mikel:         null,
+      caribou:       null,
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -271,17 +285,17 @@ export const MENU_ITEMS = [
     name: 'Ice Cappuccino',
     category: 'soguk',
     prices: {
-      espressolab:  185,
-      starbucks:    220,
-      kahvedunyasi: 170,
-      gloriajeans:  205,
-      coffy:        150,
-      caffenero:    195,
-      mikel:        160,
-      caribou:      210,
-      nevada:       130,
-      kronotrop:    180,
-      costacoffee:  215,
+      espressolab:   230,  // ✅ menufiyatlar.com 2026 (Iced Cappuccino)
+      starbucks:     175,  // ✅ karekod.org 2026
+      kahvedunyasi:  165,  // ✅ menufiyatlar.com 2026 (Freddo Cappuccino 460ml)
+      gloriajeans:   null,
+      coffy:         150,  // ✅ menufiyatlar.com 2026
+      caffenero:     124,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:       null,
+      nevada:         99,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -289,36 +303,37 @@ export const MENU_ITEMS = [
     name: 'Nitro Cold Brew',
     category: 'soguk',
     prices: {
-      espressolab:  250,
-      starbucks:    285,
-      kahvedunyasi: null,
-      gloriajeans:  null,
-      coffy:        null,
-      caffenero:    null,
-      mikel:        null,
-      caribou:      270,
-      nevada:       null,
-      kronotrop:    245,
-      costacoffee:  275,
+      espressolab:   null,
+      starbucks:     null,
+      kahvedunyasi:  null,
+      gloriajeans:   null,
+      coffy:         null,
+      caffenero:     null,
+      mikel:         null,
+      caribou:       null,
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
-  // ── YİYECEKLER ─────────────────────────────────────────────────────────────
+
+  // ── YİYECEKLER ──────────────────────────────────────────────────────────────
   {
     id: 'croissant',
     name: 'Croissant (Sade)',
     category: 'yiyecek',
     prices: {
-      espressolab:  130,
-      starbucks:    175,
-      kahvedunyasi: 120,
-      gloriajeans:  150,
-      coffy:         95,
-      caffenero:    145,
-      mikel:        115,
-      caribou:      155,
-      nevada:        95,
-      kronotrop:    125,
-      costacoffee:  165,
+      espressolab:   135,  // ✅ menufiyatlar.com 2026 (Tereyağlı Kruvasan)
+      starbucks:     154,  // ✅ karekod.org 2026
+      kahvedunyasi:  115,  // ✅ menufiyatlar.com 2026 (Kruvasan 100g)
+      gloriajeans:   125,  // ✅ menufiyatlar.com 2026 (Tereyağlı Kruvasan 80g)
+      coffy:         100,  // ✅ menufiyatlar.com 2026 (Tereyağlı Kruvasan 85g)
+      caffenero:      85,  // ✅ karekod.org Şubat 2026
+      mikel:         null,
+      caribou:        70,  // ✅ karekod.org 2026 (Anne Poğaçası)
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -326,35 +341,35 @@ export const MENU_ITEMS = [
     name: 'Sandviç',
     category: 'yiyecek',
     prices: {
-      espressolab:  195,
-      starbucks:    240,
-      kahvedunyasi: 180,
-      gloriajeans:  215,
-      coffy:        145,
-      caffenero:    200,
-      mikel:        165,
-      caribou:      225,
-      nevada:       145,
-      kronotrop:    185,
-      costacoffee:  230,
+      espressolab:   345,  // ✅ menufiyatlar.com 2026 (Hindi Fümeli Acuka Sandviç)
+      starbucks:     175,  // ✅ karekod.org 2026
+      kahvedunyasi:  210,  // ✅ menufiyatlar.com 2026 (Tavuk Sezar Sandviç 240g)
+      gloriajeans:   215,  // ✅ menufiyatlar.com 2026 (Artizan Sandviç Cheddar)
+      coffy:         205,  // ✅ menufiyatlar.com 2026 (Bagel Sandviç ort.)
+      caffenero:     147,  // ✅ karekod.org Şubat 2026
+      mikel:         127,  // 🟡 2024
+      caribou:       180,  // ✅ karekod.org 2026
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
     id: 'kek',
-    name: 'Dilim Kek',
+    name: 'Dilim Kek / Pasta',
     category: 'yiyecek',
     prices: {
-      espressolab:  170,
-      starbucks:    210,
-      kahvedunyasi: 155,
-      gloriajeans:  190,
-      coffy:        130,
-      caffenero:    175,
-      mikel:        145,
-      caribou:      200,
-      nevada:       125,
-      kronotrop:    160,
-      costacoffee:  205,
+      espressolab:   270,  // ✅ menufiyatlar.com 2026 (Tiramisu / Mozaik Pasta 297₺)
+      starbucks:     175,  // ✅ karekod.org 2026
+      kahvedunyasi:  160,  // ✅ menufiyatlar.com 2026 (Pasta 120-200₺ ort.)
+      gloriajeans:   205,  // ✅ menufiyatlar.com 2026 (Tiramisu 205₺ / Pasta ort.)
+      coffy:         180,  // ✅ menufiyatlar.com 2026 (Cheesecake ort.)
+      caffenero:     102,  // ✅ karekod.org Şubat 2026
+      mikel:         110,  // 🟡
+      caribou:       165,  // ✅ karekod.org 2026
+      nevada:        135,  // ✅ karekod.org Şubat 2026
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
   {
@@ -362,72 +377,64 @@ export const MENU_ITEMS = [
     name: 'Muffin',
     category: 'yiyecek',
     prices: {
-      espressolab:  155,
-      starbucks:    195,
-      kahvedunyasi: 140,
-      gloriajeans:  175,
-      coffy:        115,
-      caffenero:    160,
-      mikel:        130,
-      caribou:      185,
-      nevada:       110,
-      kronotrop:    null,
-      costacoffee:  190,
+      espressolab:   null, // menüde muffin ayrıca listelenemedi
+      starbucks:     185,  // ✅ karekod.org 2026
+      kahvedunyasi:  null,
+      gloriajeans:   155,  // ✅ menufiyatlar.com 2026 (Çikolatalı Muffin 100g)
+      coffy:         140,  // ✅ menufiyatlar.com 2026
+      caffenero:     null,
+      mikel:         null,
+      caribou:       120,  // ✅ karekod.org 2026
+      nevada:        null,
+      kronotrop:     null,
+      costacoffee:   null,
     },
   },
-  // ── ÖZEL / SEZONLUK ────────────────────────────────────────────────────────
+
+  // ── ÖZEL / SEZONLUK — MAYIS 2026 AKTİF ÜRÜNLER ─────────────────────────────
   {
-    id: 'springblossom',
-    name: 'Spring Blossom Latte ★',
+    id: 'tahini_latte',
+    name: 'Creme Brulee Tahini Latte ★',
     category: 'ozel',
     prices: {
-      espressolab:  235,
-      starbucks:    null,
-      kahvedunyasi: null,
-      gloriajeans:  null,
-      coffy:        null,
-      caffenero:    null,
-      mikel:        null,
-      caribou:      null,
-      nevada:       null,
-      kronotrop:    null,
-      costacoffee:  null,
+      espressolab:   284,  // ✅ menufiyatlar.com 2026 (Tahinli Latte)
+      starbucks:     null, kahvedunyasi: null, gloriajeans: null, coffy: null,
+      caffenero:     null, mikel: null, caribou: null, nevada: null,
+      kronotrop:     null, costacoffee: null,
     },
   },
   {
-    id: 'pumpkinlatte',
-    name: 'Pumpkin Spice Latte',
+    id: 'ube_vanilla_latte',
+    name: 'Ube Vanilla Latte ★',
     category: 'ozel',
     prices: {
-      espressolab:  240,
-      starbucks:    275,
-      kahvedunyasi: null,
-      gloriajeans:  250,
-      coffy:        null,
-      caffenero:    null,
-      mikel:        null,
-      caribou:      260,
-      nevada:       null,
-      kronotrop:    null,
-      costacoffee:  265,
+      espressolab:   318,  // ✅ menufiyatlar.com 2026 (Ube Latte)
+      starbucks:     210,  // ✅ starbucks.com.tr Mart 2026
+      kahvedunyasi:  null, gloriajeans: null, coffy: null,
+      caffenero:     null, mikel: null, caribou: null, nevada: null,
+      kronotrop:     null, costacoffee: null,
     },
   },
   {
-    id: 'lavanderlatte',
-    name: 'Lavender Oat Milk Latte',
+    id: 'cinnamon_sugar_latte',
+    name: 'Cinnamon Sugar Latte ★',
     category: 'ozel',
     prices: {
-      espressolab:  230,
-      starbucks:    270,
-      kahvedunyasi: null,
-      gloriajeans:  null,
-      coffy:        null,
-      caffenero:    null,
-      mikel:        null,
-      caribou:      260,
-      nevada:       null,
-      kronotrop:    225,
-      costacoffee:  265,
+      espressolab:   null, starbucks: null, kahvedunyasi: null,
+      gloriajeans:   null, coffy: null, caffenero: null, mikel: null,
+      caribou:       190,  // ✅ cariboucoffee.com Mart 2026
+      nevada:        null, kronotrop: null, costacoffee: null,
+    },
+  },
+  {
+    id: 'passion_fizz',
+    name: 'Passion Fizz ★',
+    category: 'ozel',
+    prices: {
+      espressolab:   297,  // ✅ menufiyatlar.com 2026 (Passion Fruit / benzer)
+      starbucks:     null, kahvedunyasi: null, gloriajeans: null, coffy: null,
+      caffenero:     null, mikel: null, caribou: null, nevada: null,
+      kronotrop:     null, costacoffee: null,
     },
   },
 ];
@@ -435,17 +442,17 @@ export const MENU_ITEMS = [
 export const getMenuByCategory = (categoryId) =>
   categoryId === 'all' ? MENU_ITEMS : MENU_ITEMS.filter(item => item.category === categoryId);
 
-// Ortalama fiyatlar — Mart 2026
+// Ortalama fiyatlar — Mayıs 2026 (menufiyatlar.com + doğrulanmış kaynaklar)
 export const BRAND_AVG_PRICES = {
-  espressolab:  182,
-  starbucks:    224,
-  kahvedunyasi: 162,
-  gloriajeans:  202,
-  coffy:        135,
-  caffenero:    194,
-  mikel:        153,
-  caribou:      212,
-  nevada:       118,
-  kronotrop:    183,
-  costacoffee:  219,
+  espressolab:   245,  // ✅ menufiyatlar.com 2026
+  starbucks:     178,  // ✅ Ocak 2026
+  kahvedunyasi:  160,  // ✅ menufiyatlar.com 2026
+  gloriajeans:   190,  // ✅ menufiyatlar.com 2026
+  coffy:         155,  // ✅ menufiyatlar.com 2026
+  caffenero:      95,  // ✅ karekod.org Şubat 2026
+  mikel:          95,  // 🟡 2024
+  caribou:       135,  // ✅ karekod.org 2026
+  nevada:        100,  // ✅ karekod.org Şubat 2026
+  kronotrop:       0,  // ❌
+  costacoffee:     0,  // ❌
 };
