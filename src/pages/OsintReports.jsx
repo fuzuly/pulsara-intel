@@ -74,7 +74,7 @@ export default function OsintReports() {
           <span className="relative flex h-2 w-2">
             <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
           </span>
-          <span className="font-semibold tracking-wide text-success">Doğrulanmış Veri</span>
+          <span className="font-semibold tracking-wide text-success">Statik Veri</span>
         </div>
         <span className="text-muted">Son güncelleme: <span className="text-white font-medium">{TODAY}</span></span>
         <div className="flex items-center gap-1.5 flex-wrap">
