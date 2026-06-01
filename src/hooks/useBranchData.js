@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API_BASE = import.meta.env.VITE_SCRAPER_URL || 'http://localhost:3001';
+const API_BASE = import.meta.env.VITE_SCRAPER_URL || 'https://espressolab-scraper-production.up.railway.app';
 const CACHE_KEY = 'branch-data-v1';
 const CACHE_TTL = 60 * 60 * 1000; // 1 saat
 
