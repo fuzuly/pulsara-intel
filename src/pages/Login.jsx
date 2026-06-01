@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Coffee, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+
+const GJ_PURPLE      = '#6B21A8';
+const GJ_LIGHT       = '#A855F7';
+const GJ_GRADIENT    = 'linear-gradient(135deg, #6B21A8, #A855F7)';
+const GJ_BG          = '#0F0A18';
+const GJ_SURFACE     = '#1A1028';
+const GJ_SURFACE2    = '#241538';
+const GJ_BORDER      = '#3B1F5A';
+const GJ_BORDER_FOCUS= '#A855F7';
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,6 +20,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [focusUser, setFocusUser] = useState(false);
+  const [focusPass, setFocusPass] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,81 +53,150 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-navy flex items-center justify-center p-4">
-      {/* Background pattern */}
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ backgroundColor: GJ_BG }}
+    >
+      {/* Arka plan dekorasyon */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-caramel/5 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-caramel/5 blur-3xl" />
+        <div
+          className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl"
+          style={{ backgroundColor: `${GJ_PURPLE}18` }}
+        />
+        <div
+          className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl"
+          style={{ backgroundColor: `${GJ_LIGHT}12` }}
+        />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px]"
+          style={{ backgroundColor: `${GJ_PURPLE}08` }}
+        />
       </div>
 
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-caramel to-espresso flex items-center justify-center shadow-2xl mb-4">
-            <Coffee size={30} className="text-white" />
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl mb-4 overflow-hidden"
+            style={{ background: GJ_GRADIENT }}
+          >
+            <img
+              src="/GJlogo.png"
+              alt="Gloria Jean's"
+              className="w-16 h-16 object-contain"
+            />
           </div>
           <h1 className="text-xl font-bold text-white">Rekabet Analizi</h1>
-          <p className="text-xs text-muted mt-1">Rekabet İstihbaratı Platformu</p>
+          <p className="text-xs mt-1" style={{ color: GJ_LIGHT }}>
+            Gloria Jean's İstihbarat Platformu
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-surface border border-navy-border rounded-2xl p-6 shadow-2xl">
+        {/* Kart */}
+        <div
+          className="rounded-2xl p-6 shadow-2xl"
+          style={{
+            backgroundColor: GJ_SURFACE,
+            border: `1px solid ${GJ_BORDER}`,
+          }}
+        >
           <h2 className="text-base font-semibold text-white mb-1">Giriş Yap</h2>
-          <p className="text-xs text-muted mb-5">Devam etmek için hesabınıza giriş yapın.</p>
+          <p className="text-xs mb-5" style={{ color: '#9CA3AF' }}>
+            Devam etmek için hesabınıza giriş yapın.
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
+            {/* Kullanıcı Adı */}
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Kullanıcı Adı</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: '#9CA3AF' }}>
+                Kullanıcı Adı
+              </label>
               <div className="relative">
-                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <User
+                  size={15}
+                  className="absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{ color: focusUser ? GJ_LIGHT : '#6B7280' }}
+                />
                 <input
                   type="text"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
+                  onFocus={() => setFocusUser(true)}
+                  onBlur={() => setFocusUser(false)}
                   placeholder="kullanici_adi"
                   required
                   autoFocus
-                  className="w-full bg-surface2 border border-navy-border rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-muted focus:outline-none focus:border-caramel transition-colors"
+                  style={{
+                    backgroundColor: GJ_SURFACE2,
+                    border: `1px solid ${focusUser ? GJ_BORDER_FOCUS : GJ_BORDER}`,
+                    color: 'white',
+                    outline: 'none',
+                    boxShadow: focusUser ? `0 0 0 3px ${GJ_PURPLE}30` : 'none',
+                  }}
+                  className="w-full rounded-lg pl-9 pr-4 py-2.5 text-sm placeholder-gray-500 transition-all"
                 />
               </div>
             </div>
 
-            {/* Password */}
+            {/* Şifre */}
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Şifre</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: '#9CA3AF' }}>
+                Şifre
+              </label>
               <div className="relative">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <Lock
+                  size={15}
+                  className="absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{ color: focusPass ? GJ_LIGHT : '#6B7280' }}
+                />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
+                  onFocus={() => setFocusPass(true)}
+                  onBlur={() => setFocusPass(false)}
                   placeholder="••••••••"
                   required
-                  className="w-full bg-surface2 border border-navy-border rounded-lg pl-9 pr-10 py-2.5 text-sm text-white placeholder-muted focus:outline-none focus:border-caramel transition-colors"
+                  style={{
+                    backgroundColor: GJ_SURFACE2,
+                    border: `1px solid ${focusPass ? GJ_BORDER_FOCUS : GJ_BORDER}`,
+                    color: 'white',
+                    outline: 'none',
+                    boxShadow: focusPass ? `0 0 0 3px ${GJ_PURPLE}30` : 'none',
+                  }}
+                  className="w-full rounded-lg pl-9 pr-10 py-2.5 text-sm placeholder-gray-500 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: '#6B7280' }}
+                  onMouseEnter={e => e.currentTarget.style.color = GJ_LIGHT}
+                  onMouseLeave={e => e.currentTarget.style.color = '#6B7280'}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
-            {/* Error */}
+            {/* Hata */}
             {error && (
-              <div className="text-xs text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">
+              <div className="text-xs bg-red-900/20 border border-red-500/30 rounded-lg px-3 py-2" style={{ color: '#FCA5A5' }}>
                 {error}
               </div>
             )}
 
-            {/* Submit */}
+            {/* Giriş Butonu */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary justify-center py-2.5 text-sm disabled:opacity-60"
+              className="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all disabled:opacity-60"
+              style={{
+                background: loading ? GJ_PURPLE : GJ_GRADIENT,
+                boxShadow: `0 4px 20px ${GJ_PURPLE}50`,
+              }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.boxShadow = `0 6px 28px ${GJ_PURPLE}80`; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 4px 20px ${GJ_PURPLE}50`; }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -130,7 +210,7 @@ export default function Login() {
           </form>
         </div>
 
-        <p className="text-center text-[10px] text-muted mt-6">
+        <p className="text-center text-[10px] mt-6" style={{ color: '#4B5563' }}>
           © 2026 Rekabet Analizi Dashboard
         </p>
       </div>
