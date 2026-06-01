@@ -23,33 +23,29 @@ export default function Login() {
   const [focusUser, setFocusUser] = useState(false);
   const [focusPass, setFocusPass] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const USERS = [
+    { username: 'admin',   password: 'Gloria2026' },
+    { username: 'gloria',  password: 'Gloria2026' },
+  ];
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('auth_token', data.token);
+    setTimeout(() => {
+      const match = USERS.find(
+        u => u.username === username && u.password === password
+      );
+      if (match) {
         localStorage.setItem('isAuthenticated', 'true');
         login();
         navigate('/');
       } else {
         setError('Geçersiz kullanıcı adı veya şifre');
       }
-    } catch (err) {
-      setError('Bağlantı hatası. Lütfen tekrar deneyin.');
-    } finally {
       setLoading(false);
-    }
+    }, 400);
   };
 
   return (

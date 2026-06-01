@@ -16,8 +16,8 @@ import { Trophy, TrendingDown, MapPin, ExternalLink } from 'lucide-react';
 import useBranchData from '../hooks/useBranchData';
 
 // ─── Sabit veri ───────────────────────────────────────────────────────────────
-const GJ_COLOR  = '#6B21A8';
-const GJ_LIGHT  = '#A855F7';
+const GJ_COLOR  = '#F46621';
+const GJ_LIGHT  = '#FF8A50';
 
 const gjRatingColor = (r) => {
   if (r >= 4.5) return '#22C55E';
