@@ -4,6 +4,38 @@ import { COMPETITOR_SCORES, MARKET_SHARE_DATA } from '../data/competitorData';
 import { SENTIMENT_SCORES } from '../data/osintData';
 import { NEW_PRODUCTS } from '../data/newProductData';
 import { SOCIAL_MEDIA } from '../data/socialMediaData';
+import igProfiles from '../data/instagramProfiles.json';
+import igPostsData from '../data/instagramPosts.json';
+
+const NOW = new Date();
+const REPORT_DATE = NOW.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+const REPORT_DATE_FULL = NOW.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const BRAND_TO_USERNAME = {
+  espressolab: 'espressolabtr',
+  starbucks:   'starbucks_tr',
+  kahvedunyasi:'kahvedunyasi',
+  gloriajeans: 'gjcsturkey',
+  caffenero:   'caffeneroturkiye',
+  nevada:      'nevadacoffee.tr',
+  luuq:        'luuqcoffee',
+  mikel:       'mikelcoffee_tr',
+  coffy:       'coffy_tr',
+  gua:         'guacoffeecompany',
+  laos:        'laos.coffee',
+};
+
+const getIGData = (brandId) => {
+  const username = BRAND_TO_USERNAME[brandId];
+  if (!username) return null;
+  const profile = igProfiles.find(p => p.username === username);
+  const posts   = igPostsData.find(p => p.username === username);
+  if (!profile) return null;
+  return {
+    followers:      profile.followers,
+    engagementRate: posts?.engagementRate ?? 0,
+  };
+};
 
 const THEME = {
   bg: '0F1624',
@@ -50,7 +82,7 @@ const addSlideHeader = (slide, title, subtitle = '') => {
 };
 
 const addFooter = (slide, pageNum) => {
-  slide.addText(`Rekabet İstihbaratı Raporu  |  Mart 2026  |  Sayfa ${pageNum}`, {
+  slide.addText(`Rekabet İstihbaratı Raporu  |  ${REPORT_DATE}  |  Sayfa ${pageNum}`, {
     x: 0, y: 6.9, w: '100%', h: 0.3,
     fontSize: 8, color: THEME.muted, align: 'center', fontFace: 'Calibri',
   });
@@ -80,7 +112,7 @@ export async function exportToPPTX(config = {}) {
     fontSize: 120, align: 'center',
   });
 
-  slide1.addText('ESPRESSOLAB', {
+  slide1.addText('Rekabet Analizi', {
     x: 0.6, y: 1.5, w: 7.5, h: 0.8,
     fontSize: 36, bold: true, color: THEME.caramel, fontFace: 'Calibri',
   });
@@ -101,7 +133,7 @@ export async function exportToPPTX(config = {}) {
     line: { color: THEME.caramel },
   });
 
-  slide1.addText(`Rapor Tarihi: Mart 2026`, {
+  slide1.addText(`Rapor Tarihi: ${REPORT_DATE_FULL}`, {
     x: 0.6, y: 3.8, w: 7.5, h: 0.3,
     fontSize: 11, color: THEME.muted, fontFace: 'Calibri',
   });
@@ -114,7 +146,7 @@ export async function exportToPPTX(config = {}) {
   // ── Slide 2: KPI Overview ──────────────────────────────────────
   const slide2 = pptx.addSlide();
   addSlideBg(slide2);
-  addSlideHeader(slide2, 'Temel Performans Göstergeleri', 'Mart 2026');
+  addSlideHeader(slide2, 'Temel Performans Göstergeleri', REPORT_DATE);
 
   const eslScore = COMPETITOR_SCORES.espressolab;
   const eslSocial = SOCIAL_MEDIA.espressolab;
@@ -250,7 +282,7 @@ export async function exportToPPTX(config = {}) {
   // ── Slide 5: Social Media ──────────────────────────────────────
   const slide5 = pptx.addSlide();
   addSlideBg(slide5);
-  addSlideHeader(slide5, 'Sosyal Medya Performansı', 'Platform Bazlı Karşılaştırma — Mart 2026');
+  addSlideHeader(slide5, 'Sosyal Medya Performansı', `Platform Bazlı Karşılaştırma — ${REPORT_DATE}`);
 
   const socialBrands = ['espressolab', 'starbucks', 'kahvedunyasi', 'mikel', 'kronotrop'];
   const socialTableRows = [
@@ -260,23 +292,25 @@ export async function exportToPPTX(config = {}) {
       { text: 'IG Etkileşim', options: { bold: true, color: THEME.caramel } },
       { text: 'TikTok', options: { bold: true, color: THEME.caramel } },
       { text: 'TT Etkileşim', options: { bold: true, color: THEME.caramel } },
-      { text: 'Aylık Büyüme', options: { bold: true, color: THEME.caramel } },
     ],
     ...socialBrands.map(id => {
       const brand = BRANDS.find(b => b.id === id);
+      const realIG = getIGData(id);
       const sm = SOCIAL_MEDIA[id];
-      const igF = sm ? (sm.instagram.followers / 1000).toFixed(0) + 'K' : '-';
-      const igE = sm ? `%${sm.instagram.engagement}` : '-';
+      const igF = realIG
+        ? (realIG.followers / 1000).toFixed(0) + 'K'
+        : sm ? (sm.instagram.followers / 1000).toFixed(0) + 'K' : '-';
+      const igE = realIG
+        ? (realIG.engagementRate ? `%${realIG.engagementRate}` : '-')
+        : sm ? `%${sm.instagram.engagement}` : '-';
       const ttF = sm ? (sm.tiktok.followers / 1000).toFixed(0) + 'K' : '-';
       const ttE = sm ? `%${sm.tiktok.engagement}` : '-';
-      const growth = sm ? `+%${sm.instagram.growthMoM}` : '-';
       return [
         { text: brand?.name || id, options: { color: id === 'espressolab' ? THEME.caramel : THEME.white, bold: id === 'espressolab' } },
         { text: igF, options: { color: THEME.white } },
         { text: igE, options: { color: THEME.success } },
         { text: ttF, options: { color: THEME.white } },
         { text: ttE, options: { color: THEME.success } },
-        { text: growth, options: { color: THEME.success } },
       ];
     }),
   ];
@@ -310,7 +344,7 @@ export async function exportToPPTX(config = {}) {
       line: { color: p.isOwn ? THEME.caramel : p.isUpcoming ? THEME.warning : '2A3A55', width: p.isOwn ? 2 : 1 },
     });
 
-    slide6.addText(`${p.isUpcoming ? '🔮 YAKINDA' : '🆕 YENİ'} | ${brand?.name || p.brand} | ${p.category}`, {
+    slide6.addText(`${p.status === 'upcoming' ? '🔮 YAKINDA' : '🆕 YENİ'} | ${brand?.name || p.brand} | ${p.category}`, {
       x: x + 0.15, y: y + 0.05, w: 4.2, h: 0.25,
       fontSize: 8, color: p.isOwn ? THEME.caramel : THEME.muted, fontFace: 'Calibri',
     });
@@ -318,7 +352,7 @@ export async function exportToPPTX(config = {}) {
       x: x + 0.15, y: y + 0.3, w: 3.5, h: 0.35,
       fontSize: 13, bold: true, color: THEME.white, fontFace: 'Calibri',
     });
-    slide6.addText(`₺${p.price}`, {
+    slide6.addText(p.price ? `₺${p.price}` : '', {
       x: x + 3.7, y: y + 0.3, w: 0.7, h: 0.35,
       fontSize: 13, bold: true, color: THEME.caramel, fontFace: 'Calibri', align: 'right',
     });

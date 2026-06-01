@@ -6,7 +6,7 @@ import clsx from 'clsx';
 
 const REPORT_SECTIONS = [
   { id: 'kpi', label: 'Genel KPI Özeti', desc: 'Aylık ciro, sipariş, NPS verileri', sheets: 1, icon: '📊' },
-  { id: 'competitor', label: 'Rakip Analizi', desc: '11 marka tam karşılaştırma matrisi', sheets: 1, icon: '🏆' },
+  { id: 'competitor', label: 'Rakip Analizi', desc: '20 marka tam karşılaştırma matrisi', sheets: 1, icon: '🏆' },
   { id: 'menu', label: 'Menü Karşılaştırması', desc: '19 ürün fiyat matrisi', sheets: 1, icon: '🍽️' },
   { id: 'sales', label: 'Satış Analizi', desc: 'Aylık, haftalık satış verileri + top ürünler', sheets: 2, icon: '📈' },
   { id: 'social', label: 'Sosyal Medya', desc: '5 platform, 11 marka metrikleri', sheets: 1, icon: '📱' },
@@ -279,7 +279,7 @@ export default function Reports() {
             <strong className="text-white">Not:</strong> Raporlar otomatik olarak tarayıcınızdan indirilecektir.
             Excel dosyaları Microsoft Excel 2016+ ve Google Sheets ile uyumludur.
             PowerPoint dosyaları Microsoft PowerPoint 2016+ ve Google Slides ile uyumludur.
-            Tüm veriler Mart 2026 dönemi için güncellenmiştir.
+            Tüm veriler Mayıs 2026 dönemi için güncellenmiştir.
           </p>
         </div>
       </div>
