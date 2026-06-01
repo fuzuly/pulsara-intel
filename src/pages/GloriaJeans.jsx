@@ -437,37 +437,37 @@ export default function GloriaJeans() {
         </div>
       </section>
 
-      {/* ── Stratejik Öneriler ──────────────────────────────────────────── */}
+      {/* ── Stratejik Değerlendirme ─────────────────────────────────────── */}
       <section className="space-y-4">
         <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
-          <span>💡</span> Espressolab İçin Stratejik Öneriler
+          <span>💡</span> Stratejik Değerlendirme
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card border-success/20">
+          <div className="card border-danger/20">
             <div className="text-2xl mb-2">📱</div>
-            <h4 className="text-sm font-semibold text-white mb-2">GJ Instagram Açığını İzle</h4>
+            <h4 className="text-sm font-semibold text-white mb-2">Instagram Krizi — Acil Önlem</h4>
             <p className="text-xs text-muted leading-relaxed">
-              GJ'nin %0.11 etkileşimi, takipçilerin içeriğe kayıtsız olduğunu gösteriyor.
-              Espressolab bu segmentte sosyal içerik kalitesini öne çıkararak
-              <strong className="text-success"> GJ müşterilerini dönüştürebilir</strong>.
+              %0.11 etkileşim oranı sektörün en düşüğü — 61.749 takipçiye karşın
+              ortalama 65 beğeni. Hesabın işletme hesabı olarak doğrulanmaması
+              organik erişimi kısıtlıyor. <strong className="text-danger">İçerik stratejisi acil revizyon gerektiriyor.</strong>
             </p>
           </div>
-          <div className="card border-warning/20">
+          <div className="card border-success/20">
             <div className="text-2xl mb-2">🍰</div>
-            <h4 className="text-sm font-semibold text-white mb-2">Fırın Kategorisi Rekabeti</h4>
+            <h4 className="text-sm font-semibold text-white mb-2">Fırın Kategorisi Fırsatı</h4>
             <p className="text-xs text-muted leading-relaxed">
-              GJ Nisan 2026'da 4 yeni tatlı çıkardı — fırın deneyimine yatırım yapıyor.
-              Espressolab'ın tatlı kategorisini güçlendirmesi
-              <strong className="text-warning"> bu rekabete cevap verme</strong> açısından kritik.
+              Nisan 2026'da başlatılan fırın tatlı serisi (Red Velvet, Triple Chocolate Cookie vb.)
+              doğru bir adım. Mağaza fırını deneyimi müşteri bağlılığını artırabilir ve
+              <strong className="text-success"> ortalama sepet değerini yükseltebilir.</strong>
             </p>
           </div>
           <div className="card border-info/20">
             <div className="text-2xl mb-2">💰</div>
-            <h4 className="text-sm font-semibold text-white mb-2">Fiyat Konumlandırması</h4>
+            <h4 className="text-sm font-semibold text-white mb-2">Fiyat & Dijital Dönüşüm</h4>
             <p className="text-xs text-muted leading-relaxed">
-              GJ ort. <strong className="text-white">190₺</strong> ile Espressolab'ın <strong className="text-white">245₺</strong>'sinin altında konumlanmış.
-              55₺'lik fark üzerinden "aynı kalite, daha uygun fiyat" algısı oluşturabilir.
-              ESL için <strong className="text-info">kalite + deneyim farklılaştırması</strong> mesajı kritik.
+              Americano 160₺, Latte 185₺ ile orta-premium segment. Ancak dijital
+              sipariş kanalı ve sadakat programı eksik.
+              <strong className="text-info"> Uygulama yatırımı</strong> müşteri bağlılığını doğrudan artırır.
             </p>
           </div>
         </div>
