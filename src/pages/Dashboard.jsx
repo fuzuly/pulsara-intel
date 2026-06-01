@@ -80,7 +80,7 @@ const engagementTrend = [
 // Ratings — competitorData.js'den dinamik
 const ratingsData = [
   { brand: 'Espressolab',   rating: COMPETITOR_SCORES.espressolab.googleRating,  fill: '#C4922A' },
-  { brand: "Gloria Jean's", rating: COMPETITOR_SCORES.gloriajeans.googleRating,  fill: '#6B21A8' },
+  { brand: "Gloria Jean's", rating: COMPETITOR_SCORES.gloriajeans.googleRating,  fill: '#F46621' },
   { brand: 'Caffè Nero',    rating: COMPETITOR_SCORES.caffenero.googleRating,    fill: '#1D4ED8' },
   { brand: 'Kahve Dünyası', rating: COMPETITOR_SCORES.kahvedunyasi.googleRating, fill: '#8B1A1A' },
   { brand: 'Starbucks',     rating: COMPETITOR_SCORES.starbucks.googleRating,    fill: '#00704A' },

@@ -84,7 +84,6 @@ export const NAV_ITEMS = [
     labelShort: "GJ's",
     icon: Building2,
     description: "Gloria Jean's marka istihbaratı",
-    badge: 'YENİ',
   },
   {
     href: 'https://gloriajeans.pulsaraai.com/admin/login',
