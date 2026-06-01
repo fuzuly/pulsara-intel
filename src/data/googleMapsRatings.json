@@ -1,9 +1,9 @@
 [
-  {"brand": "espressolab",  "rating": 4.4, "reviewCount": 12800, "branches": 685,  "ratingTrend": "stable"},
-  {"brand": "starbucks",    "rating": 4.1, "reviewCount": 98400, "branches": 685,  "ratingTrend": "down"},
-  {"brand": "kahvedunyasi", "rating": 3.8, "reviewCount": 67200, "branches": 620,  "ratingTrend": "down"},
-  {"brand": "coffy",        "rating": 4.2, "reviewCount": 4100,  "branches": 120,  "ratingTrend": "up"},
-  {"brand": "gloriajeans",  "rating": 4.3, "reviewCount": 5600,  "branches": 95,   "ratingTrend": "stable"},
-  {"brand": "caffenero",    "rating": 4.5, "reviewCount": 8900,  "branches": 120,  "ratingTrend": "up"},
-  {"brand": "gua",          "rating": 4.6, "reviewCount": 2300,  "branches": 80,   "ratingTrend": "up"}
+  {"brand": "espressolab",  "rating": 4.53, "reviewCount": 12800, "branches": 284,  "ratingTrend": "stable"},
+  {"brand": "laos",         "rating": 4.57, "reviewCount": 2100,  "branches": 73,   "ratingTrend": "up"},
+  {"brand": "caffenero",    "rating": 4.50, "reviewCount": 8900,  "branches": 95,   "ratingTrend": "up"},
+  {"brand": "coffy",        "rating": 4.30, "reviewCount": 4100,  "branches": 199,  "ratingTrend": "up"},
+  {"brand": "gloriajeans",  "rating": 4.13, "reviewCount": 5600,  "branches": 214,  "ratingTrend": "stable"},
+  {"brand": "starbucks",    "rating": 3.76, "reviewCount": 98400, "branches": 685,  "ratingTrend": "down"},
+  {"brand": "kahvedunyasi", "rating": 3.64, "reviewCount": 67200, "branches": 310,  "ratingTrend": "down"}
 ]

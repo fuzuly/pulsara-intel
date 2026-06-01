@@ -313,7 +313,7 @@ export default function SocialMedia() {
             </table>
           </div>
           <p className="text-[10px] text-muted mt-3">
-            ✅ Veriler BoomSocial.com ve Instagram Public API ile doğrulanmıştır (Mart 2026).
+            ✅ Veriler BoomSocial.com ve Instagram Public API ile doğrulanmıştır (Mayıs 2026).
             Etkileşim = (beğeni + yorum) / takipçi × 100.
           </p>
         </div>
@@ -332,7 +332,7 @@ export default function SocialMedia() {
             <div>
               <p className="text-sm font-semibold text-danger mb-0.5">Kritik: Kahve Dünyası İtibar Riski</p>
               <p className="text-xs text-white/80">
-                Google Maps ortalaması <strong className="text-danger">3.8 ⭐</strong> ile en düşük seviyede ve düşüş eğiliminde.
+                Google Maps ortalaması <strong className="text-danger">3.64 ⭐</strong> ile en düşük seviyede ve düşüş eğiliminde.
                 67.200+ yorum — personel tutarsızlığı ve temizlik şikayetleri dominant.
                 Espressolab için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti vurgulanmalı.
               </p>
@@ -489,7 +489,7 @@ export default function SocialMedia() {
             <div className="text-2xl mb-2">📈</div>
             <h4 className="text-sm font-semibold text-white mb-2">Instagram Avantajını Koru</h4>
             <p className="text-xs text-muted leading-relaxed">
-              Espressolab <strong className="text-success">%2.43 etkileşim</strong> ile tüm rakiplerin önünde.
+              Espressolab <strong className="text-success">%1.28 etkileşim</strong> ile tüm rakiplerin önünde.
               Bu oran endüstri ortalamasının (~%1) 2 katı. Reels formatına yatırım sürdürülmeli;
               4.9M görüntülenme alan içerik formatı artırılmalı.
             </p>
@@ -498,7 +498,7 @@ export default function SocialMedia() {
             <div className="text-2xl mb-2">🗺️</div>
             <h4 className="text-sm font-semibold text-white mb-2">Kahve Dünyası Açığını Değerlendir</h4>
             <p className="text-xs text-muted leading-relaxed">
-              KD'nin 3.8 ⭐ skoru ve düşüş trendi, özellikle temizlik ve personel şikayetleri
+              KD'nin 3.64 ⭐ skoru ve düşüş trendi, özellikle temizlik ve personel şikayetleri
               doğrudan Espressolab'a yönlendirme fırsatı. Google My Business yanıt hızı ve
               &ldquo;temiz — sıcak&rdquo; mesajlaşması kampanyaya alınmalı.
             </p>
