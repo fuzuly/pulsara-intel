@@ -180,7 +180,7 @@ export const COMPETITOR_SCORES = {
   gua: {
     marketShare: 3,
     avgPrice: 140,
-    branches: 80,
+    branches: 115,
     googleRating: 4.26,
     nps: 64,
     socialScore: 65,
@@ -222,7 +222,7 @@ export const COMPETITOR_SCORES = {
   caffenero: {
     marketShare: 4,
     avgPrice: 194,
-    branches: 120,
+    branches: 95,
     googleRating: 3.76,
     nps: 60,
     socialScore: 62,
@@ -369,7 +369,7 @@ export const COMPETITOR_SCORES = {
   nevada: {
     marketShare: 3,
     avgPrice: 118,
-    branches: 188,
+    branches: 122,
     googleRating: 3.97,
     nps: 48,
     socialScore: 52,

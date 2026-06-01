@@ -482,7 +482,7 @@ export default function CompetitorAnalysis() {
       )}
       <SectionHeader
         title="Rakip Analizi"
-        subtitle="Türkiye kahve sektöründe 20 markanın kapsamlı karşılaştırması — Mart 2026"
+        subtitle="Türkiye kahve sektöründe 20 markanın kapsamlı karşılaştırması — Mayıs 2026"
       />
       <DataFreshnessBar sources={COMPETITOR_SOURCES} interval={300_000} onRefresh={refetchCompetitors} />
 
@@ -711,7 +711,7 @@ export default function CompetitorAnalysis() {
             <strong className="text-success">Starbucks:</strong> 722 şube — verikaynagi.com / euronews.tr (2024) |{' '}
             <strong className="text-caramel">Espressolab:</strong> ~270 TR + 338 global — perakende.org / foodinlife.com (Oca 2025) |{' '}
             <strong className="text-red-400">Kahve Dünyası:</strong> ~320 şube, 2025 hedef 500 — ekonomim.com |{' '}
-            <strong className="text-orange-400">Gloria Jean's:</strong> 203 şube — franchisemarketturkiye.com (2024)
+            <strong className="text-orange-400">Gloria Jean's:</strong> 214 şube — gloriajeans.com.tr (Mayıs 2026)
           </p>
           <p>
             <strong className="text-amber-400">Coffy:</strong> 153 şube (2023'te 89 → %72 büyüme!) — ekonomim.com |{' '}
