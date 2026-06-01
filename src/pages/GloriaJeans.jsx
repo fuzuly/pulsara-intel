@@ -12,8 +12,9 @@ import instagramProfiles from '../data/instagramProfiles.json';
 import instagramPosts from '../data/instagramPosts.json';
 import clsx from 'clsx';
 import { formatLargeNumber } from '../utils/formatters';
-import { Trophy, TrendingDown, MapPin, ExternalLink } from 'lucide-react';
+import { Trophy, TrendingDown, MapPin, ExternalLink, AlertTriangle, RefreshCw, Star, MessageSquare } from 'lucide-react';
 import useBranchData from '../hooks/useBranchData';
+import useGJReviews from '../hooks/useGJReviews';
 
 // ─── Sabit veri ───────────────────────────────────────────────────────────────
 const GJ_COLOR  = '#F46621';
@@ -127,8 +128,10 @@ const BenchmarkTooltip = ({ active, payload, label }) => {
 };
 
 export default function GloriaJeans() {
-  const activeProducts  = gjProducts.filter(p => p.status === 'active');
+  const activeProducts   = gjProducts.filter(p => p.status === 'active');
   const upcomingProducts = gjProducts.filter(p => p.status === 'upcoming');
+
+  const { branches: reviewBranches, loading: reviewLoading, error: reviewError, scrapedAt: reviewDate, pending: reviewPending, refresh: refreshReviews } = useGJReviews();
 
   const { branches } = useBranchData();
 
@@ -574,6 +577,141 @@ export default function GloriaJeans() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ── GJ Şube Şikayet Analizi ─────────────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2 flex-1">
+            <span>🔍</span> Şube Şikayet Analizi — Google Maps Yorumları
+          </h2>
+          {!reviewLoading && !reviewPending && reviewBranches.length > 0 && (
+            <button onClick={refreshReviews} className="btn-secondary text-xs flex items-center gap-1.5">
+              <RefreshCw size={12} /> Yenile
+            </button>
+          )}
+        </div>
+
+        {reviewLoading ? (
+          <div className="card flex items-center justify-center gap-3 py-10">
+            <RefreshCw size={18} className="animate-spin" style={{ color: GJ_COLOR }} />
+            <span className="text-sm text-muted">Yorum verileri yükleniyor...</span>
+          </div>
+        ) : reviewPending ? (
+          <div className="card text-center py-10 space-y-3">
+            <div className="text-4xl">📋</div>
+            <p className="text-sm font-semibold text-white">İlk Analiz Henüz Çalışmadı</p>
+            <p className="text-xs text-muted max-w-md mx-auto">
+              GJ şube yorum analizi her <strong className="text-white">Pazartesi 03:00</strong>'te otomatik çalışır.
+              İlk veri bir sonraki Pazartesi hazır olacak.
+            </p>
+            <a
+              href="https://espressolab-scraper-production.up.railway.app/api/branches/reviews/gloriajeans/run"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg font-semibold text-white mt-2"
+              style={{ backgroundColor: GJ_COLOR }}
+            >
+              <RefreshCw size={13} /> Şimdi Başlat (~15-20 dk)
+            </a>
+          </div>
+        ) : reviewError ? (
+          <div className="card text-center py-8">
+            <p className="text-xs text-danger">Bağlantı hatası: {reviewError}</p>
+          </div>
+        ) : reviewBranches.length > 0 ? (
+          <>
+            {/* Özet başlık */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Analiz Edilen Şube', value: reviewBranches.length, color: 'text-white' },
+                { label: 'En Yaygın Şikayet', value: (() => { const all = {}; reviewBranches.forEach(b => b.complaints?.forEach(c => { all[c.category] = (all[c.category]||0)+c.count; })); return Object.entries(all).sort(([,a],[,b])=>b-a)[0]?.[0] || '—'; })(), color: 'text-danger' },
+                { label: 'Toplam Yorum', value: reviewBranches.reduce((s,b) => s+(b.totalScraped||0), 0).toLocaleString('tr-TR'), color: 'text-white' },
+                { label: 'Son Analiz', value: reviewDate ? reviewDate.toLocaleDateString('tr-TR') : '—', color: 'text-muted' },
+              ].map(k => (
+                <div key={k.label} className="card text-center py-3">
+                  <div className={`text-xl font-bold ${k.color}`}>{k.value}</div>
+                  <div className="text-[10px] text-muted mt-0.5">{k.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Şube kartları */}
+            <div className="space-y-3">
+              {reviewBranches.map(branch => (
+                <div key={branch.placeId} className="card border border-danger/15">
+                  {/* Üst satır */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                        style={{ backgroundColor: GJ_COLOR }}
+                      >GJ</div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{branch.name}</p>
+                        <p className="text-[10px] text-muted">{branch.city || '—'} · {branch.reviewCount?.toLocaleString('tr-TR')} yorum · {branch.totalScraped} analiz edildi</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-lg font-bold" style={{ color: branch.rating >= 4 ? '#86EFAC' : branch.rating >= 3.5 ? '#FCD34D' : '#EF4444' }}>
+                        {branch.rating?.toFixed(1)}
+                      </span>
+                      {branch.mapsUrl && (
+                        <a href={branch.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-orange-400">
+                          <ExternalLink size={13} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Şikayet kategorileri */}
+                  {branch.complaints?.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-[10px] text-muted uppercase tracking-wider mb-1.5">Şikayet Kategorileri</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {branch.complaints.map(c => (
+                          <span
+                            key={c.category}
+                            className="text-[10px] px-2 py-0.5 rounded-full border font-medium"
+                            style={{
+                              backgroundColor: '#EF444415',
+                              borderColor: '#EF444430',
+                              color: '#FCA5A5',
+                            }}
+                          >
+                            {c.category} ({c.count})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Örnek olumsuz yorumlar */}
+                  {branch.sampleReviews?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] text-muted uppercase tracking-wider">Örnek Olumsuz Yorumlar</p>
+                      {branch.sampleReviews.map((r, i) => (
+                        <div key={i} className="bg-surface2 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            {Array(r.rating || 1).fill(0).map((_, s) => (
+                              <Star key={s} size={9} className="text-warning fill-warning" />
+                            ))}
+                            {r.date && <span className="text-[9px] text-muted ml-1">{r.date}</span>}
+                          </div>
+                          <p className="text-[11px] text-muted leading-relaxed">"{r.text}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {branch.complaints?.length === 0 && branch.totalScraped > 0 && (
+                    <p className="text-xs text-muted italic">Anahtar kelime eşleşmesi bulunamadı — yorumlar genel memnuniyetsizlik içeriyor olabilir.</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
       </section>
 
       {/* ── Stratejik Değerlendirme ─────────────────────────────────────── */}
