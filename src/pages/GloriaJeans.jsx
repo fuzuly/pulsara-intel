@@ -12,10 +12,20 @@ import instagramProfiles from '../data/instagramProfiles.json';
 import instagramPosts from '../data/instagramPosts.json';
 import clsx from 'clsx';
 import { formatLargeNumber } from '../utils/formatters';
+import { Trophy, TrendingDown, MapPin, ExternalLink } from 'lucide-react';
+import useBranchData from '../hooks/useBranchData';
 
 // ─── Sabit veri ───────────────────────────────────────────────────────────────
 const GJ_COLOR  = '#6B21A8';
 const GJ_LIGHT  = '#A855F7';
+
+const gjRatingColor = (r) => {
+  if (r >= 4.5) return '#22C55E';
+  if (r >= 4.0) return '#86EFAC';
+  if (r >= 3.5) return '#FCD34D';
+  if (r >= 3.0) return '#FB923C';
+  return '#EF4444';
+};
 
 const gj  = COMPETITOR_SCORES.gloriajeans;
 const gjProducts = NEW_PRODUCTS.filter(p => p.brand === 'gloriajeans');
@@ -119,6 +129,49 @@ const BenchmarkTooltip = ({ active, payload, label }) => {
 export default function GloriaJeans() {
   const activeProducts  = gjProducts.filter(p => p.status === 'active');
   const upcomingProducts = gjProducts.filter(p => p.status === 'upcoming');
+
+  const { branches } = useBranchData();
+
+  const gjBranches = useMemo(() =>
+    branches.filter(b => b.brandId === 'gloriajeans'),
+    [branches]
+  );
+
+  const gjWithScore = useMemo(() =>
+    gjBranches.map(b => ({
+      ...b,
+      wScore: b.reviewCount >= 1
+        ? Math.round(b.rating * Math.log10(b.reviewCount + 1) * 100) / 100
+        : 0,
+    })),
+    [gjBranches]
+  );
+
+  const gjTop5 = useMemo(() =>
+    [...gjWithScore].filter(b => b.reviewCount >= 10)
+      .sort((a, b) => b.wScore - a.wScore).slice(0, 5),
+    [gjWithScore]
+  );
+
+  const gjBottom5 = useMemo(() =>
+    [...gjWithScore].filter(b => b.reviewCount >= 10)
+      .sort((a, b) => a.wScore - b.wScore).slice(0, 5),
+    [gjWithScore]
+  );
+
+  const gjCityStats = useMemo(() => {
+    const cityMap = {};
+    gjBranches.forEach(b => {
+      if (!b.city) return;
+      if (!cityMap[b.city]) cityMap[b.city] = { city: b.city, count: 0, total: 0 };
+      cityMap[b.city].count++;
+      cityMap[b.city].total += b.rating;
+    });
+    return Object.values(cityMap)
+      .map(c => ({ ...c, avg: Math.round(c.total / c.count * 10) / 10 }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 12);
+  }, [gjBranches]);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -258,6 +311,92 @@ export default function GloriaJeans() {
           </div>
         </div>
       </div>
+
+      {/* ── GJ Şube Google Puanları ─────────────────────────────────────── */}
+      {gjBranches.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
+            <span>📍</span> GJ Şube Google Puanları — Canlı Veri
+            <span className="text-xs font-normal text-muted ml-1">({gjBranches.length} şube)</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="card">
+              <div className="flex items-center gap-2 mb-3">
+                <Trophy size={14} className="text-warning" />
+                <h3 className="text-sm font-semibold text-white">En İyi 5 GJ Şubesi</h3>
+                <span className="text-[10px] text-muted ml-auto">Ağırlıklı skor</span>
+              </div>
+              <div className="space-y-1.5">
+                {gjTop5.map((b, i) => (
+                  <div key={b.placeId} className="flex items-center gap-2 py-1">
+                    <span className="text-[11px] text-muted w-4 text-right flex-shrink-0">{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white truncate">{b.name}</p>
+                      <p className="text-[10px] text-muted">{b.city || '—'} · {b.reviewCount?.toLocaleString('tr-TR')} yorum</p>
+                    </div>
+                    <span className="text-sm font-bold flex-shrink-0" style={{ color: gjRatingColor(b.rating) }}>
+                      {b.rating?.toFixed(1)}
+                    </span>
+                    {b.mapsUrl && (
+                      <a href={b.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-purple-400 flex-shrink-0">
+                        <ExternalLink size={11} />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card border border-danger/20">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingDown size={14} className="text-danger" />
+                <h3 className="text-sm font-semibold text-white">En Düşük 5 GJ Şubesi</h3>
+                <span className="text-[10px] text-muted ml-auto">min 10 yorum</span>
+              </div>
+              <div className="space-y-1.5">
+                {gjBottom5.map((b, i) => (
+                  <div key={b.placeId} className="flex items-center gap-2 py-1">
+                    <span className="text-[11px] text-muted w-4 text-right flex-shrink-0">{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white truncate">{b.name}</p>
+                      <p className="text-[10px] text-muted">{b.city || '—'} · {b.reviewCount?.toLocaleString('tr-TR')} yorum</p>
+                    </div>
+                    <span className="text-sm font-bold flex-shrink-0" style={{ color: gjRatingColor(b.rating) }}>
+                      {b.rating?.toFixed(1)}
+                    </span>
+                    {b.mapsUrl && (
+                      <a href={b.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-purple-400 flex-shrink-0">
+                        <ExternalLink size={11} />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {gjCityStats.length > 0 && (
+            <div className="card">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin size={14} className="text-purple-400" />
+                <h3 className="text-sm font-semibold text-white">Şehir Bazında GJ Şubeleri</h3>
+                <span className="text-[10px] text-muted ml-auto">Ort. puan · şube sayısı</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                {gjCityStats.map(c => (
+                  <div key={c.city} className="flex items-center justify-between px-3 py-2 rounded-lg bg-surface2 gap-2">
+                    <span className="text-xs text-white truncate">{c.city}</span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-xs font-bold" style={{ color: gjRatingColor(c.avg) }}>{c.avg.toFixed(1)}</span>
+                      <span className="text-[10px] text-muted">({c.count})</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ── Instagram Detay ─────────────────────────────────────────────── */}
       <section className="space-y-4">
