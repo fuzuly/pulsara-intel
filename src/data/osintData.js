@@ -46,10 +46,10 @@ export const SENTIMENT_SCORES = {
 // ── Trend Kelimeler — Doğrulanmış Marka Karakteristikleri ───────────────────
 // Kaynaklar: resmi web siteleri, basın bültenleri, haber arşivleri
 export const TRENDING_KEYWORDS = {
+  gloriajeans:  ['franchise', 'orta-segment', 'brezilya-çekirdeği', 'co-lemonade'],
   espressolab:  ['specialty-kahve', 'single-origin', 'roastery', 'cold-brew', 'sürdürülebilir', 'barista'],
   starbucks:    ['ube-vanilla', 'matcha', 'sezonluk-menü', 'fiyat-güncellemesi', 'rewards-app'],
   kahvedunyasi: ['türk-kahvesi', 'çikolata', 'algötür', 'şube-genişleme', 'anadolu'],
-  gloriajeans:  ['franchise', 'orta-segment', 'brezilya-çekirdeği', 'co-lemonade'],
   sencay:       ['çay-kahve', 'uygun-fiyat', 'anadolu', 'hızlı-servis'],
   arabica:      ['specialty', 'marmara', 'franchise', 'genişleme'],
   coffy:        ['jubilant-foodworks', 'franchise', 'büyüme', 'transit-nokta'],
