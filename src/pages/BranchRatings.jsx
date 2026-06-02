@@ -164,7 +164,11 @@ export default function BranchRatings() {
         avgWScore:    Math.round(avgWs * 100) / 100,
         totalReviews: bs.reduce((s, b) => s + (b.reviewCount || 0), 0),
       };
-    }).filter(Boolean).sort((a, b) => b.avg - a.avg),
+    }).filter(Boolean).sort((a, b) => {
+      if (a.id === 'gloriajeans') return -1;
+      if (b.id === 'gloriajeans') return 1;
+      return b.avg - a.avg;
+    }),
     [branches]);
 
   // Filtrelenmiş şubeler

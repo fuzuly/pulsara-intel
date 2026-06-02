@@ -434,6 +434,8 @@ export default function CompetitorAnalysis() {
   };
 
   const sortedBrands = [...BRANDS].sort((a, b) => {
+    if (a.id === 'gloriajeans') return -1;
+    if (b.id === 'gloriajeans') return 1;
     const aVal = scores[a.id]?.[sortBy] ?? 0;
     const bVal = scores[b.id]?.[sortBy] ?? 0;
     return sortDir === 'desc' ? bVal - aVal : aVal - bVal;

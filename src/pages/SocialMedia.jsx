@@ -334,7 +334,7 @@ export default function SocialMedia() {
               <p className="text-xs text-white/80">
                 Google Maps ortalaması <strong className="text-danger">3.64 ⭐</strong> ile en düşük seviyede ve düşüş eğiliminde.
                 67.200+ yorum — personel tutarsızlığı ve temizlik şikayetleri dominant.
-                Espressolab için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti vurgulanmalı.
+                Rakipler için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti öne çıkarılmalı.
               </p>
             </div>
           </div>
