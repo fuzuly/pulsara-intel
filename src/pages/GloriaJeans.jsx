@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -132,6 +132,26 @@ export default function GloriaJeans() {
   const upcomingProducts = gjProducts.filter(p => p.status === 'upcoming');
 
   const { branches: reviewBranches, loading: reviewLoading, error: reviewError, scrapedAt: reviewDate, pending: reviewPending, refresh: refreshReviews } = useGJReviews();
+
+  const [triggerStatus, setTriggerStatus] = useState(null); // null | 'loading' | 'started' | 'error'
+
+  const triggerReviewScrape = async () => {
+    setTriggerStatus('loading');
+    try {
+      const API = import.meta.env.VITE_SCRAPER_URL || 'https://espressolab-scraper-production.up.railway.app';
+      const res = await fetch(`${API}/api/branches/reviews/gloriajeans/run`);
+      if (res.ok) {
+        setTriggerStatus('started');
+        setTimeout(() => setTriggerStatus(null), 8000);
+      } else {
+        setTriggerStatus('error');
+        setTimeout(() => setTriggerStatus(null), 5000);
+      }
+    } catch {
+      setTriggerStatus('error');
+      setTimeout(() => setTriggerStatus(null), 5000);
+    }
+  };
 
   const { branches } = useBranchData();
 
@@ -605,15 +625,22 @@ export default function GloriaJeans() {
               GJ şube yorum analizi her <strong className="text-white">Pazartesi 03:00</strong>'te otomatik çalışır.
               İlk veri bir sonraki Pazartesi hazır olacak.
             </p>
-            <a
-              href="https://espressolab-scraper-production.up.railway.app/api/branches/reviews/gloriajeans/run"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg font-semibold text-white mt-2"
+            <button
+              onClick={triggerReviewScrape}
+              disabled={triggerStatus === 'loading' || triggerStatus === 'started'}
+              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg font-semibold text-white mt-2 disabled:opacity-60"
               style={{ backgroundColor: GJ_COLOR }}
             >
-              <RefreshCw size={13} /> Şimdi Başlat (~15-20 dk)
-            </a>
+              {triggerStatus === 'loading' ? (
+                <><RefreshCw size={13} className="animate-spin" /> Başlatılıyor...</>
+              ) : triggerStatus === 'started' ? (
+                <><span>✓</span> Başlatıldı — 15-20 dk içinde hazır</>
+              ) : triggerStatus === 'error' ? (
+                <><span>✕</span> Bağlantı hatası, tekrar dene</>
+              ) : (
+                <><RefreshCw size={13} /> Analizi Başlat (~15-20 dk)</>
+              )}
+            </button>
           </div>
         ) : reviewError ? (
           <div className="card text-center py-8">
