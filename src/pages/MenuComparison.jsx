@@ -252,36 +252,6 @@ export default function MenuComparison() {
         </div>
       </div>
 
-      {/* Insight Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card border-success/20">
-          <div className="text-2xl mb-2">💡</div>
-          <h4 className="text-sm font-semibold text-white mb-2">Fiyat Konumlama — Mayıs 2026</h4>
-          <p className="text-xs text-muted leading-relaxed">
-            Espressolab ort. <strong className="text-white">₺185</strong> ile Starbucks (₺175) ve Kronotrop (₺182) ile premium segmentte yarışıyor.
-            Caffe Nero (₺105) ve Kahve Dünyası (₺115) sektörün en uygun fiyatlı markaları.
-            Coffy (₺95) ve Nevada (₺100) bütçe segmentini domine ediyor.
-          </p>
-        </div>
-        <div className="card border-info/20">
-          <div className="text-2xl mb-2">🎯</div>
-          <h4 className="text-sm font-semibold text-white mb-2">Dikkat Çekici Bulgular</h4>
-          <p className="text-xs text-muted leading-relaxed">
-            <strong className="text-white">Caffe Nero Americano ₺74</strong> — Starbucks'ın (₺150) yarısından az, sektörün en uygun fiyatlı zinciri.
-            <strong className="text-white"> Espressolab Mocha ₺203</strong>, Cortado ₺150 — specialty segmentte premium konumlanma.
-            <strong className="text-white"> Matcha Latte</strong> yalnızca Espressolab (₺203) ve Starbucks'ta (₺195) var.
-          </p>
-        </div>
-        <div className="card border-warning/20">
-          <div className="text-2xl mb-2">⚠️</div>
-          <h4 className="text-sm font-semibold text-white mb-2">Starbucks Ocak 2026 Zammı</h4>
-          <p className="text-xs text-muted leading-relaxed">
-            Starbucks Americano <strong className="text-danger">120₺ → 150₺</strong> (%25 zam, Ocak 2026 doğrulandı).
-            Bu fiyat artışı Caffe Nero (₺82) ve Kahve Dünyası (₺95) için doğrudan
-            <strong className="text-success"> müşteri çekme fırsatı</strong> yarattı.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

@@ -151,7 +151,7 @@ export default function SocialMedia() {
       />
       <SectionHeader
         title="Sosyal Medya & İtibar Analizi"
-        subtitle="Instagram performansı · Google Maps itibarı · Duygu analizi — Mayıs 2026"
+        subtitle="Instagram performansı · Google Maps itibarı · Duygu analizi — Haziran 2026"
       />
 
       {/* ── SECTION 1: Instagram ─────────────────────────────────── */}
@@ -313,7 +313,7 @@ export default function SocialMedia() {
             </table>
           </div>
           <p className="text-[10px] text-muted mt-3">
-            ✅ Veriler BoomSocial.com ve Instagram Public API ile doğrulanmıştır (Mayıs 2026).
+            ✅ Veriler BoomSocial.com ve Instagram Public API ile doğrulanmıştır (Haziran 2026).
             Etkileşim = (beğeni + yorum) / takipçi × 100.
           </p>
         </div>
@@ -519,7 +519,7 @@ export default function SocialMedia() {
           <span className="text-blue-400 text-base mt-0.5">🔍</span>
           <p className="text-muted">
             <strong className="text-blue-300">Kaynaklar: </strong>
-            Instagram takipçi ve etkileşim verileri 100'er post analizi (Mayıs 2026) ile doğrulanmıştır.
+            Instagram takipçi ve etkileşim verileri 100'er post analizi (Haziran 2026) ile doğrulanmıştır.
             Google Maps puanları Google Places API ve manuel doğrulama kombinasyonuyla alınmıştır.
             Duygu analizi sosyal medya yorumları ve Google Maps yorumlarının yapısal analizine dayanmaktadır.
           </p>
