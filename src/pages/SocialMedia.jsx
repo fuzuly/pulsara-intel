@@ -181,7 +181,7 @@ export default function SocialMedia() {
         {/* Öne Çıkan Bulgular */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {[
-            { icon: '🏆', color: 'text-success',  border: 'border-success/20',     title: 'Espressolab Açık Ara Lider',      desc: '%1.28 etkileşim · 52.736 max beğeni (viral post) — sektörün en yüksek engagement oranı' },
+            { icon: '🏆', color: 'text-success',  border: 'border-success/20',     title: 'Sektör Lideri: %1.28 Etkileşim', desc: 'Espressolab %1.28 · 52.736 max beğeni (viral post) — sektörün en yüksek engagement oranı' },
             { icon: '📉', color: 'text-danger',   border: 'border-danger/20',      title: 'Gloria Jean\'s: Boş Kalabalık',   desc: '61.749 takipçiyle %0.11 etkileşim — içerik stratejisi çalışmıyor, pazar fırsatı var' },
             { icon: '💬', color: 'text-warning',  border: 'border-warning/20',     title: 'Nevada: Tartışmalı İçerik',       desc: 'Ort. 46 yorum — like oranı düşük ama yorum yüksek, negatif tartışma riski taşıyor' },
             { icon: '🔍', color: 'text-blue-400', border: 'border-blue-500/20',    title: 'Mikel: Like Gizleme Anomalisi',   desc: 'Ort. 1 beğeni · 104 yorum — Instagram like gizleme politikası uyguluyor olabilir' },
@@ -489,18 +489,17 @@ export default function SocialMedia() {
             <div className="text-2xl mb-2">📈</div>
             <h4 className="text-sm font-semibold text-white mb-2">Instagram Avantajını Koru</h4>
             <p className="text-xs text-muted leading-relaxed">
-              Espressolab <strong className="text-success">%1.28 etkileşim</strong> ile tüm rakiplerin önünde.
-              Bu oran endüstri ortalamasının (~%1) 2 katı. Reels formatına yatırım sürdürülmeli;
-              4.9M görüntülenme alan içerik formatı artırılmalı.
+              Espressolab <strong className="text-success">%1.28 etkileşim</strong> ile sektör ortalamasının (~%1) 2 katı performans gösteriyor.
+              Reels ve kısa video formatı bu başarının temel sürücüsü.
             </p>
           </div>
           <div className="card border-warning/20">
             <div className="text-2xl mb-2">🗺️</div>
             <h4 className="text-sm font-semibold text-white mb-2">Kahve Dünyası Açığını Değerlendir</h4>
             <p className="text-xs text-muted leading-relaxed">
-              KD'nin 3.64 ⭐ skoru ve düşüş trendi, özellikle temizlik ve personel şikayetleri
-              doğrudan Espressolab'a yönlendirme fırsatı. Google My Business yanıt hızı ve
-              &ldquo;temiz — sıcak&rdquo; mesajlaşması kampanyaya alınmalı.
+              Kahve Dünyası'nın 3.64 ⭐ skoru ve düşüş trendi, özellikle temizlik ve personel şikayetleri
+              rakipler için doğrudan müşteri kazanım fırsatı sunuyor. Google Maps yorumlarına
+              hızlı yanıt veren markalar bu boşluktan en çok yararlanıyor.
             </p>
           </div>
           <div className="card border-info/20">
