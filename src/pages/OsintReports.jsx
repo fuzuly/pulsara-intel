@@ -88,7 +88,7 @@ export default function OsintReports() {
       {/* Source note */}
       <div className="flex items-center gap-3 rounded-xl px-4 py-3 text-xs bg-success/5 border border-success/20">
         <span className="h-2 w-2 rounded-full flex-shrink-0 bg-success" />
-        <span className="text-success/90">Veriler doğrulanmış kaynaklardan derlendi: Anadolu Ajansı, Gastrofill, Food in Life, Mall Report, Marketing Türkiye, Dünya Gazetesi — 30 Mayıs 2026</span>
+        <span className="text-success/90">Veriler doğrulanmış kaynaklardan derlendi: Anadolu Ajansı, Gastrofill, Food in Life, Mall Report, Marketing Türkiye, Dünya Gazetesi — Haziran 2026</span>
       </div>
 
       {/* Trending Keywords */}

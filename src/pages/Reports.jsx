@@ -279,7 +279,7 @@ export default function Reports() {
             <strong className="text-white">Not:</strong> Raporlar otomatik olarak tarayıcınızdan indirilecektir.
             Excel dosyaları Microsoft Excel 2016+ ve Google Sheets ile uyumludur.
             PowerPoint dosyaları Microsoft PowerPoint 2016+ ve Google Slides ile uyumludur.
-            Tüm veriler Mayıs 2026 dönemi için güncellenmiştir.
+            Tüm veriler Haziran 2026 dönemi için güncellenmiştir.
           </p>
         </div>
       </div>

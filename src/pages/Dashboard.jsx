@@ -270,7 +270,7 @@ export default function Dashboard() {
         <div className="card flex flex-col">
           <div className="mb-3">
             <h3 className="text-base font-semibold text-white">Google Maps Ortalama Puan</h3>
-            <p className="text-xs text-muted mt-0.5">Doğrulanmış Google Maps verisi — Mayıs 2026</p>
+            <p className="text-xs text-muted mt-0.5">Doğrulanmış Google Maps verisi — Haziran 2026</p>
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart

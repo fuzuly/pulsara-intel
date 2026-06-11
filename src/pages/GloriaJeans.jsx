@@ -230,7 +230,7 @@ export default function GloriaJeans() {
           { label: 'Türkiye Şube Sayısı',  value: '214',                                              sub: '43+ ilde aktif',                        color: '#ffffff'  },
           { label: 'Pazar Payı',           value: `%${gj.marketShare}`,                               sub: 'TR kahve sektörü',                       color: GJ_LIGHT   },
           { label: 'Ort. Ürün Fiyatı',     value: `₺${gj.avgPrice}`,                                 sub: 'Menü ortalaması',                        color: '#22c55e'  },
-          { label: 'Google Maps Puanı',    value: String(gj.googleRating),                            sub: '108 şube · Mayıs 2026',                  color: '#f59e0b'  },
+          { label: 'Google Maps Puanı',    value: String(gj.googleRating),                            sub: '108 şube · Haziran 2026',                color: '#f59e0b'  },
           { label: 'Instagram Takipçi',    value: formatLargeNumber(igProfile.followers || 61749),    sub: '@gjcsturkey',                            color: GJ_LIGHT   },
           { label: 'Instagram Etkileşim',  value: `%${igPost.engagementRate || 0.11}`,                sub: 'Sektör ort. %0.51 — ⚠️ Düşük',           color: '#ef4444'  },
           { label: 'NPS Skoru',            value: String(gj.nps),                                     sub: 'Müşteri tavsiye oranı',                  color: '#8B9BB4'  },
@@ -782,10 +782,10 @@ export default function GloriaJeans() {
         <span className="text-blue-400 text-base mt-0.5">🔍</span>
         <p className="text-muted">
           <strong className="text-blue-300">Kaynaklar: </strong>
-          Şube ve pazar verileri gloriajeans.com.tr + Emlakkulisi.com (Mayıs 2026) |
-          Instagram metrikleri 100 post analizi (29 Mayıs 2026) |
+          Şube ve pazar verileri gloriajeans.com.tr + Emlakkulisi.com (Haziran 2026) |
+          Instagram metrikleri 100 post analizi (29 Haziran 2026) |
           Yeni ürünler mallreport.com.tr (8 Nisan 2026) |
-          Google Maps puanı 108 şube ortalaması (Mayıs 2026) |
+          Google Maps puanı 108 şube ortalaması (Haziran 2026) |
           Finansal veriler tahminidir (⚠️).
         </p>
       </div>
