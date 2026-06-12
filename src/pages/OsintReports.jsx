@@ -6,6 +6,7 @@ import { BRANDS } from '../constants/brands';
 import { TRENDING_KEYWORDS, SENTIMENT_SCORES } from '../data/osintData';
 import { NEW_PRODUCTS } from '../data/newProductData';
 import clsx from 'clsx';
+import { Search, X } from 'lucide-react';
 
 const TODAY = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -37,10 +38,29 @@ function SentimentTooltip({ active, payload, label }) {
 
 export default function OsintReports() {
   const [selectedBrand, setSelectedBrand] = useState('all');
+  const [query, setQuery] = useState('');
 
-  const filtered = useMemo(() => STATIC_MENTIONS.filter(m =>
-    selectedBrand === 'all' || m.brand === selectedBrand
-  ), [selectedBrand]);
+  const q = query.toLowerCase().trim();
+
+  const filtered = useMemo(() => STATIC_MENTIONS.filter(m => {
+    const matchBrand = selectedBrand === 'all' || m.brand === selectedBrand;
+    const matchQuery = !q ||
+      m.title.toLowerCase().includes(q) ||
+      (m.summary || '').toLowerCase().includes(q) ||
+      m.brand.toLowerCase().includes(q);
+    return matchBrand && matchQuery;
+  }), [selectedBrand, q]);
+
+  const matchingKeywordBrands = useMemo(() => {
+    if (!q) return null;
+    const matches = new Set();
+    Object.entries(TRENDING_KEYWORDS).forEach(([brandId, kws]) => {
+      if (kws.some(kw => kw.toLowerCase().includes(q)) || brandId.includes(q)) {
+        matches.add(brandId);
+      }
+    });
+    return matches;
+  }, [q]);
 
   // Sentiment chart verisi — tüm markalar
   const sentimentData = useMemo(() =>
@@ -91,6 +111,23 @@ export default function OsintReports() {
         <span className="text-success/90">Veriler doğrulanmış kaynaklardan derlendi: Anadolu Ajansı, Gastrofill, Food in Life, Mall Report, Marketing Türkiye, Dünya Gazetesi — Haziran 2026</span>
       </div>
 
+      {/* Arama Kutusu */}
+      <div className="relative">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+        <input
+          type="text"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Kelime, marka veya etiket ara..."
+          className="w-full bg-surface2 border border-navy-border rounded-xl pl-9 pr-9 py-2.5 text-sm text-white placeholder-muted focus:outline-none focus:border-purple-500 transition-colors"
+        />
+        {query && (
+          <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white transition-colors">
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
       {/* Trending Keywords */}
       <div className="card">
         <h3 className="text-sm font-semibold text-white mb-1">Trend Kelimeler — Marka Bazlı</h3>
@@ -99,23 +136,27 @@ export default function OsintReports() {
           {Object.entries(TRENDING_KEYWORDS).map(([brandId, keywords]) => {
             const brand = BRANDS.find(b => b.id === brandId);
             if (!brand) return null;
+            const dimmed = matchingKeywordBrands && !matchingKeywordBrands.has(brandId);
             return (
-              <div key={brandId} className="flex items-center gap-3 flex-wrap">
+              <div key={brandId} className={clsx('flex items-center gap-3 flex-wrap transition-opacity', dimmed && 'opacity-25')}>
                 <BrandBadge brandId={brandId} size="sm" />
                 <div className="flex flex-wrap gap-1.5">
-                  {keywords.map((kw, i) => (
-                    <span
-                      key={kw}
-                      className="text-xs px-2.5 py-1 rounded-full font-medium"
-                      style={{
-                        backgroundColor: `${brand.color}${Math.max(15, 40 - i * 5).toString(16)}`,
-                        color: brand.textColor || brand.color,
-                        fontSize: `${Math.max(10, 13 - i)}px`,
-                      }}
-                    >
-                      #{kw}
-                    </span>
-                  ))}
+                  {keywords.map((kw, i) => {
+                    const highlight = q && kw.toLowerCase().includes(q);
+                    return (
+                      <span
+                        key={kw}
+                        className={clsx('text-xs px-2.5 py-1 rounded-full font-medium transition-all', highlight && 'ring-2 ring-white/40')}
+                        style={{
+                          backgroundColor: `${brand.color}${Math.max(15, 40 - i * 5).toString(16)}`,
+                          color: brand.textColor || brand.color,
+                          fontSize: `${Math.max(10, 13 - i)}px`,
+                        }}
+                      >
+                        #{kw}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -161,7 +202,7 @@ export default function OsintReports() {
 
       {/* Haber filtresi */}
       <div className="card flex flex-wrap gap-3 items-center">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-muted">Marka:</span>
           <button
             onClick={() => setSelectedBrand('all')}
@@ -180,7 +221,9 @@ export default function OsintReports() {
             </button>
           ))}
         </div>
-        <span className="text-xs text-muted ml-auto">{filtered.length} kayıt</span>
+        <span className="text-xs text-muted ml-auto">
+          {filtered.length} kayıt{q ? ` · "${query}" için` : ''}
+        </span>
       </div>
 
       {/* Haber akışı */}
