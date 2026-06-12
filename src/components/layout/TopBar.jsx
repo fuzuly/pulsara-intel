@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
-import { Bell, Download, RefreshCw } from 'lucide-react';
+import { Bell, Download, RefreshCw, Search } from 'lucide-react';
 import { NAV_ITEMS } from '../../constants/routes';
 import { useExport } from '../../hooks/useExport';
 import { useAuth } from '../../context/AuthContext';
 import { ALERTS } from '../../data/alertsData';
 import ThemeToggle from '../common/ThemeToggle';
+import GlobalSearch from '../common/GlobalSearch';
 import clsx from 'clsx';
 
 export default function TopBar({ sidebarCollapsed }) {
   const location = useLocation();
   const [clock, setClock] = useState(new Date());
   const [showNotif, setShowNotif] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const { exportToExcel, exportToPPTX, isExporting } = useExport();
   const { user } = useAuth();
 
@@ -24,6 +27,17 @@ export default function TopBar({ sidebarCollapsed }) {
   useEffect(() => {
     const timer = setInterval(() => setClock(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch(p => !p);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   const timeStr = clock.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -52,6 +66,19 @@ export default function TopBar({ sidebarCollapsed }) {
 
         {/* Right section */}
         <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Global search trigger */}
+          <button
+            onClick={() => setShowSearch(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-navy-border text-muted hover:text-white hover:border-muted bg-surface2/40 hover:bg-surface2 transition-all text-xs"
+            title="Ara (Ctrl+K)"
+          >
+            <Search size={13} />
+            <span className="hidden md:inline">Ara</span>
+            <kbd className="hidden lg:flex items-center px-1 py-px border border-navy-border rounded font-mono text-[9px] ml-1">
+              Ctrl K
+            </kbd>
+          </button>
+
           {/* Theme toggle */}
           <ThemeToggle compact />
 
@@ -149,6 +176,11 @@ export default function TopBar({ sidebarCollapsed }) {
 
       {showNotif && (
         <div className="fixed inset-0 z-40" onClick={() => setShowNotif(false)} />
+      )}
+
+      {showSearch && createPortal(
+        <GlobalSearch onClose={() => setShowSearch(false)} />,
+        document.body
       )}
     </header>
   );
