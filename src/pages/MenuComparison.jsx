@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
@@ -10,8 +11,22 @@ import { MENU_ITEMS, MENU_CATEGORIES, BRAND_AVG_PRICES } from '../data/menuData'
 import clsx from 'clsx';
 
 export default function MenuComparison() {
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [highlightCheapest, setHighlightCheapest] = useState(true);
+  const [highlightId, setHighlightId] = useState(null);
+
+  useEffect(() => {
+    const id = location.hash.replace('#', '');
+    if (!id) return;
+    setActiveCategory('all');
+    setHighlightId(id);
+    const scrollTimer = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+    const clearTimer = setTimeout(() => setHighlightId(null), 2500);
+    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
+  }, [location.hash]);
 
   const filteredItems = useMemo(() => {
     if (activeCategory === 'all') return MENU_ITEMS;
@@ -217,8 +232,14 @@ export default function MenuComparison() {
             <tbody>
               {filteredItems.map(item => {
                 const cat = MENU_CATEGORIES.find(c => c.id === item.category);
+                const isHighlighted = item.id === highlightId;
                 return (
-                  <tr key={item.id} className="table-row">
+                  <tr
+                    key={item.id}
+                    id={item.id}
+                    className="table-row transition-colors"
+                    style={isHighlighted ? { backgroundColor: '#C4922A18', boxShadow: 'inset 2px 0 0 #C4922A' } : {}}
+                  >
                     <td className="table-cell font-medium text-white sticky left-0 bg-surface">{item.name}</td>
                     <td className="table-cell">
                       <span className="text-[10px] bg-surface2 px-2 py-0.5 rounded-full text-muted">

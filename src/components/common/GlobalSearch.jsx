@@ -48,6 +48,7 @@ const INDEX = (() => {
       title: item.name,
       subtitle: `${cat} — fiyat karşılaştırması`,
       route: '/menu-karsilastirmasi',
+      hash: item.id,
       searchText: `${item.name} ${cat} kahve içecek fiyat`.toLowerCase(),
     });
   });
@@ -74,6 +75,7 @@ const INDEX = (() => {
       title: prod.name,
       subtitle: `${brandShort(prod.brand)} — ${desc.slice(0, 65)}${desc.length > 65 ? '…' : ''}`,
       route: '/yeni-urun-radar',
+      hash: prod.id,
       searchText: `${prod.name} ${desc} ${(prod.tags || []).join(' ')} ${brandName(prod.brand)}`.toLowerCase(),
       brandId: prod.brand,
     });
@@ -88,6 +90,7 @@ const INDEX = (() => {
         title: `#${kw}`,
         subtitle: `${brandName(id)} — trend kelime`,
         route: '/osint-raporlari',
+        search: `q=${encodeURIComponent(kw)}`,
         searchText: `${kw} ${brandName(id)} trend`.toLowerCase(),
         brandId: id,
       });
@@ -142,7 +145,13 @@ export default function GlobalSearch({ onClose }) {
 
   const allItems = useMemo(() => sections.flatMap(s => s.items), [sections]);
 
-  const go = (item) => { navigate(item.route); onClose(); };
+  const go = (item) => {
+    let url = item.route;
+    if (item.search) url += '?' + item.search;
+    if (item.hash)   url += '#' + item.hash;
+    navigate(url);
+    onClose();
+  };
 
   const handleKey = (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setSelIdx(p => Math.min(p + 1, total - 1)); }

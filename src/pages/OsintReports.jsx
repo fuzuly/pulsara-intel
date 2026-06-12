@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
 import BrandBadge from '../components/common/BrandBadge';
@@ -37,8 +38,14 @@ function SentimentTooltip({ active, payload, label }) {
 }
 
 export default function OsintReports() {
+  const location = useLocation();
   const [selectedBrand, setSelectedBrand] = useState('all');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => new URLSearchParams(location.search).get('q') || '');
+
+  useEffect(() => {
+    const q = new URLSearchParams(location.search).get('q') || '';
+    setQuery(q);
+  }, [location.search]);
 
   const q = query.toLowerCase().trim();
 

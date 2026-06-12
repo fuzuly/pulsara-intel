@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import SectionHeader from '../components/common/SectionHeader';
 import BrandBadge from '../components/common/BrandBadge';
 import { BRANDS } from '../constants/brands';
@@ -8,10 +9,28 @@ import clsx from 'clsx';
 const TODAY = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
 export default function NewProductRadar() {
+  const location = useLocation();
   const [selectedBrand,    setSelectedBrand]    = useState('all');
   const [selectedStatus,   setSelectedStatus]   = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
   const [selectedLayer,    setSelectedLayer]    = useState(0);
+  const [highlightId,      setHighlightId]      = useState(null);
+
+  useEffect(() => {
+    const id = location.hash.replace('#', '');
+    if (!id) return;
+    // Reset all filters so the product is guaranteed to be visible
+    setSelectedBrand('all');
+    setSelectedStatus('all');
+    setSelectedCategory('Tümü');
+    setSelectedLayer(0);
+    setHighlightId(id);
+    const scrollTimer = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    const clearTimer = setTimeout(() => setHighlightId(null), 2500);
+    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
+  }, [location.hash]);
 
   const filtered = useMemo(() => NEW_PRODUCTS.filter(p => {
     const brandMatch    = selectedBrand    === 'all'  || p.brand    === selectedBrand;
@@ -174,7 +193,12 @@ export default function NewProductRadar() {
             const isUnverified = product.layer === 3;
 
             return (
-              <div key={product.id} className={clsx('card-hover', isUnverified && 'border-warning/20')}>
+              <div
+                key={product.id}
+                id={product.id}
+                className={clsx('card-hover transition-colors', isUnverified && 'border-warning/20')}
+                style={product.id === highlightId ? { backgroundColor: '#C4922A10', borderColor: '#C4922A60' } : {}}
+              >
                 <div className="flex items-start gap-4">
                   {/* Brand color bar */}
                   <div
