@@ -39,28 +39,24 @@ const KPI_CARDS = [
     value: String(BRANDS.length),
     sub: 'Türkiye kahve sektörü',
     trend: null,
-    icon: '🏪',
   },
   {
     label: '2026 Yeni Ürün Lansmanı',
     value: String(NEW_PRODUCTS.filter(p => p.status === 'active').length),
     sub: `${NEW_PRODUCTS.filter(p => p.status === 'upcoming').length} ürün yakında`,
     trend: 'up',
-    icon: '🆕',
   },
   {
     label: 'En Yüksek Engagement',
     value: `%${topEngagement?.engagementRate ?? '—'}`,
     sub: `${topEngagementBrand?.name ?? '—'} — sektör ort. %${sectorAvgEngagement}`,
     trend: 'up',
-    icon: '🔥',
   },
   {
     label: 'Risk Altındaki Şube',
     value: '34',
     sub: '4.0 altı Google puanı',
     trend: 'down',
-    icon: '⚠️',
   },
 ];
 
@@ -112,7 +108,7 @@ const RatingsTooltip = ({ active, payload }) => {
   return (
     <div className="bg-surface border border-navy-border rounded-lg px-3 py-2 shadow-xl text-xs">
       <p className="font-semibold text-white">{d.brand}</p>
-      <p style={{ color: d.fill }}>⭐ {d.rating} / 5.0</p>
+      <p style={{ color: d.fill }}>{d.rating} / 5.0</p>
     </div>
   );
 };
@@ -182,8 +178,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
           {KPI_CARDS.map(card => (
             <div key={card.label} className="card flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl">{card.icon}</span>
+              <div className="flex items-center justify-end h-5">
                 {card.trend === 'up' && (
                   <span className="text-success text-sm font-bold">↑</span>
                 )}
@@ -316,7 +311,6 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         {/* Rakip Analizi linki */}
         <div className="card xl:col-span-1 flex flex-col items-center justify-center text-center py-8 gap-3">
-          <div className="text-4xl">🏆</div>
           <h3 className="text-base font-semibold text-white">Rakip Skor Analizi</h3>
           <p className="text-xs text-muted leading-relaxed">
             Google Maps puanları, şube büyümesi ve menü analizinden türetilen canlı rakip skorları.
