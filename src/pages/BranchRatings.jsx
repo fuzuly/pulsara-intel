@@ -9,7 +9,6 @@ import {
   MapPin, ChevronRight,
 } from 'lucide-react';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { BRANDS } from '../constants/brands';
 import useBranchData from '../hooks/useBranchData';
 import clsx from 'clsx';
@@ -303,9 +302,6 @@ export default function BranchRatings() {
         )}
       </div>
 
-      {lastUpdated && (
-        <DataFreshnessBar sources={[{ label: 'Google Maps Places API' }]} interval={3600_000} />
-      )}
 
       {!hasData ? (
         <NoDataPanel error={error} />

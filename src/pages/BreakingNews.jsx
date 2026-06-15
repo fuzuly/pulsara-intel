@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { BRANDS, BRAND_MAP } from '../constants/brands';
 import { NEWS_CATEGORIES } from '../data/newsData';
 import useNewsData from '../hooks/useNewsData';
@@ -66,11 +65,6 @@ export default function BreakingNews() {
       <SectionHeader
         title="Haber Akışı"
         subtitle="NewsData.io üzerinden canlı haber akışı — yalnızca doğrulanmış kaynaklar"
-      />
-      <DataFreshnessBar
-        sources={[{ label: 'NewsData.io' }, { label: 'WCP' }, { label: 'Horeca Trend' }]}
-        interval={300_000}
-        onRefresh={refetchNews}
       />
 
       {/* Canlı API durumu */}
@@ -209,11 +203,6 @@ export default function BreakingNews() {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-2 mb-1 flex-wrap">
-                    {news.isLive && (
-                      <span className="badge bg-success/20 text-success border border-success/30 text-[10px]">
-                        🟢 CANLI
-                      </span>
-                    )}
                     {news.isBreaking && (
                       <span className="badge bg-danger/20 text-danger border border-danger/30 animate-pulse-slow text-[10px]">
                         🔴 SON DAKİKA

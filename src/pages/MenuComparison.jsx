@@ -4,7 +4,6 @@ import {
   ResponsiveContainer, Cell,
 } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { BRANDS, BRAND_COLORS } from '../constants/brands';
 import { MENU_ITEMS, MENU_CATEGORIES, BRAND_AVG_PRICES } from '../data/menuData';
 import menuPrices from '../data/menuPrices.json';
@@ -170,10 +169,6 @@ export default function MenuComparison() {
       <SectionHeader
         title="Menü Karşılaştırması"
         subtitle="Tüm markaların ürün ve fiyat karşılaştırması"
-      />
-      <DataFreshnessBar
-        sources={[{ label: 'Menü Verisi' }, { label: 'Fiyat Takip' }]}
-        interval={300_000}
       />
 
       {/* Charts */}

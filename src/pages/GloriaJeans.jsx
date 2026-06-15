@@ -5,7 +5,6 @@ import {
   ResponsiveContainer, Cell,
 } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { COMPETITOR_SCORES } from '../data/competitorData';
 import { NEW_PRODUCTS, LAYER_CONFIG } from '../data/newProductData';
 import instagramProfiles from '../data/instagramProfiles.json';
@@ -198,15 +197,6 @@ export default function GloriaJeans() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <DataFreshnessBar
-        sources={[
-          { label: 'Google Maps' },
-          { label: 'Instagram' },
-          { label: 'Mall Report' },
-          { label: 'competitorData.js' },
-        ]}
-        interval={3_600_000}
-      />
 
       {/* ── Başlık ──────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-4">
