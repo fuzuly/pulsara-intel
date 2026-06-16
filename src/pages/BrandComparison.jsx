@@ -205,7 +205,7 @@ export default function BrandComparison() {
       {/* Başlık */}
       <div>
         <h1 className="text-2xl font-bold text-white">Marka Karşılaştırma</h1>
-        <p className="text-muted text-sm mt-1">Brand24 tarzı — markalar arası medya, sosyal medya ve operasyonel kıyaslama</p>
+
       </div>
 
       {/* Seçici panel */}
