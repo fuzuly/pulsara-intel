@@ -14,6 +14,7 @@ import { formatLargeNumber } from '../utils/formatters';
 import { Trophy, TrendingDown, MapPin, ExternalLink, AlertTriangle, RefreshCw, Star, MessageSquare } from 'lucide-react';
 import useBranchData from '../hooks/useBranchData';
 import useGJReviews from '../hooks/useGJReviews';
+import useGJMentions from '../hooks/useGJMentions';
 
 // ─── Sabit veri ───────────────────────────────────────────────────────────────
 const GJ_COLOR  = '#F46621';
@@ -101,6 +102,211 @@ const swot = {
   ],
 };
 
+// ─── Medya Takibi bileşeni ────────────────────────────────────────────────────
+
+const SOURCE_TABS = [
+  { key: 'all',     label: 'Tümü',        icon: '📡' },
+  { key: 'news',    label: 'Google Haber', icon: '🔍' },
+  { key: 'tr_news', label: 'TR Haber',     icon: '📰' },
+  { key: 'reddit',  label: 'Reddit',       icon: '💬' },
+  { key: 'gdelt',   label: 'GDELT',        icon: '🌐' },
+];
+
+const SENT_META = {
+  positive: { label: 'Olumlu',  cls: 'text-success bg-success/10 border-success/20' },
+  negative: { label: 'Olumsuz', cls: 'text-danger  bg-danger/10  border-danger/20'  },
+  neutral:  { label: 'Nötr',    cls: 'text-warning bg-warning/10 border-warning/20' },
+};
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (s < 60)    return `${s}sn önce`;
+  if (s < 3600)  return `${Math.floor(s / 60)}dk önce`;
+  if (s < 86400) return `${Math.floor(s / 3600)}sa önce`;
+  return new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+}
+
+function GJMediaSection({ mentions, loading, lastUpdate, error, onRefresh }) {
+  const [activeTab, setActiveTab]     = useState('all');
+  const [activeSent, setActiveSent]   = useState('all');
+  const [search, setSearch]           = useState('');
+
+  const filtered = useMemo(() => {
+    return mentions.filter(m => {
+      if (activeTab !== 'all' && m.sourceType !== activeTab) return false;
+      if (activeSent !== 'all' && m.sentiment !== activeSent) return false;
+      if (search) {
+        const kw = search.toLowerCase();
+        if (!m.title?.toLowerCase().includes(kw) && !m.snippet?.toLowerCase().includes(kw)) return false;
+      }
+      return true;
+    });
+  }, [mentions, activeTab, activeSent, search]);
+
+  const counts = useMemo(() => ({
+    positive: mentions.filter(m => m.sentiment === 'positive').length,
+    negative: mentions.filter(m => m.sentiment === 'negative').length,
+    neutral:  mentions.filter(m => m.sentiment === 'neutral').length,
+  }), [mentions]);
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2 flex-1">
+          <span>📡</span> Medya & Haber Takibi
+          <span className="text-xs font-normal text-muted ml-1">
+            Gloria Jean's · Dinçerler Group · Mehmet Dinçerler
+          </span>
+        </h2>
+        <div className="flex items-center gap-2">
+          {lastUpdate && (
+            <span className="text-[10px] text-muted">
+              {lastUpdate.toLocaleTimeString('tr-TR')}
+            </span>
+          )}
+          <button
+            onClick={onRefresh}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-navy-border text-muted hover:text-white transition-colors"
+          >
+            <RefreshCw size={11} /> Yenile
+          </button>
+        </div>
+      </div>
+
+      {/* Özet istatistikler */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: 'Toplam Mention', value: mentions.length, color: 'text-caramel' },
+          { label: 'Olumlu',         value: counts.positive, color: 'text-success' },
+          { label: 'Olumsuz',        value: counts.negative, color: 'text-danger'  },
+          { label: 'Nötr',           value: counts.neutral,  color: 'text-warning' },
+        ].map(k => (
+          <div key={k.label} className="card text-center py-3">
+            <div className={clsx('text-2xl font-bold', k.color)}>{k.value}</div>
+            <div className="text-[10px] text-muted mt-0.5">{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Kaynak sekmeleri */}
+      <div className="flex flex-wrap gap-1">
+        {SOURCE_TABS.map(t => {
+          const cnt = t.key === 'all' ? mentions.length : mentions.filter(m => m.sourceType === t.key).length;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className={clsx(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                activeTab === t.key
+                  ? 'border-orange-500/40 bg-orange-500/15 text-orange-400'
+                  : 'border-navy-border text-muted hover:text-white'
+              )}
+            >
+              {t.icon} {t.label}
+              <span className="text-[10px] opacity-60">({cnt})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Duygu + arama filtreleri */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {['all', 'positive', 'negative', 'neutral'].map(s => (
+          <button
+            key={s}
+            onClick={() => setActiveSent(s)}
+            className={clsx(
+              'px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all',
+              activeSent === s
+                ? 'bg-caramel/20 border-caramel/40 text-caramel'
+                : 'border-navy-border text-muted hover:text-white'
+            )}
+          >
+            {s === 'all' ? 'Tüm Duygular'
+              : s === 'positive' ? '😊 Olumlu'
+              : s === 'negative' ? '😟 Olumsuz'
+              : '😐 Nötr'}
+          </button>
+        ))}
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Başlıkta ara..."
+          className="input text-xs py-1.5 w-44 ml-auto"
+        />
+      </div>
+
+      {/* Liste */}
+      {loading ? (
+        <div className="card flex items-center justify-center gap-3 py-10">
+          <RefreshCw size={16} className="animate-spin text-orange-400" />
+          <span className="text-sm text-muted">Mention'lar yükleniyor...</span>
+        </div>
+      ) : error ? (
+        <div className="card text-center py-8">
+          <p className="text-xs text-danger">Backend bağlantı hatası — scraper çalışıyor mu?</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="card text-center py-10">
+          <div className="text-3xl mb-2">📭</div>
+          <p className="text-sm text-muted">
+            {mentions.length === 0
+              ? 'Henüz mention yok — backend polling tamamlandığında veriler görünecek.'
+              : 'Seçilen filtre için sonuç bulunamadı.'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(m => {
+            const sm = SENT_META[m.sentiment] || SENT_META.neutral;
+            const srcTab = SOURCE_TABS.find(t => t.key === m.sourceType);
+            return (
+              <div
+                key={m.id}
+                className="flex items-start gap-3 p-3 rounded-xl border border-navy-border bg-surface hover:border-orange-500/20 transition-all"
+              >
+                <div className="flex-shrink-0 pt-0.5">
+                  <span className="text-base">{srcTab?.icon || '📄'}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <span className={clsx('text-[10px] font-semibold px-1.5 py-0.5 rounded border', sm.cls)}>
+                      {sm.label}
+                    </span>
+                    <span className="text-[10px] text-muted bg-surface2 px-1.5 py-0.5 rounded">
+                      {srcTab?.label || m.sourceType} · {m.source}
+                    </span>
+                    <span className="ml-auto text-[10px] text-muted flex-shrink-0">
+                      {timeAgo(m.publishedAt)}
+                    </span>
+                  </div>
+                  <a
+                    href={m.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-white hover:text-orange-400 transition-colors leading-snug line-clamp-2 flex items-start gap-1"
+                  >
+                    {m.title}
+                    <ExternalLink size={10} className="flex-shrink-0 mt-0.5 opacity-40" />
+                  </a>
+                  {m.snippet && (
+                    <p className="text-[11px] text-muted mt-1 leading-relaxed line-clamp-2">
+                      {m.snippet}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ─── Tooltip bileşenleri ──────────────────────────────────────────────────────
 const RadarTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -131,6 +337,7 @@ export default function GloriaJeans() {
   const upcomingProducts = gjProducts.filter(p => p.status === 'upcoming');
 
   const { branches: reviewBranches, loading: reviewLoading, error: reviewError, scrapedAt: reviewDate, pending: reviewPending, refresh: refreshReviews } = useGJReviews();
+  const { mentions: gjMentions, loading: mentionLoading, lastUpdate: mentionUpdate, error: mentionError, refresh: refreshMentions } = useGJMentions();
 
   const [triggerStatus, setTriggerStatus] = useState(null); // null | 'loading' | 'started' | 'error'
 
@@ -766,6 +973,15 @@ export default function GloriaJeans() {
           </div>
         </div>
       </section>
+
+      {/* ── Medya Takibi ────────────────────────────────────────────────── */}
+      <GJMediaSection
+        mentions={gjMentions}
+        loading={mentionLoading}
+        lastUpdate={mentionUpdate}
+        error={mentionError}
+        onRefresh={refreshMentions}
+      />
 
       {/* ── Kaynak Notu ─────────────────────────────────────────────────── */}
       <div className="flex items-start gap-3 bg-blue-900/20 border border-blue-500/20 rounded-xl p-3 text-xs">
