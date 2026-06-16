@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import clsx from 'clsx';
 import { BRANDS } from '../constants/brands';
 import useMentionStream from '../hooks/useMentionStream';
@@ -10,8 +10,9 @@ const SENTIMENT_META = {
 };
 
 const SOURCE_META = {
-  news:  { label: 'Google Haber', icon: '📰' },
-  gdelt: { label: 'GDELT',        icon: '🌐' },
+  news:    { label: 'Google Haber', icon: '📰' },
+  tr_news: { label: 'TR Haber',    icon: '📰' },
+  reddit:  { label: 'Reddit',      icon: '💬' },
 };
 
 function timeAgo(dateStr) {
@@ -88,7 +89,7 @@ export default function MentionMonitor() {
         <div>
           <h1 className="text-xl font-bold text-white">Canlı Mention Takibi</h1>
           <p className="text-xs text-muted mt-0.5">
-            Google Haberler + GDELT — 21 marka, 15 dakikada bir güncellenir
+            Google Haberler + TR Haber + Reddit — 21 marka, 15 dakikada bir güncellenir
           </p>
         </div>
 
@@ -219,7 +220,7 @@ export default function MentionMonitor() {
         ))}
 
         {/* Source */}
-        {['all', 'news', 'gdelt'].map(src => (
+        {['all', 'news', 'tr_news', 'reddit'].map(src => (
           <button
             key={src}
             onClick={() => setFilterSource(src)}

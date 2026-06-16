@@ -7,8 +7,8 @@ import { X, Plus, Search, RefreshCw, Newspaper, Share2, Building2 } from 'lucide
 import { BRANDS, BRAND_MAP } from '../constants/brands';
 import useBrandComparison from '../hooks/useBrandComparison';
 
-const SOURCE_LABELS = { news: 'Google Haber', tr_news: 'TR Haber', reddit: 'Reddit', gdelt: 'GDELT' };
-const SOURCE_COLORS = { news: '#4ade80', tr_news: '#60a5fa', reddit: '#fb923c', gdelt: '#a78bfa' };
+const SOURCE_LABELS = { news: 'Google Haber', tr_news: 'TR Haber', reddit: 'Reddit' };
+const SOURCE_COLORS = { news: '#4ade80', tr_news: '#60a5fa', reddit: '#fb923c' };
 const TABS = [
   { id: 'mentions',    label: 'Medya Bahsi',   icon: Newspaper },
   { id: 'social',      label: 'Sosyal Medya',  icon: Share2 },
