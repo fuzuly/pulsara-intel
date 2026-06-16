@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -257,7 +257,7 @@ export default function BrandComparison() {
               value={keyword}
               onChange={e => setKeyword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCompare()}
-              placeholder='Kelime filtresi (örn: "fiyat", "kampanya", "şikayet") — boş bırakırsan tüm mention\'lar'
+              placeholder="Kelime filtresi — örn: fiyat, kampanya, şikayet (boş bırakırsan tüm mentionlar)"
               className="bg-transparent text-sm text-white outline-none w-full placeholder-muted"
             />
             {keyword && (
