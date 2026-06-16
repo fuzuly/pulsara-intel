@@ -209,7 +209,6 @@ export default function LiveMonitor() {
                     <span className={clsx('text-[10px] font-medium', SENTIMENT_COLOR[comment.sentiment])}>
                       {SENTIMENT_ICON[comment.sentiment]} {comment.sentiment === 'positive' ? 'Olumlu' : comment.sentiment === 'neutral' ? 'Nötr' : 'Olumsuz'}
                     </span>
-                    {comment.isLive && <span className="text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded animate-pulse-slow">CANLI</span>}
                     <span className="ml-auto text-[10px] text-muted">{timeAgo(comment.postedAt)}</span>
                   </div>
                   <p className="text-xs text-white leading-relaxed">{comment.text}</p>

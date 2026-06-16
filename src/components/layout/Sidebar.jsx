@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Coffee, LogOut, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, ExternalLink } from 'lucide-react';
 import { NAV_ITEMS } from '../../constants/routes';
 import { useAuth } from '../../context/AuthContext';
 import clsx from 'clsx';
@@ -12,38 +12,47 @@ export default function Sidebar({ collapsed, onToggle }) {
     <aside
       className={clsx(
         'fixed top-0 left-0 h-screen z-30 flex flex-col transition-all duration-300 ease-in-out',
-        'bg-navy border-r border-navy-border',
-        collapsed ? 'w-16' : 'w-60'
+        'bg-navy-light border-r border-navy-border',
+        collapsed ? 'w-14' : 'w-56'
       )}
     >
       {/* Logo */}
       <div className={clsx(
-        'flex items-center gap-3 px-4 py-5 border-b border-navy-border',
-        collapsed && 'justify-center px-2'
+        'flex items-center gap-3 border-b border-navy-border',
+        collapsed ? 'px-3 py-4 justify-center' : 'px-4 py-4'
       )}>
-        <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-caramel to-espresso flex items-center justify-center shadow-lg">
-          <Coffee size={18} className="text-white" />
+        {/* Mark */}
+        <div
+          className="flex-shrink-0 w-7 h-7 flex items-center justify-center"
+          style={{ borderLeft: '2px solid #C4922A' }}
+        >
+          <span className="font-display font-bold text-caramel text-sm leading-none tracking-tight">RA</span>
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <div className="text-sm font-bold text-white leading-tight">Rekabet Analizi</div>
-            <div className="text-[10px] text-muted leading-tight">İstihbarat Platformu</div>
+            <div className="text-xs font-semibold text-white leading-tight tracking-wide">
+              Rekabet Analizi
+            </div>
+            <div className="text-[9px] text-muted leading-tight tracking-wider uppercase mt-0.5">
+              İstihbarat Platformu
+            </div>
           </div>
         )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 px-2 overflow-y-auto no-scrollbar">
+      <nav className="flex-1 py-4 px-2 overflow-y-auto no-scrollbar">
         {!collapsed && (
-          <div className="px-2 mb-2">
-            <span className="text-[10px] font-semibold text-muted uppercase tracking-widest">Menü</span>
+          <div className="px-2 mb-3">
+            <span className="text-[9px] font-semibold text-muted/60 uppercase tracking-[0.15em]">
+              Modüller
+            </span>
           </div>
         )}
         <ul className="space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
 
-            // ── Dış link (external) ──────────────────────────────────────
             if (item.external) {
               return (
                 <li key={item.href}>
@@ -53,16 +62,16 @@ export default function Sidebar({ collapsed, onToggle }) {
                     rel="noopener noreferrer"
                     title={collapsed ? item.label : ''}
                     className={clsx(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
-                      'text-muted hover:text-white hover:bg-surface2/60',
+                      'flex items-center gap-2.5 px-2.5 py-2 text-xs font-medium transition-all duration-100',
+                      'text-muted hover:text-white hover:bg-surface2/40 rounded-sm',
                       collapsed && 'justify-center px-2'
                     )}
                   >
-                    <Icon size={18} className="flex-shrink-0" />
+                    <Icon size={15} className="flex-shrink-0" />
                     {!collapsed && (
                       <>
                         <span className="truncate flex-1">{item.label}</span>
-                        <ExternalLink size={11} className="flex-shrink-0 opacity-50" />
+                        <ExternalLink size={10} className="flex-shrink-0 opacity-40" />
                       </>
                     )}
                   </a>
@@ -70,7 +79,6 @@ export default function Sidebar({ collapsed, onToggle }) {
               );
             }
 
-            // ── İç link (internal) ──────────────────────────────────────
             const isActive = item.path === '/'
               ? location.pathname === '/'
               : location.pathname.startsWith(item.path);
@@ -81,28 +89,24 @@ export default function Sidebar({ collapsed, onToggle }) {
                   to={item.path}
                   title={collapsed ? item.label : ''}
                   className={clsx(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                    'flex items-center gap-2.5 px-2.5 py-2 text-xs font-medium transition-all duration-100 rounded-sm',
                     collapsed && 'justify-center px-2',
                     isActive
-                      ? 'text-white bg-surface2 border-l-2 border-caramel pl-[10px]'
-                      : 'text-muted hover:text-white hover:bg-surface2/60'
+                      ? 'text-white bg-surface2/60'
+                      : 'text-muted hover:text-white hover:bg-surface2/30'
                   )}
+                  style={isActive ? {
+                    borderLeft: '2px solid #C4922A',
+                    paddingLeft: collapsed ? undefined : 'calc(0.625rem - 2px)',
+                  } : {}}
                 >
                   <Icon
-                    size={18}
+                    size={15}
                     className={clsx('flex-shrink-0', isActive ? 'text-caramel' : '')}
                   />
                   {!collapsed && (
                     <>
                       <span className="truncate flex-1">{item.label}</span>
-                      {item.badge && (
-                        <span className={clsx(
-                          'text-[8px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0',
-                          item.badge === 'CANLI' ? 'bg-danger text-white animate-pulse-slow' : 'bg-purple-600 text-white'
-                        )}>
-                          {item.badge}
-                        </span>
-                      )}
                     </>
                   )}
                 </NavLink>
@@ -113,39 +117,36 @@ export default function Sidebar({ collapsed, onToggle }) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-navy-border p-3 space-y-2">
-        {/* Logout */}
+      <div className="border-t border-navy-border p-2 space-y-1">
         <button
           onClick={logout}
           title="Çıkış Yap"
           className={clsx(
-            'w-full flex items-center gap-2 py-2 px-3 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors text-xs',
+            'w-full flex items-center gap-2 py-2 px-2.5 rounded-sm text-muted',
+            'hover:text-danger hover:bg-danger/8 transition-colors text-xs',
             collapsed && 'justify-center'
           )}
         >
-          <LogOut size={15} className="flex-shrink-0" />
+          <LogOut size={13} className="flex-shrink-0" />
           {!collapsed && <span>Çıkış Yap</span>}
         </button>
 
-        {/* Collapse toggle */}
-        {!collapsed && (
-          <div className="text-[10px] text-muted px-2">
-            <div>Dashboard v1.0.0</div>
-            <div>© 2026 Rekabet Analizi</div>
-          </div>
-        )}
         <button
           onClick={onToggle}
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-muted hover:text-white hover:bg-surface2 transition-colors text-xs"
+          className="w-full flex items-center justify-center gap-2 py-2 px-2.5 rounded-sm text-muted hover:text-white hover:bg-surface2/40 transition-colors text-xs"
           title={collapsed ? 'Genişlet' : 'Daralt'}
         >
-          {collapsed ? <ChevronRight size={16} /> : (
-            <>
-              <ChevronLeft size={16} />
-              <span>Daralt</span>
-            </>
-          )}
+          {collapsed
+            ? <ChevronRight size={14} />
+            : <><ChevronLeft size={14} /><span>Daralt</span></>
+          }
         </button>
+
+        {!collapsed && (
+          <div className="text-[9px] text-muted/40 px-2.5 pt-1 pb-0.5 font-mono tracking-wider">
+            v1.0.0 · 2026
+          </div>
+        )}
       </div>
     </aside>
   );

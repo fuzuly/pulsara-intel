@@ -11,10 +11,10 @@ export default function MainLayout() {
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
       <TopBar sidebarCollapsed={collapsed} />
       <main
-        className="transition-all duration-300 pt-16"
-        style={{ marginLeft: collapsed ? '4rem' : '15rem' }}
+        className="transition-all duration-300 pt-14"
+        style={{ marginLeft: collapsed ? '3.5rem' : '14rem' }}
       >
-        <div className="p-6 min-h-[calc(100vh-4rem)]">
+        <div className="p-6 min-h-[calc(100vh-3.5rem)]">
           <Outlet />
         </div>
       </main>

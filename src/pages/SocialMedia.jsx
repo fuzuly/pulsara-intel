@@ -3,7 +3,6 @@ import {
   ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis,
 } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { BRAND_MAP } from '../constants/brands';
 import { formatLargeNumber } from '../utils/formatters';
 import instagramProfiles from '../data/instagramProfiles.json';
@@ -145,10 +144,6 @@ const SentTooltip = ({ active, payload, label }) => {
 export default function SocialMedia() {
   return (
     <div className="space-y-10 animate-fade-in">
-      <DataFreshnessBar
-        sources={[{ label: 'Instagram (Public)' }, { label: 'Google Maps' }, { label: 'BoomSocial' }]}
-        interval={3_600_000}
-      />
       <SectionHeader
         title="Sosyal Medya & İtibar Analizi"
         subtitle="Instagram performansı · Google Maps itibarı · Duygu analizi — Haziran 2026"

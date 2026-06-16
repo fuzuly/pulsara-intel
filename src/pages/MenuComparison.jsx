@@ -1,52 +1,155 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
 } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { BRANDS, BRAND_COLORS } from '../constants/brands';
 import { MENU_ITEMS, MENU_CATEGORIES, BRAND_AVG_PRICES } from '../data/menuData';
+import menuPrices from '../data/menuPrices.json';
 import clsx from 'clsx';
 
-export default function MenuComparison() {
-  const location = useLocation();
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [highlightCheapest, setHighlightCheapest] = useState(true);
-  const [highlightId, setHighlightId] = useState(null);
+const PRICE_ROWS = [
+  { key: 'cappuccino_small',           label: 'Cappuccino',             size: 'S' },
+  { key: 'cappuccino_large',           label: 'Cappuccino',             size: 'L' },
+  { key: 'caffe_latte_small',          label: 'Caffe Latte',            size: 'S' },
+  { key: 'caffe_latte_large',          label: 'Caffe Latte',            size: 'L' },
+  { key: 'americano_small',            label: 'Americano',              size: 'S' },
+  { key: 'americano_large',            label: 'Americano',              size: 'L' },
+  { key: 'flat_white',                 label: 'Flat White',             size: null },
+  { key: 'filter_coffee_small',        label: 'Filtre Kahve',           size: 'S' },
+  { key: 'filter_coffee_large',        label: 'Filtre Kahve',           size: 'L' },
+  { key: 'turkish_coffee',             label: 'Türk Kahvesi',           size: null },
+  { key: 'hot_chocolate_small',        label: 'Sıcak Çikolata',         size: 'S' },
+  { key: 'hot_chocolate_large',        label: 'Sıcak Çikolata',         size: 'L' },
+  { key: 'salted_caramel_latte_small', label: 'Salted Caramel Latte',   size: 'S' },
+  { key: 'salted_caramel_latte_large', label: 'Salted Caramel Latte',   size: 'L' },
+  { key: 'cold_brew_small',            label: 'Cold Brew',              size: 'S' },
+  { key: 'cold_brew_large',            label: 'Cold Brew',              size: 'L' },
+  { key: 'iced_latte_small',           label: 'Iced Latte',             size: 'S' },
+  { key: 'iced_latte_large',           label: 'Iced Latte',             size: 'L' },
+  { key: 'frappuccino_small',          label: 'Frappuccino',            size: 'S' },
+  { key: 'frappuccino_large',          label: 'Frappuccino',            size: 'L' },
+  { key: 'iced_americano',             label: 'Iced Americano',         size: null },
+  { key: 'milkshake',                  label: 'Milkshake',              size: null },
+  // ── Tatlılar ──
+  { key: 'cheesecake',                 label: 'Cheesecake',             size: null },
+  { key: 'tiramisu',                   label: 'Tiramisu',               size: null },
+  { key: 'brownie',                    label: 'Brownie',                size: null },
+  { key: 'cookie',                     label: 'Cookie',                 size: null },
+  { key: 'profiterol',                 label: 'Profiterol',             size: null },
+  { key: 'mozaik_pasta',               label: 'Mozaik Pasta',           size: null },
+];
 
-  useEffect(() => {
-    const id = location.hash.replace('#', '');
-    if (!id) return;
-    setActiveCategory('all');
-    setHighlightId(id);
-    const scrollTimer = setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 150);
-    const clearTimer = setTimeout(() => setHighlightId(null), 2500);
-    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer); };
-  }, [location.hash]);
+const PRICE_BRANDS = Object.keys(menuPrices.brands);
 
-  const filteredItems = useMemo(() => {
-    if (activeCategory === 'all') return MENU_ITEMS;
-    return MENU_ITEMS.filter(item => item.category === activeCategory);
-  }, [activeCategory]);
+const PRICE_BRAND_COLORS = {
+  'Espressolab':   '#C4922A',
+  'Starbucks':     '#00704A',
+  'GUA Coffee':    '#DB2777',
+  'Kahve Dünyası': '#E05050',
+  'ELLE Coffee':   '#6366F1',
+};
 
-  const getCellClass = (item, brandId) => {
-    const price = item.prices[brandId];
-    if (price === null || price === undefined) return { cls: 'text-muted', style: {} };
+function getPriceCell(rowKey, brandName) {
+  return menuPrices.brands[brandName]?.[rowKey] ?? null;
+}
 
-    if (!highlightCheapest) return { cls: 'text-white', style: {} };
+function PriceTable() {
+  const [highlight, setHighlight] = useState(true);
 
-    const prices = Object.values(item.prices).filter(p => p !== null && p !== undefined);
+  const activeRows = PRICE_ROWS.filter(row =>
+    PRICE_BRANDS.some(b => getPriceCell(row.key, b) !== null)
+  );
+
+  const getCellStyle = (rowKey, brandName) => {
+    if (!highlight) return {};
+    const price = getPriceCell(rowKey, brandName);
+    if (price === null) return {};
+    const prices = PRICE_BRANDS.map(b => getPriceCell(rowKey, b)).filter(p => p !== null);
+    if (prices.length < 2) return {};
     const min = Math.min(...prices);
     const max = Math.max(...prices);
-
-    if (price === min) return { cls: 'font-bold text-success', style: { backgroundColor: '#22C55E15' } };
-    if (price === max) return { cls: 'font-semibold text-danger', style: { backgroundColor: '#EF444415' } };
-    return { cls: 'text-white', style: {} };
+    if (price === min) return { bg: 'bg-success/10', text: 'text-success font-bold' };
+    if (price === max) return { bg: 'bg-danger/10', text: 'text-danger font-semibold' };
+    return {};
   };
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div>
+          <h3 className="text-sm font-semibold text-white">Fiyat Karşılaştırma Tablosu</h3>
+          <p className="text-xs text-muted mt-0.5">
+            Espressolab · Starbucks · GUA Coffee · Kahve Dünyası · ELLE Coffee — Haziran 2026
+          </p>
+        </div>
+        <div className="flex items-center gap-4 text-xs flex-shrink-0">
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success inline-block" />En Ucuz</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-danger inline-block" />En Pahalı</span>
+          <label className="flex items-center gap-1.5 text-muted cursor-pointer select-none">
+            <input type="checkbox" checked={highlight} onChange={e => setHighlight(e.target.checked)} className="accent-caramel" />
+            Vurgula
+          </label>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-navy-border">
+              <th className="table-header py-3 px-3 text-left sticky left-0 bg-surface z-10 min-w-[170px]">Ürün</th>
+              <th className="table-header py-3 px-2 text-center w-10">Boy</th>
+              {PRICE_BRANDS.map(brand => (
+                <th key={brand} className="table-header py-3 px-3 text-center min-w-[105px]">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="h-1.5 w-1.5 rounded-full inline-block" style={{ backgroundColor: PRICE_BRAND_COLORS[brand] }} />
+                    <span style={{ color: brand === 'Espressolab' ? '#C4922A' : undefined }}>{brand}</span>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {activeRows.map(row => (
+              <tr key={row.key} className="table-row">
+                <td className="table-cell font-medium text-white sticky left-0 bg-surface">{row.label}</td>
+                <td className="table-cell text-center">
+                  {row.size ? (
+                    <span className="text-[10px] bg-surface2 px-1.5 py-0.5 rounded text-muted font-mono">{row.size}</span>
+                  ) : (
+                    <span className="text-navy-border text-xs">—</span>
+                  )}
+                </td>
+                {PRICE_BRANDS.map(brand => {
+                  const price = getPriceCell(row.key, brand);
+                  const { bg = '', text = 'text-white' } = getCellStyle(row.key, brand);
+                  return (
+                    <td key={brand} className={clsx('table-cell text-center', bg)}>
+                      {price !== null ? (
+                        <span className={clsx(text, brand === 'Espressolab' && 'underline decoration-caramel/40')}>
+                          ₺{price}
+                        </span>
+                      ) : (
+                        <span className="text-navy-border">—</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="mt-3 text-[11px] text-muted">
+        Yeşil = satırdaki en düşük fiyat · Kırmızı = satırdaki en yüksek fiyat · — = menüde yok · Son güncelleme: {menuPrices.lastUpdated}
+      </p>
+    </div>
+  );
+}
+
+export default function MenuComparison() {
 
   const avgPriceData = BRANDS.map(b => ({
     name: b.shortName,
@@ -73,46 +176,7 @@ export default function MenuComparison() {
       <SectionHeader
         title="Menü Karşılaştırması"
         subtitle="Tüm markaların ürün ve fiyat karşılaştırması"
-      >
-        <label className="flex items-center gap-2 text-xs text-muted cursor-pointer">
-          <input
-            type="checkbox"
-            checked={highlightCheapest}
-            onChange={e => setHighlightCheapest(e.target.checked)}
-            className="accent-caramel"
-          />
-          En ucuz/pahalıyı vurgula
-        </label>
-      </SectionHeader>
-      <DataFreshnessBar
-        sources={[{ label: 'Menü Verisi' }, { label: 'Fiyat Takip' }]}
-        interval={300_000}
       />
-
-      {/* Category filters */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <button
-          onClick={() => setActiveCategory('all')}
-          className={clsx(
-            'btn text-xs',
-            activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'
-          )}
-        >
-          🍽️ Tümü
-        </button>
-        {MENU_CATEGORIES.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={clsx(
-              'btn text-xs',
-              activeCategory === cat.id ? 'btn-primary' : 'btn-secondary'
-            )}
-          >
-            {cat.icon} {cat.label}
-          </button>
-        ))}
-      </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
@@ -194,84 +258,7 @@ export default function MenuComparison() {
         </div>
       </div>
 
-      {/* Price Matrix Table */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-white">
-            Fiyat Matrisi — {activeCategory === 'all' ? 'Tüm Ürünler' : MENU_CATEGORIES.find(c => c.id === activeCategory)?.label}
-          </h3>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success" /> En Ucuz</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-danger" /> En Pahalı</span>
-            <span className="text-muted">— = Menüde Yok</span>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-navy-border">
-                <th className="table-header py-3 px-3 text-left sticky left-0 bg-surface z-10 min-w-[160px]">Ürün</th>
-                <th className="table-header py-3 px-2 text-left min-w-[70px]">Kategori</th>
-                {BRANDS.map(b => (
-                  <th
-                    key={b.id}
-                    className={clsx('table-header py-3 px-3 text-center min-w-[90px]', b.isOwn && 'text-caramel')}
-                  >
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: b.color }}
-                      />
-                      {b.shortName}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map(item => {
-                const cat = MENU_CATEGORIES.find(c => c.id === item.category);
-                const isHighlighted = item.id === highlightId;
-                return (
-                  <tr
-                    key={item.id}
-                    id={item.id}
-                    className="table-row transition-colors"
-                    style={isHighlighted ? { backgroundColor: '#C4922A18', boxShadow: 'inset 2px 0 0 #C4922A' } : {}}
-                  >
-                    <td className="table-cell font-medium text-white sticky left-0 bg-surface">{item.name}</td>
-                    <td className="table-cell">
-                      <span className="text-[10px] bg-surface2 px-2 py-0.5 rounded-full text-muted">
-                        {cat?.icon} {cat?.label}
-                      </span>
-                    </td>
-                    {BRANDS.map(b => {
-                      const price = item.prices[b.id];
-                      const { cls, style } = getCellClass(item, b.id);
-                      return (
-                        <td key={b.id} className="table-cell text-center" style={style}>
-                          {price !== null && price !== undefined ? (
-                            <span className={clsx(cls, b.isOwn && 'underline decoration-caramel/50')}>
-                              ₺{price}
-                            </span>
-                          ) : (
-                            <span className="text-navy-border">—</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-4 text-xs text-muted">
-          Yeşil = en düşük fiyat, Kırmızı = en yüksek fiyat.
-        </div>
-      </div>
+      <PriceTable />
 
     </div>
   );

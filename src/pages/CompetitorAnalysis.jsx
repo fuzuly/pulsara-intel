@@ -6,7 +6,6 @@ import {
 } from 'recharts';
 import { TrendingUp, TrendingDown, Star, MapPin, DollarSign, Users, X, AlertCircle, CheckCircle, Zap } from 'lucide-react';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import { BRANDS, BRAND_COLORS } from '../constants/brands';
 import { COMPETITOR_SCORES, RADAR_AXES } from '../data/competitorData';
 import { MENU_ITEMS } from '../data/menuData';
@@ -486,7 +485,6 @@ export default function CompetitorAnalysis() {
         title="Rakip Analizi"
         subtitle="Türkiye kahve sektöründe 20 markanın kapsamlı karşılaştırması — Haziran 2026"
       />
-      <DataFreshnessBar sources={COMPETITOR_SOURCES} interval={300_000} onRefresh={refetchCompetitors} />
 
       {/* Brand selector */}
       <div className="card">

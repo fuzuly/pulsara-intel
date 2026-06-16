@@ -6,7 +6,6 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from 'recharts';
 import SectionHeader from '../components/common/SectionHeader';
-import DataFreshnessBar from '../components/common/DataFreshnessBar';
 import useNewsData from '../hooks/useNewsData';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
@@ -130,11 +129,6 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <DataFreshnessBar
-        sources={[{ label: 'NewsData.io' }, { label: 'Rakip Analizi' }]}
-        interval={300_000}
-        onRefresh={refetchNews}
-      />
 
       {/* Alert Banner — newProductData.js'den dinamik */}
       <div className="flex items-start gap-3 bg-warning/10 border border-warning/30 rounded-xl px-4 py-3">
@@ -325,12 +319,6 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-white">Son Dakika</h3>
-              {!newsLoading && !newsError && articles.length > 0 && (
-                <span className="flex items-center gap-1 text-[10px] bg-success/10 text-success px-2 py-0.5 rounded-full">
-                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-                  CANLI
-                </span>
-              )}
             </div>
             <Link to="/son-dakika" className="text-xs text-caramel hover:underline">
               Tümünü Gör →

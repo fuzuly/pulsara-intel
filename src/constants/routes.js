@@ -69,7 +69,6 @@ export const NAV_ITEMS = [
     labelShort: 'Haberler',
     icon: Newspaper,
     description: 'Canlı haber akışı & gelişmeler',
-    badge: 'CANLI',
   },
   {
     path: '/sube-puanlari',
