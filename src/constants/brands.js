@@ -421,6 +421,26 @@ export const BRANDS = [
     rating: 4.1,
     branchSource: 'Para Dergi (Nis 2025): İstanbul, Antalya, Bodrum — ~7-12 şube | ⚠️ Küresel #1 ama TR\'de minimal varlık',
   },
+  {
+    id: 'elle',
+    name: 'Elle Coffee',
+    shortName: 'ELLE',
+    color: '#9B1B5A',
+    bgColor: '#9B1B5A20',
+    textColor: '#F472B6',
+    founded: 2018,
+    type: 'premium',
+    country: 'TR',
+    isOwn: false,
+    description: 'Premium kahve & patisserie zinciri — Refresh Bar, Matcha Atelier ve milkshake serileriyle öne çıkıyor',
+    website: 'ellecoffee.com.tr',
+    instagram: '@ellecoffeebar',
+    branches: 25,
+    avgPrice: 225,
+    marketShare: 1,
+    rating: 4.4,
+    branchSource: 'Fiziksel menü fotoğrafı Haziran 2026 (şube sayısı tahmini)',
+  },
 ];
 
 export const BRAND_COLORS = BRANDS.reduce((acc, b) => { acc[b.id] = b.color; return acc; }, {});
