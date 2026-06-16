@@ -32,6 +32,13 @@ const PRICE_ROWS = [
   { key: 'frappuccino_large',          label: 'Frappuccino',            size: 'L' },
   { key: 'iced_americano',             label: 'Iced Americano',         size: null },
   { key: 'milkshake',                  label: 'Milkshake',              size: null },
+  // ── Tatlılar ──
+  { key: 'cheesecake',                 label: 'Cheesecake',             size: null },
+  { key: 'tiramisu',                   label: 'Tiramisu',               size: null },
+  { key: 'brownie',                    label: 'Brownie',                size: null },
+  { key: 'cookie',                     label: 'Cookie',                 size: null },
+  { key: 'profiterol',                 label: 'Profiterol',             size: null },
+  { key: 'mozaik_pasta',               label: 'Mozaik Pasta',           size: null },
 ];
 
 const PRICE_BRANDS = Object.keys(menuPrices.brands);
