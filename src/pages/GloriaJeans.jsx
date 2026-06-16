@@ -127,64 +127,41 @@ function timeAgo(iso) {
   return new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
 }
 
-function GJMediaSection({ mentions, loading, lastUpdate, error, onRefresh }) {
-  const [activeTab, setActiveTab]     = useState('all');
-  const [activeSent, setActiveSent]   = useState('all');
-  const [search, setSearch]           = useState('');
+function GJMediaSection({ mentions, loading, error, compact }) {
+  const [activeTab, setActiveTab]   = useState('all');
+  const [activeSent, setActiveSent] = useState('all');
+  const [search, setSearch]         = useState('');
 
-  const filtered = useMemo(() => {
-    return mentions.filter(m => {
-      if (activeTab !== 'all' && m.sourceType !== activeTab) return false;
-      if (activeSent !== 'all' && m.sentiment !== activeSent) return false;
-      if (search) {
-        const kw = search.toLowerCase();
-        if (!m.title?.toLowerCase().includes(kw) && !m.snippet?.toLowerCase().includes(kw)) return false;
-      }
-      return true;
-    });
-  }, [mentions, activeTab, activeSent, search]);
+  const filtered = useMemo(() => mentions.filter(m => {
+    if (activeTab !== 'all' && m.sourceType !== activeTab) return false;
+    if (activeSent !== 'all' && m.sentiment !== activeSent) return false;
+    if (search) {
+      const kw = search.toLowerCase();
+      if (!m.title?.toLowerCase().includes(kw) && !m.snippet?.toLowerCase().includes(kw)) return false;
+    }
+    return true;
+  }), [mentions, activeTab, activeSent, search]);
 
   const counts = useMemo(() => ({
-    positive: mentions.filter(m => m.sentiment === 'positive').length,
-    negative: mentions.filter(m => m.sentiment === 'negative').length,
-    neutral:  mentions.filter(m => m.sentiment === 'neutral').length,
+    pos: mentions.filter(m => m.sentiment === 'positive').length,
+    neg: mentions.filter(m => m.sentiment === 'negative').length,
+    neu: mentions.filter(m => m.sentiment === 'neutral').length,
   }), [mentions]);
 
-  return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2 flex-1">
-          <span>📡</span> Medya & Haber Takibi
-          <span className="text-xs font-normal text-muted ml-1">
-            Gloria Jean's · Dinçerler Group · Mehmet Dinçerler
-          </span>
-        </h2>
-        <div className="flex items-center gap-2">
-          {lastUpdate && (
-            <span className="text-[10px] text-muted">
-              {lastUpdate.toLocaleTimeString('tr-TR')}
-            </span>
-          )}
-          <button
-            onClick={onRefresh}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-navy-border text-muted hover:text-white transition-colors"
-          >
-            <RefreshCw size={11} /> Yenile
-          </button>
-        </div>
-      </div>
+  const inner = (
+    <div className={clsx('flex flex-col gap-2', compact ? 'px-3 pb-3' : 'space-y-4')}>
 
-      {/* Özet istatistikler */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Mini stat şeridi */}
+      <div className="flex gap-2 pt-2">
         {[
-          { label: 'Toplam Mention', value: mentions.length, color: 'text-caramel' },
-          { label: 'Olumlu',         value: counts.positive, color: 'text-success' },
-          { label: 'Olumsuz',        value: counts.negative, color: 'text-danger'  },
-          { label: 'Nötr',           value: counts.neutral,  color: 'text-warning' },
+          { label: 'Toplam', value: mentions.length, color: 'text-caramel' },
+          { label: '😊',     value: counts.pos,      color: 'text-success' },
+          { label: '😟',     value: counts.neg,      color: 'text-danger'  },
+          { label: '😐',     value: counts.neu,      color: 'text-warning' },
         ].map(k => (
-          <div key={k.label} className="card text-center py-3">
-            <div className={clsx('text-2xl font-bold', k.color)}>{k.value}</div>
-            <div className="text-[10px] text-muted mt-0.5">{k.label}</div>
+          <div key={k.label} className="flex-1 text-center bg-surface2 rounded-lg py-1.5">
+            <div className={clsx('text-sm font-bold', k.color)}>{k.value}</div>
+            <div className="text-[9px] text-muted">{k.label}</div>
           </div>
         ))}
       </div>
@@ -194,117 +171,86 @@ function GJMediaSection({ mentions, loading, lastUpdate, error, onRefresh }) {
         {SOURCE_TABS.map(t => {
           const cnt = t.key === 'all' ? mentions.length : mentions.filter(m => m.sourceType === t.key).length;
           return (
-            <button
-              key={t.key}
-              onClick={() => setActiveTab(t.key)}
+            <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={clsx(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                'flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border transition-all',
                 activeTab === t.key
                   ? 'border-orange-500/40 bg-orange-500/15 text-orange-400'
                   : 'border-navy-border text-muted hover:text-white'
               )}
             >
-              {t.icon} {t.label}
-              <span className="text-[10px] opacity-60">({cnt})</span>
+              {t.icon} {t.label} <span className="opacity-50">({cnt})</span>
             </button>
           );
         })}
       </div>
 
-      {/* Duygu + arama filtreleri */}
-      <div className="flex flex-wrap gap-2 items-center">
-        {['all', 'positive', 'negative', 'neutral'].map(s => (
-          <button
-            key={s}
-            onClick={() => setActiveSent(s)}
+      {/* Duygu + arama */}
+      <div className="flex gap-1 flex-wrap items-center">
+        {['all','positive','negative','neutral'].map(s => (
+          <button key={s} onClick={() => setActiveSent(s)}
             className={clsx(
-              'px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all',
-              activeSent === s
-                ? 'bg-caramel/20 border-caramel/40 text-caramel'
-                : 'border-navy-border text-muted hover:text-white'
+              'px-2 py-0.5 rounded text-[10px] font-medium border transition-all',
+              activeSent === s ? 'bg-caramel/20 border-caramel/40 text-caramel' : 'border-navy-border text-muted hover:text-white'
             )}
           >
-            {s === 'all' ? 'Tüm Duygular'
-              : s === 'positive' ? '😊 Olumlu'
-              : s === 'negative' ? '😟 Olumsuz'
-              : '😐 Nötr'}
+            {s === 'all' ? 'Tümü' : s === 'positive' ? '😊 Olumlu' : s === 'negative' ? '😟 Olumsuz' : '😐 Nötr'}
           </button>
         ))}
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Başlıkta ara..."
-          className="input text-xs py-1.5 w-44 ml-auto"
-        />
+        <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="Ara..." className="input text-[11px] py-1 px-2 ml-auto w-28" />
       </div>
 
       {/* Liste */}
-      {loading ? (
-        <div className="card flex items-center justify-center gap-3 py-10">
-          <RefreshCw size={16} className="animate-spin text-orange-400" />
-          <span className="text-sm text-muted">Mention'lar yükleniyor...</span>
-        </div>
-      ) : error ? (
-        <div className="card text-center py-8">
-          <p className="text-xs text-danger">Backend bağlantı hatası — scraper çalışıyor mu?</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="card text-center py-10">
-          <div className="text-3xl mb-2">📭</div>
-          <p className="text-sm text-muted">
-            {mentions.length === 0
-              ? 'Henüz mention yok — backend polling tamamlandığında veriler görünecek.'
-              : 'Seçilen filtre için sonuç bulunamadı.'}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map(m => {
-            const sm = SENT_META[m.sentiment] || SENT_META.neutral;
-            const srcTab = SOURCE_TABS.find(t => t.key === m.sourceType);
-            return (
-              <div
-                key={m.id}
-                className="flex items-start gap-3 p-3 rounded-xl border border-navy-border bg-surface hover:border-orange-500/20 transition-all"
-              >
-                <div className="flex-shrink-0 pt-0.5">
-                  <span className="text-base">{srcTab?.icon || '📄'}</span>
+      <div className={clsx('overflow-y-auto space-y-1.5', compact && 'max-h-72')}>
+        {loading ? (
+          <div className="flex items-center justify-center gap-2 py-8">
+            <RefreshCw size={14} className="animate-spin text-orange-400" />
+            <span className="text-xs text-muted">Yükleniyor...</span>
+          </div>
+        ) : error ? (
+          <p className="text-[11px] text-danger text-center py-6">Backend bağlantı hatası</p>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-2xl mb-1">📭</div>
+            <p className="text-[11px] text-muted">
+              {mentions.length === 0 ? 'Polling tamamlandığında veriler görünecek.' : 'Sonuç bulunamadı.'}
+            </p>
+          </div>
+        ) : filtered.map(m => {
+          const sm     = SENT_META[m.sentiment] || SENT_META.neutral;
+          const srcTab = SOURCE_TABS.find(t => t.key === m.sourceType);
+          return (
+            <div key={m.id}
+              className="flex items-start gap-2 p-2.5 rounded-lg border border-navy-border bg-surface hover:border-orange-500/20 transition-all"
+            >
+              <span className="text-sm flex-shrink-0 pt-0.5">{srcTab?.icon || '📄'}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                  <span className={clsx('text-[9px] font-semibold px-1.5 py-0.5 rounded border', sm.cls)}>
+                    {sm.label}
+                  </span>
+                  <span className="text-[9px] text-muted">{m.source}</span>
+                  <span className="ml-auto text-[9px] text-muted flex-shrink-0">{timeAgo(m.publishedAt)}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <span className={clsx('text-[10px] font-semibold px-1.5 py-0.5 rounded border', sm.cls)}>
-                      {sm.label}
-                    </span>
-                    <span className="text-[10px] text-muted bg-surface2 px-1.5 py-0.5 rounded">
-                      {srcTab?.label || m.sourceType} · {m.source}
-                    </span>
-                    <span className="ml-auto text-[10px] text-muted flex-shrink-0">
-                      {timeAgo(m.publishedAt)}
-                    </span>
-                  </div>
-                  <a
-                    href={m.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-medium text-white hover:text-orange-400 transition-colors leading-snug line-clamp-2 flex items-start gap-1"
-                  >
-                    {m.title}
-                    <ExternalLink size={10} className="flex-shrink-0 mt-0.5 opacity-40" />
-                  </a>
-                  {m.snippet && (
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed line-clamp-2">
-                      {m.snippet}
-                    </p>
-                  )}
-                </div>
+                <a href={m.url} target="_blank" rel="noopener noreferrer"
+                  className="text-[11px] font-medium text-white hover:text-orange-400 transition-colors leading-snug line-clamp-2 flex items-start gap-1"
+                >
+                  {m.title}
+                  <ExternalLink size={9} className="flex-shrink-0 mt-0.5 opacity-40" />
+                </a>
+                {m.snippet && (
+                  <p className="text-[10px] text-muted mt-0.5 line-clamp-1">{m.snippet}</p>
+                )}
               </div>
-            );
-          })}
-        </div>
-      )}
-    </section>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
+
+  return inner;
 }
 
 // ─── Tooltip bileşenleri ──────────────────────────────────────────────────────
@@ -421,36 +367,74 @@ export default function GloriaJeans() {
         </div>
       </div>
 
-      {/* ── KPI Kartları ────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Türkiye Şube Sayısı',  value: '214',                                              sub: '43+ ilde aktif',                        color: '#ffffff'  },
-          { label: 'Pazar Payı',           value: `%${gj.marketShare}`,                               sub: 'TR kahve sektörü',                       color: GJ_LIGHT   },
-          { label: 'Ort. Ürün Fiyatı',     value: `₺${gj.avgPrice}`,                                 sub: 'Menü ortalaması',                        color: '#22c55e'  },
-          { label: 'Google Maps Puanı',    value: String(gj.googleRating),                            sub: '108 şube · Haziran 2026',                color: '#f59e0b'  },
-          { label: 'Instagram Takipçi',    value: formatLargeNumber(igProfile.followers || 61749),    sub: '@gjcsturkey',                            color: GJ_LIGHT   },
-          { label: 'Instagram Etkileşim',  value: `%${igPost.engagementRate || 0.11}`,                sub: 'Sektör ort. %0.51 — ⚠️ Düşük',           color: '#ef4444'  },
-          { label: 'NPS Skoru',            value: String(gj.nps),                                     sub: 'Müşteri tavsiye oranı',                  color: '#8B9BB4'  },
-          { label: 'Çalışan (Tahmini)',    value: formatLargeNumber(gj.employees),                    sub: `${gj.annualRevenue} tahmini ciro`,        color: '#8B9BB4'  },
-        ].map(k => (
-          <div key={k.label} className="card">
-            <div className="text-2xl font-bold mb-0.5" style={{ color: k.color }}>{k.value}</div>
-            <div className="text-xs font-semibold text-white">{k.label}</div>
-            <div className="text-[10px] text-muted mt-0.5">{k.sub}</div>
-          </div>
-        ))}
-      </div>
+      {/* ── KPI + Medya Takibi yan yana ─────────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
 
-      {/* ── Uyarı Bandı ─────────────────────────────────────────────────── */}
-      <div className="flex items-start gap-3 bg-warning/10 border border-warning/30 rounded-xl px-4 py-3">
-        <span className="text-warning text-xl flex-shrink-0">⚠️</span>
-        <div>
-          <p className="text-sm font-semibold text-warning mb-0.5">Instagram Etkileşim Krizi</p>
-          <p className="text-xs text-white/80">
-            Gloria Jean's <strong className="text-warning">%0.11</strong> etkileşim oranıyla sektörün en düşük performanslı hesabı.
-            61.749 takipçiye karşın ortalama sadece <strong>65 beğeni</strong> — içerik stratejisi kitleye ulaşmıyor.
-            Espressolab'ın <strong className="text-success">%1.28</strong> oranıyla karşılaştırıldığında 12 kat fark bulunmakta.
-          </p>
+        {/* Sol: KPI kartları + Uyarı bandı */}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { label: 'Türkiye Şube Sayısı',  value: '214',                                             sub: '43+ ilde aktif',               color: '#ffffff'  },
+              { label: 'Pazar Payı',           value: `%${gj.marketShare}`,                              sub: 'TR kahve sektörü',              color: GJ_LIGHT   },
+              { label: 'Ort. Ürün Fiyatı',     value: `₺${gj.avgPrice}`,                                sub: 'Menü ortalaması',               color: '#22c55e'  },
+              { label: 'Google Maps Puanı',    value: String(gj.googleRating),                           sub: '108 şube · Haziran 2026',       color: '#f59e0b'  },
+              { label: 'Instagram Takipçi',    value: formatLargeNumber(igProfile.followers || 61749),   sub: '@gjcsturkey',                   color: GJ_LIGHT   },
+              { label: 'Instagram Etkileşim',  value: `%${igPost.engagementRate || 0.11}`,               sub: 'Sektör ort. %0.51 — ⚠️ Düşük', color: '#ef4444'  },
+              { label: 'NPS Skoru',            value: String(gj.nps),                                    sub: 'Müşteri tavsiye oranı',         color: '#8B9BB4'  },
+              { label: 'Çalışan (Tahmini)',    value: formatLargeNumber(gj.employees),                   sub: `${gj.annualRevenue} tahmini`,   color: '#8B9BB4'  },
+            ].map(k => (
+              <div key={k.label} className="card py-3 px-3">
+                <div className="text-xl font-bold mb-0.5" style={{ color: k.color }}>{k.value}</div>
+                <div className="text-[11px] font-semibold text-white leading-tight">{k.label}</div>
+                <div className="text-[9px] text-muted mt-0.5">{k.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-start gap-3 bg-warning/10 border border-warning/30 rounded-xl px-3 py-2.5">
+            <span className="text-warning text-base flex-shrink-0">⚠️</span>
+            <div>
+              <p className="text-xs font-semibold text-warning mb-0.5">Instagram Etkileşim Krizi</p>
+              <p className="text-[11px] text-white/80 leading-relaxed">
+                Gloria Jean's <strong className="text-warning">%0.11</strong> etkileşimle sektörün en düşüğü.
+                61.749 takipçiye karşın ort. <strong>65 beğeni</strong> — Espressolab'ın
+                <strong className="text-success"> %1.28</strong> oranından 12 kat düşük.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sağ: Medya & Haber Takibi */}
+        <div className="card p-0 overflow-hidden flex flex-col" style={{ maxHeight: '520px' }}>
+          <div className="px-4 pt-4 pb-2 border-b border-navy-border flex items-center justify-between flex-shrink-0">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>📡</span> Medya & Haber Takibi
+              </h3>
+              <p className="text-[10px] text-muted mt-0.5">
+                Gloria Jean's · Dinçerler Group · Mehmet Dinçerler
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {mentionUpdate && (
+                <span className="text-[9px] text-muted">{mentionUpdate.toLocaleTimeString('tr-TR')}</span>
+              )}
+              <button
+                onClick={refreshMentions}
+                className="flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-navy-border text-muted hover:text-white transition-colors"
+              >
+                <RefreshCw size={10} /> Yenile
+              </button>
+            </div>
+          </div>
+          <GJMediaSection
+            mentions={gjMentions}
+            loading={mentionLoading}
+            lastUpdate={mentionUpdate}
+            error={mentionError}
+            onRefresh={refreshMentions}
+            compact
+          />
         </div>
       </div>
 
@@ -973,15 +957,6 @@ export default function GloriaJeans() {
           </div>
         </div>
       </section>
-
-      {/* ── Medya Takibi ────────────────────────────────────────────────── */}
-      <GJMediaSection
-        mentions={gjMentions}
-        loading={mentionLoading}
-        lastUpdate={mentionUpdate}
-        error={mentionError}
-        onRefresh={refreshMentions}
-      />
 
       {/* ── Kaynak Notu ─────────────────────────────────────────────────── */}
       <div className="flex items-start gap-3 bg-blue-900/20 border border-blue-500/20 rounded-xl p-3 text-xs">
