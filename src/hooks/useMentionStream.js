@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-// Vite proxy: /scraper-api → http://localhost:3600 (strips /scraper-api prefix)
-// Backend mounts routes at /api, so full proxy path is /scraper-api/api/...
-const SCRAPER_BASE = '/scraper-api/api';
+// Local: http://localhost:3600 (CORS allows 8333)
+// Production: VITE_SCRAPER_URL env var
+const SCRAPER_BASE = (import.meta.env.VITE_SCRAPER_URL || 'http://localhost:3600') + '/api';
 const MAX_LOCAL = 200;
 const RECONNECT_DELAY_MS = 5000;
 
