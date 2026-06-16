@@ -12,6 +12,7 @@ import {
   Building2,
   Monitor,
   Radio,
+  GitCompare,
 } from 'lucide-react';
 
 export const NAV_ITEMS = [
@@ -91,6 +92,13 @@ export const NAV_ITEMS = [
     labelShort: 'Mention',
     icon: Radio,
     description: 'Google Haberler & GDELT canlı mention izleme',
+  },
+  {
+    path: '/karsilastirma',
+    label: 'Marka Karşılaştırma',
+    labelShort: 'Kıyasla',
+    icon: GitCompare,
+    description: 'Brand24 tarzı marka kıyaslama — mention, sosyal medya, operasyonel',
   },
   {
     href: 'https://gloriajeans.pulsaraai.com/admin/login',
