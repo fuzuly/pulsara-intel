@@ -91,14 +91,14 @@ export const NAV_ITEMS = [
     label: 'Canlı Mention Takibi',
     labelShort: 'Mention',
     icon: Radio,
-    description: 'Google Haberler & GDELT canlı mention izleme',
+    description: 'Google Haberler + TR Haber + Reddit canlı mention izleme',
   },
   {
     path: '/karsilastirma',
     label: 'Marka Karşılaştırma',
     labelShort: 'Kıyasla',
     icon: GitCompare,
-    description: 'Brand24 tarzı marka kıyaslama — mention, sosyal medya, operasyonel',
+    description: 'Markalar arası mention, sosyal medya ve operasyonel kıyaslama',
   },
   {
     href: 'https://gloriajeans.pulsaraai.com/admin/login',
