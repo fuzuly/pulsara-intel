@@ -178,7 +178,7 @@ export default function BrandComparison() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const availableBrands = BRANDS.filter(b => !selectedIds.includes(b.id));
+  const availableBrands = BRANDS.filter(b => !selectedIds.includes(b.id)).sort((a, b) => a.id === 'gloriajeans' ? -1 : b.id === 'gloriajeans' ? 1 : 0);
   const filtered = availableBrands.filter(b =>
     b.name.toLowerCase().includes(search.toLowerCase()) ||
     b.shortName.toLowerCase().includes(search.toLowerCase())
