@@ -14,6 +14,7 @@ import Reports from './pages/Reports';
 import BreakingNews from './pages/BreakingNews';
 import BranchRatings from './pages/BranchRatings';
 import GloriaJeans from './pages/GloriaJeans';
+import MentionMonitor from './pages/MentionMonitor';
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -47,6 +48,7 @@ function AppRoutes() {
         <Route path="son-dakika" element={<BreakingNews />} />
         <Route path="sube-puanlari" element={<BranchRatings />} />
         <Route path="gloria-jeans" element={<GloriaJeans />} />
+        <Route path="canli-takip" element={<MentionMonitor />} />
         <Route path="raporlar" element={<Reports />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

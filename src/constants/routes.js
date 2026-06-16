@@ -11,6 +11,7 @@ import {
   MapPin,
   Building2,
   Monitor,
+  Radio,
 } from 'lucide-react';
 
 export const NAV_ITEMS = [
@@ -83,6 +84,13 @@ export const NAV_ITEMS = [
     labelShort: "GJ's",
     icon: Building2,
     description: "Gloria Jean's marka istihbaratı",
+  },
+  {
+    path: '/canli-takip',
+    label: 'Canlı Mention Takibi',
+    labelShort: 'Mention',
+    icon: Radio,
+    description: 'Google Haberler & GDELT canlı mention izleme',
   },
   {
     href: 'https://gloriajeans.pulsaraai.com/admin/login',
