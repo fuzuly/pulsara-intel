@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -171,6 +171,12 @@ export default function BrandComparison() {
   const [search, setSearch]           = useState('');
   const [activeTab, setActiveTab]     = useState('mentions');
   const { compare, mentionData, loading, error, getSocialData, getOperationalData } = useBrandComparison();
+  const pickerRef = useRef(null);
+  useEffect(() => {
+    function handleClick(e) { if (pickerRef.current && !pickerRef.current.contains(e.target)) setPickerOpen(false); }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const availableBrands = BRANDS.filter(b => !selectedIds.includes(b.id));
   const filtered = availableBrands.filter(b =>
@@ -210,7 +216,7 @@ export default function BrandComparison() {
             <BrandChip key={id} brand={BRAND_MAP[id]} onRemove={removeBrand} />
           ))}
           {selectedIds.length < 4 && (
-            <div className="relative">
+            <div className="relative" ref={pickerRef}>
               <button
                 onClick={() => setPickerOpen(p => !p)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-navy-border text-muted hover:text-white hover:border-brand-gold transition-colors text-sm"
@@ -218,8 +224,8 @@ export default function BrandComparison() {
                 <Plus size={14} /> Marka Ekle
               </button>
               {pickerOpen && (
-                <div className="absolute top-9 left-0 z-50 w-64 bg-navy-card border border-navy-border rounded-xl shadow-xl p-2">
-                  <div className="flex items-center gap-2 px-2 py-1.5 mb-1 border border-navy-border rounded-lg">
+                <div className="absolute top-9 left-0 z-[9999] w-72 rounded-xl shadow-2xl p-2 border border-navy-border" style={{ background: "#0d1b2a" }}>
+                  <div className="flex items-center gap-2 px-2 py-1.5 mb-1 rounded-lg" style={{ background: "#162032", border: "1px solid #19263a" }}>
                     <Search size={13} className="text-muted" />
                     <input
                       autoFocus
@@ -234,7 +240,7 @@ export default function BrandComparison() {
                       <button
                         key={b.id}
                         onClick={() => addBrand(b.id)}
-                        className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-navy-hover transition-colors"
+                        className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#1a2640] transition-colors"
                       >
                         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: b.color }} />
                         <span className="text-sm text-white">{b.name}</span>
@@ -251,7 +257,7 @@ export default function BrandComparison() {
 
         {/* Keyword + Kıyasla */}
         <div className="flex gap-2 items-center">
-          <div className="flex items-center gap-2 flex-1 bg-navy-hover border border-navy-border rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2 flex-1 bg-[#111c2e] border border-navy-border rounded-lg px-3 py-2">
             <Search size={14} className="text-muted" />
             <input
               value={keyword}
