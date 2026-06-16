@@ -165,7 +165,7 @@ function OpChart({ brands, dataKey, label, formatter }) {
 
 /* ── Ana sayfa ──────────────────────────────────────────────────────────── */
 export default function BrandComparison() {
-  const [selectedIds, setSelectedIds] = useState(['espressolab', 'starbucks']);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [keyword, setKeyword]         = useState('');
   const [pickerOpen, setPickerOpen]   = useState(false);
   const [search, setSearch]           = useState('');
