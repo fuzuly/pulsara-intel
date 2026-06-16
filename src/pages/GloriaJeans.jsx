@@ -407,14 +407,9 @@ export default function GloriaJeans() {
         {/* Sağ: Medya & Haber Takibi */}
         <div className="card p-0 overflow-hidden flex flex-col" style={{ maxHeight: '520px' }}>
           <div className="px-4 pt-4 pb-2 border-b border-navy-border flex items-center justify-between flex-shrink-0">
-            <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <span>📡</span> Medya & Haber Takibi
-              </h3>
-              <p className="text-[10px] text-muted mt-0.5">
-                Gloria Jean's · Dinçerler Group · Mehmet Dinçerler
-              </p>
-            </div>
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <span>📡</span> Medya & Haber Takibi
+            </h3>
             <div className="flex items-center gap-2">
               {mentionUpdate && (
                 <span className="text-[9px] text-muted">{mentionUpdate.toLocaleTimeString('tr-TR')}</span>
