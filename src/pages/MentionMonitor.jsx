@@ -5,7 +5,10 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { Download, Printer, RefreshCw, AlertTriangle, Star, TrendingUp, Zap, Newspaper } from 'lucide-react';
+import {
+  Download, Printer, RefreshCw, AlertTriangle,
+  Star, TrendingUp, Zap, Newspaper, Brain, X,
+} from 'lucide-react';
 import clsx from 'clsx';
 import { BRANDS } from '../constants/brands';
 import useMentionStream from '../hooks/useMentionStream';
@@ -23,6 +26,16 @@ const SOURCE_META = {
   tr_news: { label: 'TR Haber',    icon: '📰' },
   reddit:  { label: 'Reddit',      icon: '💬' },
 };
+
+const EMOTION_META = {
+  joy:     { label: 'Mutluluk', emoji: '😊', color: '#22c55e', bg: 'rgba(34,197,94,0.12)'  },
+  anger:   { label: 'Öfke',     emoji: '😠', color: '#ef4444', bg: 'rgba(239,68,68,0.12)'  },
+  fear:    { label: 'Endişe',   emoji: '😰', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  sadness: { label: 'Üzüntü',  emoji: '😢', color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
+  neutral: { label: 'Nötr',    emoji: '😐', color: '#64748b', bg: 'rgba(100,116,139,0.12)'},
+};
+
+const TOPIC_COLORS = ['#C4922A','#60a5fa','#a78bfa','#34d399','#f472b6','#fb923c'];
 
 const DOMAIN_REACH = {
   'hurriyet.com.tr': 3000000, 'sabah.com.tr': 2500000, 'cnnturk.com': 2000000,
@@ -87,8 +100,7 @@ function StormAlert({ storm }) {
         <div className="text-sm font-semibold text-orange-400">Storm Uyarısı — Anormal Mention Artışı</div>
         <div className="text-xs text-muted mt-1">
           Son 1 saatte <strong className="text-white">{storm.currentHourCount}</strong> mention —
-          saatlik ortalamanın{' '}
-          <strong className="text-orange-400">{storm.ratio}× üzeri</strong>.
+          saatlik ortalamanın <strong className="text-orange-400">{storm.ratio}× üzeri</strong>.
           Bir kriz veya viral içerik olabilir.
         </div>
       </div>
@@ -114,32 +126,127 @@ function SentimentBar({ byBrand }) {
   );
 }
 
-function WordCloud({ keywords }) {
+function WordCloud({ keywords, onClickWord, activeWord }) {
   const max = keywords[0]?.count || 1;
-  // 3 tiers: large (top 5), medium (6-15), small (rest)
   return (
     <div className="flex flex-wrap gap-2 p-1">
       {keywords.slice(0, 35).map(({ word, count }, i) => {
-        const ratio = count / max;
-        const tier  = i < 5 ? 'lg' : i < 15 ? 'md' : 'sm';
-        const bgOpacity = 0.08 + ratio * 0.12;
-        const borderOpacity = 0.15 + ratio * 0.2;
+        const ratio    = count / max;
+        const tier     = i < 5 ? 'lg' : i < 15 ? 'md' : 'sm';
+        const isActive = activeWord === word;
         return (
-          <span key={word} title={`${count} mention`}
-            className="inline-flex items-center gap-1 rounded-full cursor-default transition-all hover:scale-105"
+          <button key={word} title={`"${word}" için mentionları filtrele`}
+            onClick={() => onClickWord(word)}
+            className="inline-flex items-center gap-1 rounded-full transition-all hover:scale-105 active:scale-95"
             style={{
-              fontSize:        tier === 'lg' ? 14 : tier === 'md' ? 12 : 11,
-              fontWeight:      tier === 'lg' ? 600 : tier === 'md' ? 500 : 400,
-              padding:         tier === 'lg' ? '5px 14px' : tier === 'md' ? '4px 11px' : '3px 9px',
-              background:      `rgba(196, 146, 42, ${bgOpacity})`,
-              border:          `1px solid rgba(196, 146, 42, ${borderOpacity})`,
-              color:           ratio > 0.7 ? '#f3c96b' : ratio > 0.4 ? '#C4922A' : '#8a6520',
+              fontSize:    tier === 'lg' ? 14 : tier === 'md' ? 12 : 11,
+              fontWeight:  tier === 'lg' ? 600 : tier === 'md' ? 500 : 400,
+              padding:     tier === 'lg' ? '5px 14px' : tier === 'md' ? '4px 11px' : '3px 9px',
+              background:  isActive ? 'rgba(196,146,42,0.35)' : `rgba(196,146,42,${0.08 + ratio * 0.12})`,
+              border:      `1px solid rgba(196,146,42,${isActive ? 0.7 : 0.15 + ratio * 0.2})`,
+              color:       isActive ? '#f3c96b' : ratio > 0.7 ? '#f3c96b' : ratio > 0.4 ? '#C4922A' : '#8a6520',
+              boxShadow:   isActive ? '0 0 0 2px rgba(196,146,42,0.25)' : 'none',
             }}>
             {word}
             <span style={{ fontSize: 9, opacity: 0.6, color: '#888' }}>{count}</span>
-          </span>
+          </button>
         );
       })}
+    </div>
+  );
+}
+
+function EmotionChart({ byEmotion, total }) {
+  if (!byEmotion || !total) return null;
+  const emotions = ['joy', 'anger', 'fear', 'sadness', 'neutral'];
+  return (
+    <div className="space-y-2.5">
+      {emotions.map(key => {
+        const meta  = EMOTION_META[key];
+        const count = byEmotion[key] || 0;
+        const pct   = total > 0 ? Math.round((count / total) * 100) : 0;
+        return (
+          <div key={key} className="flex items-center gap-3">
+            <span className="text-base w-6 text-center">{meta.emoji}</span>
+            <span className="text-xs text-muted w-16">{meta.label}</span>
+            <div className="flex-1 h-2 rounded-full bg-surface2 overflow-hidden">
+              <div className="h-full rounded-full transition-all"
+                style={{ width: `${pct}%`, backgroundColor: meta.color }} />
+            </div>
+            <span className="text-[11px] font-semibold w-8 text-right" style={{ color: meta.color }}>
+              {pct}%
+            </span>
+            <span className="text-[10px] text-muted w-5 text-right">{count}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AIClusters({ clusters, loading, onFetch }) {
+  if (loading) {
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-xl border border-navy-border bg-surface">
+        <RefreshCw size={16} className="animate-spin text-caramel" />
+        <span className="text-sm text-muted">Claude AI konu analizi yapıyor…</span>
+      </div>
+    );
+  }
+
+  if (!clusters) {
+    return (
+      <div className="flex items-center justify-between p-4 rounded-xl border border-dashed border-navy-border">
+        <div>
+          <div className="text-sm font-medium text-white flex items-center gap-2">
+            <Brain size={14} className="text-purple-400" /> AI Konu Kümeleme
+          </div>
+          <div className="text-xs text-muted mt-0.5">
+            Keyword'leri Claude AI ile anlamlı iş kategorilerine grupla
+          </div>
+        </div>
+        <button onClick={onFetch}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 text-xs font-medium hover:bg-purple-500/25 transition-all">
+          <Brain size={12} /> AI Analizi Yap
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <Brain size={14} className="text-purple-400" /> AI Konu Kümeleme
+        </h3>
+        <button onClick={onFetch}
+          className="text-[10px] text-muted hover:text-white flex items-center gap-1 transition-colors">
+          <RefreshCw size={10} /> Yenile
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {clusters.map((cluster, i) => (
+          <div key={i} className="rounded-xl border border-navy-border bg-surface p-3"
+            style={{ borderColor: `${TOPIC_COLORS[i % TOPIC_COLORS.length]}33` }}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">{cluster.emoji}</span>
+              <span className="text-xs font-semibold text-white">{cluster.name}</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {(cluster.keywords || []).map(kw => (
+                <span key={kw} className="text-[10px] px-2 py-0.5 rounded-full"
+                  style={{
+                    background: `${TOPIC_COLORS[i % TOPIC_COLORS.length]}18`,
+                    border:     `1px solid ${TOPIC_COLORS[i % TOPIC_COLORS.length]}40`,
+                    color:      TOPIC_COLORS[i % TOPIC_COLORS.length],
+                  }}>
+                  {kw}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -195,18 +302,24 @@ function MentionCard({ mention, isNew }) {
 export default function MentionMonitor() {
   const { mentions, stats, connected, lastPoll, newFlash } = useMentionStream();
 
-  const [activeTab,      setActiveTab]      = useState('akis');
-  const [filterBrand,    setFilterBrand]    = useState('all');
-  const [filterSentiment,setFilterSentiment]= useState('all');
-  const [filterSource,   setFilterSource]   = useState('all');
-  const [searchText,     setSearchText]     = useState('');
-  const [datePreset,     setDatePreset]     = useState('all');
+  const [activeTab,       setActiveTab]      = useState('akis');
+  const [filterBrand,     setFilterBrand]    = useState('all');
+  const [filterSentiment, setFilterSentiment]= useState('all');
+  const [filterSource,    setFilterSource]   = useState('all');
+  const [searchText,      setSearchText]     = useState('');
+  const [datePreset,      setDatePreset]     = useState('all');
 
-  const [analytics,          setAnalytics]         = useState(null);
-  const [analyticsLoading,   setAnalyticsLoading]  = useState(false);
-  const [analyticsBrand,     setAnalyticsBrand]    = useState('all');
-  const [analyticsDate,      setAnalyticsDate]     = useState('30d');
+  const [analytics,        setAnalytics]       = useState(null);
+  const [analyticsLoading, setAnalyticsLoading]= useState(false);
+  const [analyticsBrand,   setAnalyticsBrand]  = useState('all');
+  const [analyticsDate,    setAnalyticsDate]   = useState('30d');
 
+  // Word cloud click state
+  const [clickedWord, setClickedWord] = useState(null);
+
+  // AI clusters
+  const [aiClusters,       setAiClusters]      = useState(null);
+  const [clustersLoading,  setClustersLoading] = useState(false);
 
   /* ── filtered (Akış tab) ─── */
   const filtered = useMemo(() => {
@@ -247,7 +360,7 @@ export default function MentionMonitor() {
       if (analyticsBrand !== 'all') p.set('brand', analyticsBrand);
       const res  = await fetch(`${SCRAPER_BASE}/mentions/analytics?${p}`);
       const json = await res.json();
-      if (json.status === 'ok') setAnalytics(json);
+      if (json.status === 'ok') { setAnalytics(json); setAiClusters(null); }
     } catch (err) {
       console.error('[analytics]', err);
     } finally {
@@ -259,6 +372,39 @@ export default function MentionMonitor() {
     if (activeTab === 'analitik') fetchAnalytics();
   }, [activeTab, fetchAnalytics]);
 
+  /* ── AI clusters ─── */
+  const fetchAIClusters = useCallback(async () => {
+    setClustersLoading(true);
+    try {
+      const p = new URLSearchParams();
+      if (analyticsDate !== 'all') {
+        const days = analyticsDate === '7d' ? 7 : analyticsDate === '30d' ? 30 : 90;
+        p.set('from', new Date(Date.now() - days * 86_400_000).toISOString());
+      }
+      if (analyticsBrand !== 'all') p.set('brand', analyticsBrand);
+      const res  = await fetch(`${SCRAPER_BASE}/mentions/clusters?${p}`);
+      const json = await res.json();
+      if (json.status === 'ok') setAiClusters(json.clusters);
+      else throw new Error(json.message);
+    } catch (err) {
+      console.error('[clusters]', err);
+    } finally {
+      setClustersLoading(false);
+    }
+  }, [analyticsDate, analyticsBrand]);
+
+  /* ── Word cloud click → Akış tab filter ─── */
+  function handleWordClick(word) {
+    setClickedWord(word);
+    setSearchText(word);
+    setActiveTab('akis');
+  }
+
+  function clearWordFilter() {
+    setClickedWord(null);
+    setSearchText('');
+  }
+
   /* ── export ─── */
   async function exportToExcel() {
     let data = filtered;
@@ -267,7 +413,7 @@ export default function MentionMonitor() {
         const res  = await fetch(`${SCRAPER_BASE}/mentions?limit=2000`);
         const json = await res.json();
         if (json.status === 'ok') data = json.data;
-      } catch { /* kullan var olanı */ }
+      } catch { /* use what we have */ }
     }
     const rows = data.map(m => ({
       Tarih:           m.publishedAt ? new Date(m.publishedAt).toLocaleString('tr-TR') : '',
@@ -317,15 +463,14 @@ export default function MentionMonitor() {
         </div>
       </div>
 
-      {/* Global storm alert */}
       {analytics?.storm?.isStorm && <StormAlert storm={analytics.storm} />}
 
       {/* Tabs */}
       <div className="flex gap-0 border-b border-navy-border">
         {[
-          { key: 'akis',    label: '📡 Canlı Akış'    },
-          { key: 'analitik', label: '📊 Analitik'      },
-          { key: 'rapor',   label: '📤 Rapor & Export' },
+          { key: 'akis',     label: '📡 Canlı Akış'    },
+          { key: 'analitik', label: '📊 Analitik'       },
+          { key: 'rapor',    label: '📤 Rapor & Export'  },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={clsx(
@@ -379,6 +524,18 @@ export default function MentionMonitor() {
             </div>
           )}
 
+          {/* Aktif konu filtresi */}
+          {clickedWord && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-caramel/10 border border-caramel/30 text-xs">
+              <Zap size={12} className="text-caramel" />
+              <span className="text-muted">Konu filtresi:</span>
+              <span className="text-caramel font-semibold">"{clickedWord}"</span>
+              <button onClick={clearWordFilter} className="ml-auto text-muted hover:text-white transition-colors">
+                <X size={12} />
+              </button>
+            </div>
+          )}
+
           {/* Filters */}
           <div className="flex flex-wrap gap-2 items-center">
             {DATE_PRESETS.map(p => (
@@ -415,7 +572,7 @@ export default function MentionMonitor() {
                   : `${SOURCE_META[src]?.icon} ${SOURCE_META[src]?.label}`}
               </button>
             ))}
-            <input type="text" value={searchText} onChange={e => setSearchText(e.target.value)}
+            <input type="text" value={searchText} onChange={e => { setSearchText(e.target.value); if (!e.target.value) setClickedWord(null); }}
               placeholder="Anahtar kelime ara…" className="input text-xs py-1.5 w-44" />
             {filtered.length !== mentions.length && (
               <span className="text-[11px] text-muted">{filtered.length}/{mentions.length} gösteriliyor</span>
@@ -488,6 +645,7 @@ export default function MentionMonitor() {
             <>
               {analytics.storm?.isStorm && <StormAlert storm={analytics.storm} />}
 
+              {/* KPIs */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <StatCard label="Toplam Mention" value={analytics.total} color="text-caramel" />
                 <StatCard label="Tahmini Reach" value={formatReach(analytics.totalReach)}
@@ -504,6 +662,7 @@ export default function MentionMonitor() {
                 />
               </div>
 
+              {/* Volume trend */}
               {analytics.timeline?.length > 1 ? (
                 <div className="card">
                   <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
@@ -530,6 +689,7 @@ export default function MentionMonitor() {
                 </div>
               )}
 
+              {/* Sentiment trend + Duygu analizi */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {analytics.timeline?.length > 1 && (
                   <div className="card">
@@ -556,6 +716,20 @@ export default function MentionMonitor() {
                   </div>
                 )}
 
+                {/* Duygu analizi */}
+                {analytics.byEmotion && (
+                  <div className="card">
+                    <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                      Duygu Analizi
+                      <span className="text-[10px] text-muted font-normal">keyword heuristic</span>
+                    </h3>
+                    <EmotionChart byEmotion={analytics.byEmotion} total={analytics.total} />
+                  </div>
+                )}
+              </div>
+
+              {/* Top sources + Konu trendi */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {analytics.topSources?.length > 0 && (
                   <div className="card">
                     <h3 className="text-sm font-semibold text-white mb-4">En Aktif Kaynaklar</h3>
@@ -586,24 +760,66 @@ export default function MentionMonitor() {
                     </div>
                   </div>
                 )}
+
+                {/* Konu trendi (top 5 keyword) */}
+                {analytics.topicTrends?.length > 1 && analytics.topKeywords?.length > 0 && (
+                  <div className="card">
+                    <h3 className="text-sm font-semibold text-white mb-4">Konu Trendi — Top 5</h3>
+                    <ResponsiveContainer width="100%" height={190}>
+                      <LineChart data={analytics.topicTrends} margin={{ top: 5, right: 10, bottom: 5, left: -25 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#19263A" />
+                        <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#64748b' }}
+                          tickFormatter={formatDate} interval="preserveStartEnd" />
+                        <YAxis tick={{ fontSize: 9, fill: '#64748b' }} allowDecimals={false} />
+                        <Tooltip
+                          contentStyle={{ background: '#0C1420', border: '1px solid #19263A', borderRadius: 8, fontSize: 10 }}
+                          labelFormatter={formatDate}
+                        />
+                        <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+                        {analytics.topKeywords.slice(0, 5).map((kw, i) => (
+                          <Line key={kw.word} type="monotone" dataKey={kw.word}
+                            stroke={TOPIC_COLORS[i]} strokeWidth={1.5} dot={false} name={kw.word} />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </div>
 
+              {/* AI Konu Kümeleme */}
+              <div className="card">
+                <AIClusters
+                  clusters={aiClusters}
+                  loading={clustersLoading}
+                  onFetch={fetchAIClusters}
+                />
+              </div>
+
+              {/* Word cloud */}
               {analytics.topKeywords?.length > 0 && (
                 <div className="card">
-                  <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
                     <Zap size={14} className="text-caramel" /> Word Cloud — Öne Çıkan Konular
                   </h3>
-                  <WordCloud keywords={analytics.topKeywords} />
+                  <p className="text-[11px] text-muted mb-4">
+                    Kelimeye tıkla → Canlı Akış sekmesinde o konunun mentionları listelenir
+                  </p>
+                  <WordCloud
+                    keywords={analytics.topKeywords}
+                    onClickWord={handleWordClick}
+                    activeWord={clickedWord}
+                  />
                 </div>
               )}
 
+              {/* Konu analizi tablosu */}
               {analytics.topKeywords?.length > 0 && (
                 <div className="card">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="text-sm font-semibold text-white">Konu Analizi</h3>
                       <p className="text-[11px] text-muted mt-0.5">
-                        Mention içeriklerinde en sık geçen konular ve erişim oranları
+                        Mention içeriklerinde en sık geçen konular, erişim ve duygu dağılımı
                       </p>
                     </div>
                     <span className="text-[10px] text-muted bg-surface2 px-2.5 py-1 rounded-full border border-navy-border">
@@ -611,7 +827,6 @@ export default function MentionMonitor() {
                     </span>
                   </div>
 
-                  {/* Table header */}
                   <div className="grid gap-x-4 mb-2 px-1" style={{ gridTemplateColumns: '28px 1fr 80px 52px 52px' }}>
                     <span className="text-[10px] text-muted uppercase tracking-wider">#</span>
                     <span className="text-[10px] text-muted uppercase tracking-wider">Konu</span>
@@ -622,63 +837,80 @@ export default function MentionMonitor() {
                   <div className="border-t border-navy-border mb-1" />
 
                   <div className="divide-y divide-navy-border/40">
-                    {analytics.topKeywords.slice(0, 15).map(({ word, count }, i) => {
+                    {analytics.topKeywords.slice(0, 15).map(({ word, count, sentiment }, i) => {
                       const max   = analytics.topKeywords[0]?.count || 1;
                       const total = analytics.total || 1;
                       const pct   = Math.round((count / total) * 100);
                       const ratio = count / max;
                       const isTop = i < 3;
+                      const sentTotal = sentiment ? (sentiment.positive + sentiment.negative + sentiment.neutral) : 0;
+
                       return (
-                        <div key={word}
-                          className="grid items-center gap-x-4 py-2.5 px-1 hover:bg-white/[0.02] transition-colors"
-                          style={{ gridTemplateColumns: '28px 1fr 80px 52px 52px' }}>
+                        <div key={word}>
+                          <div
+                            className="grid items-center gap-x-4 py-2.5 px-1 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                            style={{ gridTemplateColumns: '28px 1fr 80px 52px 52px' }}
+                            onClick={() => handleWordClick(word)}
+                            title={`"${word}" mentionlarını göster`}>
 
-                          {/* Rank badge */}
-                          <div className="flex justify-center">
-                            {isTop ? (
-                              <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold"
-                                style={{
-                                  background: i === 0 ? 'rgba(196,146,42,0.25)' : i === 1 ? 'rgba(148,163,184,0.15)' : 'rgba(180,120,60,0.12)',
-                                  color:      i === 0 ? '#f3c96b'                : i === 1 ? '#94a3b8'                : '#b47c3c',
-                                  border:     `1px solid ${i === 0 ? 'rgba(243,201,107,0.3)' : 'rgba(148,163,184,0.15)'}`,
-                                }}>
-                                {i + 1}
-                              </span>
-                            ) : (
-                              <span className="text-[11px] text-muted/50 font-medium">{i + 1}</span>
-                            )}
-                          </div>
+                            <div className="flex justify-center">
+                              {isTop ? (
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold"
+                                  style={{
+                                    background: i === 0 ? 'rgba(196,146,42,0.25)' : i === 1 ? 'rgba(148,163,184,0.15)' : 'rgba(180,120,60,0.12)',
+                                    color:      i === 0 ? '#f3c96b' : i === 1 ? '#94a3b8' : '#b47c3c',
+                                    border:     `1px solid ${i === 0 ? 'rgba(243,201,107,0.3)' : 'rgba(148,163,184,0.15)'}`,
+                                  }}>
+                                  {i + 1}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-muted/50 font-medium">{i + 1}</span>
+                              )}
+                            </div>
 
-                          {/* Keyword */}
-                          <span className={clsx(
-                            'text-[13px] truncate',
-                            isTop ? 'text-white font-medium' : 'text-slate-300',
-                          )}>
-                            {word}
-                          </span>
-
-                          {/* Progress bar */}
-                          <div className="h-1.5 rounded-full bg-surface2 overflow-hidden">
-                            <div className="h-full rounded-full transition-all"
-                              style={{
-                                width:      `${ratio * 100}%`,
-                                background: ratio > 0.7
-                                  ? 'linear-gradient(90deg,#C4922A,#f3c96b)'
-                                  : ratio > 0.4
-                                    ? '#C4922A'
-                                    : '#5a4010',
-                              }} />
-                          </div>
-
-                          {/* % */}
-                          <span className="text-[11px] text-muted text-right">{pct}%</span>
-
-                          {/* Count badge */}
-                          <div className="flex justify-end">
-                            <span className="inline-flex items-center justify-center min-w-[28px] h-5 px-1.5 rounded text-[10px] font-semibold bg-surface2 border border-navy-border text-slate-300">
-                              {count}
+                            <span className={clsx('text-[13px] truncate', isTop ? 'text-white font-medium' : 'text-slate-300')}>
+                              {word}
                             </span>
+
+                            <div className="h-1.5 rounded-full bg-surface2 overflow-hidden">
+                              <div className="h-full rounded-full transition-all"
+                                style={{
+                                  width: `${ratio * 100}%`,
+                                  background: ratio > 0.7
+                                    ? 'linear-gradient(90deg,#C4922A,#f3c96b)'
+                                    : ratio > 0.4 ? '#C4922A' : '#5a4010',
+                                }} />
+                            </div>
+
+                            <span className="text-[11px] text-muted text-right">{pct}%</span>
+
+                            <div className="flex justify-end">
+                              <span className="inline-flex items-center justify-center min-w-[28px] h-5 px-1.5 rounded text-[10px] font-semibold bg-surface2 border border-navy-border text-slate-300">
+                                {count}
+                              </span>
+                            </div>
                           </div>
+
+                          {/* Konu başına mini sentiment bar */}
+                          {sentiment && sentTotal > 0 && (
+                            <div className="flex h-1 mx-9 mb-1 rounded-full overflow-hidden gap-px">
+                              {sentiment.positive > 0 && (
+                                <div className="bg-success/60 rounded-full"
+                                  style={{ width: `${(sentiment.positive / sentTotal) * 100}%` }}
+                                  title={`Olumlu: ${sentiment.positive}`} />
+                              )}
+                              {sentiment.neutral > 0 && (
+                                <div className="bg-warning/40 rounded-full"
+                                  style={{ width: `${(sentiment.neutral / sentTotal) * 100}%` }}
+                                  title={`Nötr: ${sentiment.neutral}`} />
+                              )}
+                              {sentiment.negative > 0 && (
+                                <div className="bg-danger/60 rounded-full"
+                                  style={{ width: `${(sentiment.negative / sentTotal) * 100}%` }}
+                                  title={`Olumsuz: ${sentiment.negative}`} />
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
