@@ -1046,17 +1046,23 @@ export default function MentionMonitor() {
                         </div>
                         <div className="space-y-1.5 border-t border-navy-border pt-3">
                           <p className="text-[10px] text-muted uppercase tracking-wider mb-2">Son mentionlar (en yeni)</p>
-                          {hits.map((m, i) => (
-                            <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
-                              className="flex items-start gap-2 group">
-                              <span className="text-[10px] text-muted mt-0.5 flex-shrink-0">
-                                {timeAgo(m.publishedAt || m.scrapedAt)}
-                              </span>
-                              <span className="text-[12px] text-slate-300 group-hover:text-white transition-colors leading-snug line-clamp-1">
-                                {m.title}
-                              </span>
-                            </a>
-                          ))}
+                          {hits.map((m, i) => {
+                            const dt = new Date(m.publishedAt || m.scrapedAt);
+                            const absDate = dt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+                            const isOld = dt < new Date('2026-01-01');
+                            return (
+                              <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
+                                className="flex items-start gap-2 group">
+                                <span className={`text-[10px] mt-0.5 flex-shrink-0 font-medium ${isOld ? 'text-danger' : 'text-muted'}`}
+                                  title={isOld ? 'Eski içerik — Google News yeniden indekslemiş olabilir' : ''}>
+                                  {absDate}{isOld ? ' ⚠️' : ''}
+                                </span>
+                                <span className="text-[12px] text-slate-300 group-hover:text-white transition-colors leading-snug line-clamp-1">
+                                  {m.title}
+                                </span>
+                              </a>
+                            );
+                          })}
                         </div>
                       </>
                     ) : (
