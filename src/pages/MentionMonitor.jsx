@@ -411,7 +411,10 @@ export default function MentionMonitor() {
       const pos = hits.filter(m => m.sentiment === 'positive').length;
       const neg = hits.filter(m => m.sentiment === 'negative').length;
       const neu = hits.filter(m => m.sentiment === 'neutral').length;
-      return { kw, total: hits.length, pos, neg, neu, hits: hits.slice(0, 3) };
+      const sorted = hits.sort((a, b) =>
+        new Date(b.publishedAt || b.scrapedAt) - new Date(a.publishedAt || a.scrapedAt)
+      );
+      return { kw, total: hits.length, pos, neg, neu, hits: sorted.slice(0, 5) };
     }).sort((a, b) => b.total - a.total);
   }, [customKeywords, mentions]);
 
@@ -513,6 +516,7 @@ export default function MentionMonitor() {
         {[
           { key: 'akis',     label: '📡 Canlı Akış'    },
           { key: 'analitik', label: '📊 Analitik'       },
+          { key: 'kelime',   label: '🔍 Kelime Takibi'  },
           { key: 'rapor',    label: '📤 Rapor & Export'  },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -963,90 +967,106 @@ export default function MentionMonitor() {
             </>
           )}
 
-          {/* ── Custom Keyword Tracking ─────────────────────────────────── */}
-          <div className="card">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                  🔍 Özel Kelime Takibi
-                  <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">Brand24 özelliği</span>
-                </h3>
-                <p className="text-xs text-muted mt-0.5">
-                  İstediğin kelimeyi ekle — sistem o kelimeyi içeren mentionları anlık takip eder
-                </p>
+        </div>
+      )}
+
+      {/* ═══ KELİME TAKİBİ ══════════════════════════════════════════════════ */}
+      {activeTab === 'kelime' && (
+        <div className="space-y-5">
+          <div>
+            <h2 className="text-sm font-semibold text-white mb-1">Özel Kelime Takibi</h2>
+            <p className="text-xs text-muted">
+              İstediğin kelimeyi ekle — sistem yüklü mentionlarda o kelimeyi arar, mention sayısını ve duygu dağılımını gösterir
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={kwInput}
+              onChange={e => setKwInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addCustomKeyword()}
+              placeholder="Kelime gir (ör: reklam, kampanya, boykot) → Enter"
+              className="input text-sm py-2.5 flex-1"
+            />
+            <button onClick={addCustomKeyword}
+              className="px-5 py-2.5 rounded-lg font-medium text-sm transition-all flex-shrink-0"
+              style={{ background: 'rgba(96,165,250,0.2)', border: '1px solid rgba(96,165,250,0.4)', color: '#60a5fa' }}>
+              + Ekle
+            </button>
+          </div>
+
+          {customKeywords.length === 0 ? (
+            <div className="card text-center py-14">
+              <div className="text-3xl mb-3">🔍</div>
+              <p className="text-sm font-medium text-white mb-1">Henüz kelime eklenmedi</p>
+              <p className="text-xs text-muted">Yukarıya bir kelime yaz ve Enter'a bas</p>
+              <div className="flex flex-wrap gap-2 justify-center mt-4">
+                {['reklam', 'kampanya', 'boykot', 'şikayet', 'yeni şube', 'indirim'].map(s => (
+                  <button key={s} onClick={() => { setKwInput(s); }}
+                    className="text-xs px-3 py-1 rounded-full border border-navy-border text-muted hover:text-white hover:border-caramel/40 transition-all">
+                    {s}
+                  </button>
+                ))}
               </div>
             </div>
-
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                value={kwInput}
-                onChange={e => setKwInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addCustomKeyword()}
-                placeholder="Kelime gir (ör: reklam, kampanya, boykot)…"
-                className="input text-xs py-2 flex-1"
-              />
-              <button onClick={addCustomKeyword}
-                className="px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-medium hover:bg-blue-500/30 transition-all flex-shrink-0">
-                + Ekle
-              </button>
-            </div>
-
-            {customKeywords.length === 0 ? (
-              <div className="text-center py-6 text-muted text-xs">
-                Henüz kelime eklenmedi. Yukarıdan ekleyerek başla.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {customKwStats.map(({ kw, total, pos, neg, neu, hits }) => {
-                  const sentTotal = pos + neg + neu;
-                  return (
-                    <div key={kw} className="rounded-xl border border-navy-border bg-surface p-3">
-                      <div className="flex items-center gap-3 mb-2">
-                        <button onClick={() => removeCustomKeyword(kw)}
-                          className="text-muted hover:text-danger transition-colors flex-shrink-0">
-                          <X size={12} />
+          ) : (
+            <div className="space-y-3">
+              {customKwStats.map(({ kw, total, pos, neg, neu, hits }) => {
+                const sentTotal = pos + neg + neu;
+                return (
+                  <div key={kw} className="card">
+                    <div className="flex items-center gap-3 mb-3">
+                      <button onClick={() => removeCustomKeyword(kw)}
+                        className="text-muted hover:text-danger transition-colors flex-shrink-0" title="Kaldır">
+                        <X size={13} />
+                      </button>
+                      <span className="text-sm font-semibold text-white">"{kw}"</span>
+                      <span className="ml-auto text-xs font-bold text-white">{total}</span>
+                      <span className="text-xs text-muted">mention</span>
+                      {total > 0 && (
+                        <button onClick={() => { setSearchText(kw); setActiveTab('akis'); }}
+                          className="text-xs text-caramel hover:underline flex-shrink-0">
+                          Canlı Akış'ta Göster →
                         </button>
-                        <span className="text-sm font-semibold text-white">"{kw}"</span>
-                        <span className="text-[11px] text-muted ml-auto">{total} mention</span>
-                        {total > 0 && (
-                          <button onClick={() => { setSearchText(kw); setActiveTab('akis'); }}
-                            className="text-[10px] text-caramel hover:underline">
-                            Göster →
-                          </button>
-                        )}
-                      </div>
-
-                      {total > 0 ? (
-                        <>
-                          <div className="flex h-1.5 rounded-full overflow-hidden gap-px mb-2">
-                            {pos > 0 && <div className="bg-success/70 rounded-full" style={{ width: `${(pos / sentTotal) * 100}%` }} title={`Olumlu: ${pos}`} />}
-                            {neu > 0 && <div className="bg-warning/50 rounded-full" style={{ width: `${(neu / sentTotal) * 100}%` }} title={`Nötr: ${neu}`} />}
-                            {neg > 0 && <div className="bg-danger/70 rounded-full" style={{ width: `${(neg / sentTotal) * 100}%` }} title={`Olumsuz: ${neg}`} />}
-                          </div>
-                          <div className="flex gap-3 text-[10px] text-muted mb-2">
-                            <span className="text-success">😊 {pos}</span>
-                            <span className="text-warning">😐 {neu}</span>
-                            <span className="text-danger">😟 {neg}</span>
-                          </div>
-                          <div className="space-y-1">
-                            {hits.map((m, i) => (
-                              <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
-                                className="block text-[11px] text-muted hover:text-white truncate transition-colors">
-                                · {m.title}
-                              </a>
-                            ))}
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-[11px] text-muted">Yüklü mention'larda bu kelime bulunamadı.</p>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+
+                    {total > 0 ? (
+                      <>
+                        <div className="flex h-2 rounded-full overflow-hidden gap-px mb-2">
+                          {pos > 0 && <div className="bg-success/70" style={{ width: `${(pos / sentTotal) * 100}%` }} title={`Olumlu: ${pos}`} />}
+                          {neu > 0 && <div className="bg-warning/50" style={{ width: `${(neu / sentTotal) * 100}%` }} title={`Nötr: ${neu}`} />}
+                          {neg > 0 && <div className="bg-danger/70" style={{ width: `${(neg / sentTotal) * 100}%` }} title={`Olumsuz: ${neg}`} />}
+                        </div>
+                        <div className="flex gap-4 text-[11px] mb-3">
+                          <span className="text-success">😊 Olumlu: {pos}</span>
+                          <span className="text-warning">😐 Nötr: {neu}</span>
+                          <span className="text-danger">😟 Olumsuz: {neg}</span>
+                        </div>
+                        <div className="space-y-1.5 border-t border-navy-border pt-3">
+                          <p className="text-[10px] text-muted uppercase tracking-wider mb-2">Son mentionlar (en yeni)</p>
+                          {hits.map((m, i) => (
+                            <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
+                              className="flex items-start gap-2 group">
+                              <span className="text-[10px] text-muted mt-0.5 flex-shrink-0">
+                                {timeAgo(m.publishedAt || m.scrapedAt)}
+                              </span>
+                              <span className="text-[12px] text-slate-300 group-hover:text-white transition-colors leading-snug line-clamp-1">
+                                {m.title}
+                              </span>
+                            </a>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-xs text-muted">Yüklü mentionlarda bu kelime bulunamadı.</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
