@@ -392,11 +392,27 @@ export default function MentionMonitor() {
   async function fetchKwResults(kw) {
     setKwLoading(prev => ({ ...prev, [kw]: true }));
     try {
-      const res  = await fetch(`${SCRAPER_BASE}/mentions?keyword=${encodeURIComponent(kw)}&limit=500`);
-      const json = await res.json();
-      if (json.status === 'ok') {
-        setKwResults(prev => ({ ...prev, [kw]: json.data }));
-      }
+      // Depolanmış veriler + canlı Google News araması paralel çalışır
+      const [storedRes, liveRes] = await Promise.allSettled([
+        fetch(`${SCRAPER_BASE}/mentions?keyword=${encodeURIComponent(kw)}&limit=500`).then(r => r.json()),
+        fetch(`${SCRAPER_BASE}/mentions/live-search?keyword=${encodeURIComponent(kw)}`).then(r => r.json()),
+      ]);
+
+      const stored = storedRes.status === 'fulfilled' && storedRes.value.status === 'ok'
+        ? storedRes.value.data : [];
+      const live   = liveRes.status === 'fulfilled' && liveRes.value.status === 'ok'
+        ? liveRes.value.data : [];
+
+      // URL'e göre deduplicate, en yeni üstte
+      const seen = new Set(stored.map(m => m.url));
+      const merged = [
+        ...stored,
+        ...live.filter(m => !seen.has(m.url)),
+      ].sort((a, b) =>
+        new Date(b.publishedAt || b.scrapedAt) - new Date(a.publishedAt || a.scrapedAt)
+      );
+
+      setKwResults(prev => ({ ...prev, [kw]: merged }));
     } catch { /* ignore */ }
     finally { setKwLoading(prev => ({ ...prev, [kw]: false })); }
   }
