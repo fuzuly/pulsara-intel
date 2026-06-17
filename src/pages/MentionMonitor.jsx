@@ -5,7 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { Download, Mail, Printer, RefreshCw, AlertTriangle, Star, TrendingUp, Zap, Newspaper } from 'lucide-react';
+import { Download, Printer, RefreshCw, AlertTriangle, Star, TrendingUp, Zap, Newspaper } from 'lucide-react';
 import clsx from 'clsx';
 import { BRANDS } from '../constants/brands';
 import useMentionStream from '../hooks/useMentionStream';
@@ -201,10 +201,6 @@ export default function MentionMonitor() {
   const [analyticsBrand,     setAnalyticsBrand]    = useState('all');
   const [analyticsDate,      setAnalyticsDate]     = useState('30d');
 
-  const [emailAddr,   setEmailAddr]   = useState('');
-  const [emailDays,   setEmailDays]   = useState(7);
-  const [emailStatus, setEmailStatus] = useState(null);
-  const [emailMsg,    setEmailMsg]    = useState('');
 
   /* ── filtered (Akış tab) ─── */
   const filtered = useMemo(() => {
@@ -281,27 +277,6 @@ export default function MentionMonitor() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Mentions');
     XLSX.writeFile(wb, `pulsara-mentions-${new Date().toISOString().slice(0, 10)}.xlsx`);
-  }
-
-  /* ── email ─── */
-  async function sendEmail() {
-    if (!emailAddr) return;
-    setEmailStatus('sending'); setEmailMsg('');
-    try {
-      const res  = await fetch(`${SCRAPER_BASE}/mentions/report/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: emailAddr, days: emailDays }),
-      });
-      const json = await res.json();
-      if (json.status === 'ok') {
-        setEmailStatus('sent');
-        setEmailMsg(`Rapor gönderildi → ${json.to} (${json.total} mention)`);
-      } else throw new Error(json.message);
-    } catch (err) {
-      setEmailStatus('error');
-      setEmailMsg(err.message);
-    }
   }
 
   /* ─────────────────────────────────────────────────────────────────────── */
@@ -660,45 +635,6 @@ export default function MentionMonitor() {
                 <Printer size={14} /> Yazdır / PDF Olarak Kaydet
               </button>
             </div>
-          </div>
-
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
-              <Mail size={14} className="text-caramel" /> Email Raporu Gönder
-            </h3>
-            <p className="text-xs text-muted mb-4">
-              Mention özeti email olarak gönderilir. Backend'de{' '}
-              <code className="text-caramel text-[10px]">REPORT_EMAIL_USER</code> ve{' '}
-              <code className="text-caramel text-[10px]">REPORT_EMAIL_PASS</code> (Gmail App Password) env değişkenleri gereklidir.
-            </p>
-            <div className="flex flex-wrap gap-3 items-end">
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-muted uppercase tracking-wide">Email Adresi</label>
-                <input type="email" value={emailAddr} onChange={e => setEmailAddr(e.target.value)}
-                  placeholder="ornek@sirket.com" className="input text-xs py-1.5 w-60" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-muted uppercase tracking-wide">Dönem</label>
-                <select value={emailDays} onChange={e => setEmailDays(Number(e.target.value))}
-                  className="input text-xs py-1.5">
-                  <option value={7}>Son 7 Gün</option>
-                  <option value={30}>Son 30 Gün</option>
-                </select>
-              </div>
-              <button onClick={sendEmail} disabled={!emailAddr || emailStatus === 'sending'}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-caramel/20 border border-caramel/30 text-caramel text-sm font-medium hover:bg-caramel/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                {emailStatus === 'sending'
-                  ? <RefreshCw size={14} className="animate-spin" />
-                  : <Mail size={14} />}
-                {emailStatus === 'sending' ? 'Gönderiliyor…' : 'Raporu Gönder'}
-              </button>
-            </div>
-            {emailStatus === 'sent' && (
-              <div className="mt-3 p-3 rounded-lg bg-success/10 border border-success/20 text-success text-xs">{emailMsg}</div>
-            )}
-            {emailStatus === 'error' && (
-              <div className="mt-3 p-3 rounded-lg bg-danger/10 border border-danger/20 text-danger text-xs">Hata: {emailMsg}</div>
-            )}
           </div>
 
           <div className="card" style={{ borderStyle: 'dashed' }}>
