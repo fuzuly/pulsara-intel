@@ -115,22 +115,28 @@ function SentimentBar({ byBrand }) {
 }
 
 function WordCloud({ keywords }) {
-  const max    = keywords[0]?.count || 1;
-  const COLORS = ['#C4922A','#f59e0b','#fb923c','#60a5fa','#a78bfa','#34d399','#f472b6','#e879f9'];
+  const max = keywords[0]?.count || 1;
+  // 3 tiers: large (top 5), medium (6-15), small (rest)
   return (
-    <div className="flex flex-wrap gap-x-3 gap-y-2 p-2" style={{ minHeight: 90 }}>
-      {keywords.slice(0, 40).map(({ word, count }, i) => {
+    <div className="flex flex-wrap gap-2 p-1">
+      {keywords.slice(0, 35).map(({ word, count }, i) => {
         const ratio = count / max;
+        const tier  = i < 5 ? 'lg' : i < 15 ? 'md' : 'sm';
+        const bgOpacity = 0.08 + ratio * 0.12;
+        const borderOpacity = 0.15 + ratio * 0.2;
         return (
           <span key={word} title={`${count} mention`}
-            className="cursor-default transition-opacity hover:opacity-100"
+            className="inline-flex items-center gap-1 rounded-full cursor-default transition-all hover:scale-105"
             style={{
-              fontSize:   11 + Math.round(ratio * 22),
-              opacity:    0.4 + ratio * 0.6,
-              color:      COLORS[i % COLORS.length],
-              fontWeight: ratio > 0.55 ? 700 : 400,
+              fontSize:        tier === 'lg' ? 14 : tier === 'md' ? 12 : 11,
+              fontWeight:      tier === 'lg' ? 600 : tier === 'md' ? 500 : 400,
+              padding:         tier === 'lg' ? '5px 14px' : tier === 'md' ? '4px 11px' : '3px 9px',
+              background:      `rgba(196, 146, 42, ${bgOpacity})`,
+              border:          `1px solid rgba(196, 146, 42, ${borderOpacity})`,
+              color:           ratio > 0.7 ? '#f3c96b' : ratio > 0.4 ? '#C4922A' : '#8a6520',
             }}>
             {word}
+            <span style={{ fontSize: 9, opacity: 0.6, color: '#888' }}>{count}</span>
           </span>
         );
       })}
@@ -593,19 +599,86 @@ export default function MentionMonitor() {
 
               {analytics.topKeywords?.length > 0 && (
                 <div className="card">
-                  <h3 className="text-sm font-semibold text-white mb-4">Konu Analizi — Top 20</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                    {analytics.topKeywords.slice(0, 20).map(({ word, count }, i) => {
-                      const max = analytics.topKeywords[0]?.count || 1;
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">Konu Analizi</h3>
+                      <p className="text-[11px] text-muted mt-0.5">
+                        Mention içeriklerinde en sık geçen konular ve erişim oranları
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-muted bg-surface2 px-2.5 py-1 rounded-full border border-navy-border">
+                      Top {Math.min(analytics.topKeywords.length, 15)}
+                    </span>
+                  </div>
+
+                  {/* Table header */}
+                  <div className="grid gap-x-4 mb-2 px-1" style={{ gridTemplateColumns: '28px 1fr 80px 52px 52px' }}>
+                    <span className="text-[10px] text-muted uppercase tracking-wider">#</span>
+                    <span className="text-[10px] text-muted uppercase tracking-wider">Konu</span>
+                    <span className="text-[10px] text-muted uppercase tracking-wider">Yoğunluk</span>
+                    <span className="text-[10px] text-muted uppercase tracking-wider text-right">Oran</span>
+                    <span className="text-[10px] text-muted uppercase tracking-wider text-right">Mention</span>
+                  </div>
+                  <div className="border-t border-navy-border mb-1" />
+
+                  <div className="divide-y divide-navy-border/40">
+                    {analytics.topKeywords.slice(0, 15).map(({ word, count }, i) => {
+                      const max   = analytics.topKeywords[0]?.count || 1;
+                      const total = analytics.total || 1;
+                      const pct   = Math.round((count / total) * 100);
+                      const ratio = count / max;
+                      const isTop = i < 3;
                       return (
-                        <div key={word} className="flex items-center gap-2">
-                          <span className="text-[10px] text-muted w-5 text-right">{i + 1}</span>
-                          <span className="text-xs text-white w-28 truncate">{word}</span>
-                          <div className="flex-1 h-1 rounded-full bg-surface2">
-                            <div className="h-full rounded-full bg-caramel/60"
-                              style={{ width: `${(count / max) * 100}%` }} />
+                        <div key={word}
+                          className="grid items-center gap-x-4 py-2.5 px-1 hover:bg-white/[0.02] transition-colors"
+                          style={{ gridTemplateColumns: '28px 1fr 80px 52px 52px' }}>
+
+                          {/* Rank badge */}
+                          <div className="flex justify-center">
+                            {isTop ? (
+                              <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold"
+                                style={{
+                                  background: i === 0 ? 'rgba(196,146,42,0.25)' : i === 1 ? 'rgba(148,163,184,0.15)' : 'rgba(180,120,60,0.12)',
+                                  color:      i === 0 ? '#f3c96b'                : i === 1 ? '#94a3b8'                : '#b47c3c',
+                                  border:     `1px solid ${i === 0 ? 'rgba(243,201,107,0.3)' : 'rgba(148,163,184,0.15)'}`,
+                                }}>
+                                {i + 1}
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-muted/50 font-medium">{i + 1}</span>
+                            )}
                           </div>
-                          <span className="text-[10px] text-muted w-6 text-right">{count}</span>
+
+                          {/* Keyword */}
+                          <span className={clsx(
+                            'text-[13px] truncate',
+                            isTop ? 'text-white font-medium' : 'text-slate-300',
+                          )}>
+                            {word}
+                          </span>
+
+                          {/* Progress bar */}
+                          <div className="h-1.5 rounded-full bg-surface2 overflow-hidden">
+                            <div className="h-full rounded-full transition-all"
+                              style={{
+                                width:      `${ratio * 100}%`,
+                                background: ratio > 0.7
+                                  ? 'linear-gradient(90deg,#C4922A,#f3c96b)'
+                                  : ratio > 0.4
+                                    ? '#C4922A'
+                                    : '#5a4010',
+                              }} />
+                          </div>
+
+                          {/* % */}
+                          <span className="text-[11px] text-muted text-right">{pct}%</span>
+
+                          {/* Count badge */}
+                          <div className="flex justify-end">
+                            <span className="inline-flex items-center justify-center min-w-[28px] h-5 px-1.5 rounded text-[10px] font-semibold bg-surface2 border border-navy-border text-slate-300">
+                              {count}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}
