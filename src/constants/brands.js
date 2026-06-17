@@ -17,6 +17,28 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const BRANDS = [
+  // ── TAKİP EDİLEN MARKALAR ───────────────────────────────────────────────────
+  {
+    id: 'gloriajeans',
+    name: 'Gloria Jean\'s',
+    shortName: 'GJ',
+    color: '#F46621',
+    bgColor: '#F4662120',
+    textColor: '#F46621',
+    founded: 1979,
+    type: 'premium',
+    country: 'AU',
+    isOwn: false,
+    description: 'Avustralya kökenli — Dinçerler Group operatörü, 43+ ilde',
+    website: 'gloriajeans.com.tr',
+    instagram: '@gjcsturkey',
+    branches: 200,
+    avgPrice: 202,
+    marketShare: 8,
+    rating: 4.0,
+    branchSource: 'Emlakkulisi.com (2025): 200+ şube, 43+ il | Aydınlık 2025 doğrulandı',
+  },
+
   // ── KENDİ MARKAMIZ ──────────────────────────────────────────────────────────
   {
     id: 'espressolab',
@@ -41,26 +63,6 @@ export const BRANDS = [
   },
 
   // ── BÜYÜK ZİNCİRLER ─────────────────────────────────────────────────────────
-  {
-    id: 'gloriajeans',
-    name: 'Gloria Jean\'s',
-    shortName: 'GJ',
-    color: '#F46621',
-    bgColor: '#F4662120',
-    textColor: '#F46621',
-    founded: 1979,
-    type: 'premium',
-    country: 'AU',
-    isOwn: false,
-    description: 'Avustralya kökenli — Dinçerler Group operatörü, 43+ ilde',
-    website: 'gloriajeans.com.tr',
-    instagram: '@gjcsturkey',
-    branches: 200,
-    avgPrice: 202,
-    marketShare: 8,
-    rating: 4.0,
-    branchSource: 'Emlakkulisi.com (2025): 200+ şube, 43+ il | Aydınlık 2025 doğrulandı',
-  },
   {
     id: 'starbucks',
     name: 'Starbucks',
