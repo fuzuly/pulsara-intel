@@ -202,14 +202,10 @@ function AIClusters({ clusters, loading, onFetch }) {
       <div className="rounded-xl border border-purple-500/25 bg-purple-500/5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2">
               <Brain size={16} className="text-purple-400" />
               <span className="text-sm font-semibold text-white">AI Konu Kümeleme</span>
-              <span className="text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1.5 py-0.5 rounded-full">Claude Haiku</span>
             </div>
-            <p className="text-xs text-muted leading-relaxed">
-              Mention'lardaki keyword'leri Claude AI ile <strong className="text-slate-300">Kampanya, Şikayet, Şube Haberleri</strong> gibi anlamlı iş kategorilerine otomatik gruplar.
-            </p>
           </div>
           <button onClick={onFetch}
             className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
