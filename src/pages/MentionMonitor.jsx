@@ -326,7 +326,9 @@ export default function MentionMonitor() {
   const [customKeywords, setCustomKeywords] = useState(() => {
     try { return JSON.parse(localStorage.getItem('pulsara_custom_kw') || '[]'); } catch { return []; }
   });
-  const [kwInput, setKwInput] = useState('');
+  const [kwInput,    setKwInput]    = useState('');
+  const [kwResults,  setKwResults]  = useState({}); // { keyword: [mentions] }
+  const [kwLoading,  setKwLoading]  = useState({});  // { keyword: bool }
 
   // Word cloud click state
   const [clickedWord, setClickedWord] = useState(null);
@@ -387,6 +389,18 @@ export default function MentionMonitor() {
   }, [activeTab, fetchAnalytics]);
 
   /* ── Custom keyword helpers ─── */
+  async function fetchKwResults(kw) {
+    setKwLoading(prev => ({ ...prev, [kw]: true }));
+    try {
+      const res  = await fetch(`${SCRAPER_BASE}/mentions?keyword=${encodeURIComponent(kw)}&limit=500`);
+      const json = await res.json();
+      if (json.status === 'ok') {
+        setKwResults(prev => ({ ...prev, [kw]: json.data }));
+      }
+    } catch { /* ignore */ }
+    finally { setKwLoading(prev => ({ ...prev, [kw]: false })); }
+  }
+
   function addCustomKeyword() {
     const kw = kwInput.trim().toLowerCase();
     if (!kw || customKeywords.includes(kw)) { setKwInput(''); return; }
@@ -394,29 +408,31 @@ export default function MentionMonitor() {
     setCustomKeywords(next);
     localStorage.setItem('pulsara_custom_kw', JSON.stringify(next));
     setKwInput('');
+    fetchKwResults(kw);
   }
 
   function removeCustomKeyword(kw) {
     const next = customKeywords.filter(k => k !== kw);
     setCustomKeywords(next);
     localStorage.setItem('pulsara_custom_kw', JSON.stringify(next));
+    setKwResults(prev => { const n = { ...prev }; delete n[kw]; return n; });
   }
 
+  // Sayfa yüklendiğinde kayıtlı keyword'lerin sonuçlarını çek
+  useEffect(() => {
+    customKeywords.forEach(kw => { if (!kwResults[kw]) fetchKwResults(kw); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const customKwStats = useMemo(() => {
-    if (!customKeywords.length || !mentions.length) return [];
     return customKeywords.map(kw => {
-      const hits = mentions.filter(m =>
-        (m.title + ' ' + (m.snippet || '')).toLowerCase().includes(kw)
-      );
-      const pos = hits.filter(m => m.sentiment === 'positive').length;
-      const neg = hits.filter(m => m.sentiment === 'negative').length;
-      const neu = hits.filter(m => m.sentiment === 'neutral').length;
-      const sorted = hits.sort((a, b) =>
-        new Date(b.publishedAt || b.scrapedAt) - new Date(a.publishedAt || a.scrapedAt)
-      );
-      return { kw, total: hits.length, pos, neg, neu, hits: sorted.slice(0, 5) };
+      const hits = (kwResults[kw] || []);
+      const pos  = hits.filter(m => m.sentiment === 'positive').length;
+      const neg  = hits.filter(m => m.sentiment === 'negative').length;
+      const neu  = hits.filter(m => m.sentiment === 'neutral').length;
+      return { kw, total: hits.length, pos, neg, neu, hits: hits.slice(0, 5), loading: !!kwLoading[kw] };
     }).sort((a, b) => b.total - a.total);
-  }, [customKeywords, mentions]);
+  }, [customKeywords, kwResults, kwLoading]);
 
   /* ── AI clusters ─── */
   const fetchAIClusters = useCallback(async () => {
@@ -1032,7 +1048,12 @@ export default function MentionMonitor() {
                       )}
                     </div>
 
-                    {total > 0 ? (
+                    {loading ? (
+                      <div className="flex items-center gap-2 py-2">
+                        <RefreshCw size={12} className="animate-spin text-muted" />
+                        <span className="text-xs text-muted">Aranıyor…</span>
+                      </div>
+                    ) : total > 0 ? (
                       <>
                         <div className="flex h-2 rounded-full overflow-hidden gap-px mb-2">
                           {pos > 0 && <div className="bg-success/70" style={{ width: `${(pos / sentTotal) * 100}%` }} title={`Olumlu: ${pos}`} />}
@@ -1066,7 +1087,13 @@ export default function MentionMonitor() {
                         </div>
                       </>
                     ) : (
-                      <p className="text-xs text-muted">Yüklü mentionlarda bu kelime bulunamadı.</p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-xs text-muted">Bu kelimeyi içeren mention bulunamadı.</p>
+                        <button onClick={() => fetchKwResults(kw)}
+                          className="text-[11px] text-caramel hover:underline flex items-center gap-1">
+                          <RefreshCw size={10} /> Yenile
+                        </button>
+                      </div>
                     )}
                   </div>
                 );
