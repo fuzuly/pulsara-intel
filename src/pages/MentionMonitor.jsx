@@ -187,28 +187,36 @@ function EmotionChart({ byEmotion, total }) {
 function AIClusters({ clusters, loading, onFetch }) {
   if (loading) {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-xl border border-navy-border bg-surface">
-        <RefreshCw size={16} className="animate-spin text-caramel" />
-        <span className="text-sm text-muted">Claude AI konu analizi yapıyor…</span>
+      <div className="flex items-center gap-3 p-5 rounded-xl border border-purple-500/30 bg-purple-500/5">
+        <RefreshCw size={16} className="animate-spin text-purple-400 flex-shrink-0" />
+        <div>
+          <div className="text-sm font-medium text-white">Claude AI analiz yapıyor…</div>
+          <div className="text-xs text-muted mt-0.5">Keyword'ler iş kategorilerine gruplandırılıyor</div>
+        </div>
       </div>
     );
   }
 
   if (!clusters) {
     return (
-      <div className="flex items-center justify-between p-4 rounded-xl border border-dashed border-navy-border">
-        <div>
-          <div className="text-sm font-medium text-white flex items-center gap-2">
-            <Brain size={14} className="text-purple-400" /> AI Konu Kümeleme
+      <div className="rounded-xl border border-purple-500/25 bg-purple-500/5 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Brain size={16} className="text-purple-400" />
+              <span className="text-sm font-semibold text-white">AI Konu Kümeleme</span>
+              <span className="text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1.5 py-0.5 rounded-full">Claude Haiku</span>
+            </div>
+            <p className="text-xs text-muted leading-relaxed">
+              Mention'lardaki keyword'leri Claude AI ile <strong className="text-slate-300">Kampanya, Şikayet, Şube Haberleri</strong> gibi anlamlı iş kategorilerine otomatik gruplar.
+            </p>
           </div>
-          <div className="text-xs text-muted mt-0.5">
-            Keyword'leri Claude AI ile anlamlı iş kategorilerine grupla
-          </div>
+          <button onClick={onFetch}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
+            style={{ background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.5)', color: '#c084fc' }}>
+            <Brain size={14} /> AI Analizi Yap
+          </button>
         </div>
-        <button onClick={onFetch}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 text-xs font-medium hover:bg-purple-500/25 transition-all">
-          <Brain size={12} /> AI Analizi Yap
-        </button>
       </div>
     );
   }
