@@ -322,6 +322,12 @@ export default function MentionMonitor() {
   const [analyticsBrand,   setAnalyticsBrand]  = useState('all');
   const [analyticsDate,    setAnalyticsDate]   = useState('30d');
 
+  // Custom keyword tracking
+  const [customKeywords, setCustomKeywords] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('pulsara_custom_kw') || '[]'); } catch { return []; }
+  });
+  const [kwInput, setKwInput] = useState('');
+
   // Word cloud click state
   const [clickedWord, setClickedWord] = useState(null);
 
@@ -379,6 +385,35 @@ export default function MentionMonitor() {
   useEffect(() => {
     if (activeTab === 'analitik') fetchAnalytics();
   }, [activeTab, fetchAnalytics]);
+
+  /* ── Custom keyword helpers ─── */
+  function addCustomKeyword() {
+    const kw = kwInput.trim().toLowerCase();
+    if (!kw || customKeywords.includes(kw)) { setKwInput(''); return; }
+    const next = [...customKeywords, kw];
+    setCustomKeywords(next);
+    localStorage.setItem('pulsara_custom_kw', JSON.stringify(next));
+    setKwInput('');
+  }
+
+  function removeCustomKeyword(kw) {
+    const next = customKeywords.filter(k => k !== kw);
+    setCustomKeywords(next);
+    localStorage.setItem('pulsara_custom_kw', JSON.stringify(next));
+  }
+
+  const customKwStats = useMemo(() => {
+    if (!customKeywords.length || !mentions.length) return [];
+    return customKeywords.map(kw => {
+      const hits = mentions.filter(m =>
+        (m.title + ' ' + (m.snippet || '')).toLowerCase().includes(kw)
+      );
+      const pos = hits.filter(m => m.sentiment === 'positive').length;
+      const neg = hits.filter(m => m.sentiment === 'negative').length;
+      const neu = hits.filter(m => m.sentiment === 'neutral').length;
+      return { kw, total: hits.length, pos, neg, neu, hits: hits.slice(0, 3) };
+    }).sort((a, b) => b.total - a.total);
+  }, [customKeywords, mentions]);
 
   /* ── AI clusters ─── */
   const fetchAIClusters = useCallback(async () => {
@@ -927,6 +962,91 @@ export default function MentionMonitor() {
               )}
             </>
           )}
+
+          {/* ── Custom Keyword Tracking ─────────────────────────────────── */}
+          <div className="card">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                  🔍 Özel Kelime Takibi
+                  <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">Brand24 özelliği</span>
+                </h3>
+                <p className="text-xs text-muted mt-0.5">
+                  İstediğin kelimeyi ekle — sistem o kelimeyi içeren mentionları anlık takip eder
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                value={kwInput}
+                onChange={e => setKwInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addCustomKeyword()}
+                placeholder="Kelime gir (ör: reklam, kampanya, boykot)…"
+                className="input text-xs py-2 flex-1"
+              />
+              <button onClick={addCustomKeyword}
+                className="px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-medium hover:bg-blue-500/30 transition-all flex-shrink-0">
+                + Ekle
+              </button>
+            </div>
+
+            {customKeywords.length === 0 ? (
+              <div className="text-center py-6 text-muted text-xs">
+                Henüz kelime eklenmedi. Yukarıdan ekleyerek başla.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {customKwStats.map(({ kw, total, pos, neg, neu, hits }) => {
+                  const sentTotal = pos + neg + neu;
+                  return (
+                    <div key={kw} className="rounded-xl border border-navy-border bg-surface p-3">
+                      <div className="flex items-center gap-3 mb-2">
+                        <button onClick={() => removeCustomKeyword(kw)}
+                          className="text-muted hover:text-danger transition-colors flex-shrink-0">
+                          <X size={12} />
+                        </button>
+                        <span className="text-sm font-semibold text-white">"{kw}"</span>
+                        <span className="text-[11px] text-muted ml-auto">{total} mention</span>
+                        {total > 0 && (
+                          <button onClick={() => { setSearchText(kw); setActiveTab('akis'); }}
+                            className="text-[10px] text-caramel hover:underline">
+                            Göster →
+                          </button>
+                        )}
+                      </div>
+
+                      {total > 0 ? (
+                        <>
+                          <div className="flex h-1.5 rounded-full overflow-hidden gap-px mb-2">
+                            {pos > 0 && <div className="bg-success/70 rounded-full" style={{ width: `${(pos / sentTotal) * 100}%` }} title={`Olumlu: ${pos}`} />}
+                            {neu > 0 && <div className="bg-warning/50 rounded-full" style={{ width: `${(neu / sentTotal) * 100}%` }} title={`Nötr: ${neu}`} />}
+                            {neg > 0 && <div className="bg-danger/70 rounded-full" style={{ width: `${(neg / sentTotal) * 100}%` }} title={`Olumsuz: ${neg}`} />}
+                          </div>
+                          <div className="flex gap-3 text-[10px] text-muted mb-2">
+                            <span className="text-success">😊 {pos}</span>
+                            <span className="text-warning">😐 {neu}</span>
+                            <span className="text-danger">😟 {neg}</span>
+                          </div>
+                          <div className="space-y-1">
+                            {hits.map((m, i) => (
+                              <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
+                                className="block text-[11px] text-muted hover:text-white truncate transition-colors">
+                                · {m.title}
+                              </a>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-[11px] text-muted">Yüklü mention'larda bu kelime bulunamadı.</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
