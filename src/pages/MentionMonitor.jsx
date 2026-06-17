@@ -318,6 +318,9 @@ export default function MentionMonitor() {
   const [analyticsBrand,   setAnalyticsBrand]  = useState('all');
   const [analyticsDate,    setAnalyticsDate]   = useState('30d');
 
+  const [sov,        setSov]        = useState(null);
+  const [sovLoading, setSovLoading] = useState(false);
+
   // Custom keyword tracking — session only, intentionally not persisted
   const [customKeywords, setCustomKeywords] = useState(() => {
     localStorage.removeItem('pulsara_custom_kw'); // eski kayıtları temizle
@@ -381,9 +384,27 @@ export default function MentionMonitor() {
     }
   }, [analyticsDate, analyticsBrand]);
 
+  /* ── fetch Share of Voice ─── */
+  const fetchSov = useCallback(async () => {
+    setSovLoading(true);
+    try {
+      const days = analyticsDate === 'all' ? 60 : analyticsDate === '7d' ? 7 : analyticsDate === '30d' ? 30 : 60;
+      const res  = await fetch(`${SCRAPER_BASE}/mentions/sov?days=${days}`);
+      const json = await res.json();
+      if (json.status === 'ok') setSov(json);
+    } catch (err) {
+      console.error('[sov]', err);
+    } finally {
+      setSovLoading(false);
+    }
+  }, [analyticsDate]);
+
   useEffect(() => {
-    if (activeTab === 'analitik') fetchAnalytics();
-  }, [activeTab, fetchAnalytics]);
+    if (activeTab === 'analitik') {
+      fetchAnalytics();
+      fetchSov();
+    }
+  }, [activeTab, fetchAnalytics, fetchSov]);
 
   /* ── Custom keyword helpers ─── */
   async function fetchKwResults(kw) {
@@ -727,6 +748,59 @@ export default function MentionMonitor() {
                   color="text-success"
                 />
               </div>
+
+              {/* Share of Voice */}
+              {(sov?.data?.length > 0 || sovLoading) && (
+                <div className="card">
+                  <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+                    Share of Voice
+                    {sov && (
+                      <span className="text-[10px] font-normal text-muted">
+                        Son {sov.days} gün — {sov.total} toplam mention
+                      </span>
+                    )}
+                    {sovLoading && <span className="text-[10px] text-muted animate-pulse">yükleniyor…</span>}
+                  </h3>
+                  <p className="text-[11px] text-muted mb-4">
+                    Tüm markalardaki konuşmaların yüzdesel payı — marka filtresi uygulanmaz
+                  </p>
+                  {sov?.data && (
+                    <div className="space-y-2">
+                      {sov.data.filter(d => {
+                        const b = BRANDS.find(x => x.id === d.brandId);
+                        return !!b;
+                      }).slice(0, 15).map(({ brandId, count, share }) => {
+                        const brand = BRANDS.find(b => b.id === brandId);
+                        const isOwn = brand?.isOwn;
+                        return (
+                          <div key={brandId} className="flex items-center gap-2.5">
+                            <span
+                              className="text-[11px] w-28 truncate text-right flex-shrink-0"
+                              style={{ color: isOwn ? brand.color : '#94a3b8' }}>
+                              {brand.shortName || brand.name}
+                            </span>
+                            <div className="flex-1 h-2 rounded-full bg-surface2 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${share}%`,
+                                  backgroundColor: isOwn ? brand.color : 'rgba(148,163,184,0.4)',
+                                }}
+                              />
+                            </div>
+                            <span
+                              className="text-[11px] font-bold w-9 text-right flex-shrink-0"
+                              style={{ color: isOwn ? brand.color : '#64748b' }}>
+                              {share}%
+                            </span>
+                            <span className="text-[10px] text-muted w-6 text-right flex-shrink-0">{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Volume trend */}
               {analytics.timeline?.length > 1 ? (
