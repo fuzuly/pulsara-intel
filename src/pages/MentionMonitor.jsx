@@ -1028,7 +1028,7 @@ export default function MentionMonitor() {
             </div>
           ) : (
             <div className="space-y-3">
-              {customKwStats.map(({ kw, total, pos, neg, neu, hits }) => {
+              {customKwStats.map(({ kw, total, pos, neg, neu, hits, loading }) => {
                 const sentTotal = pos + neg + neu;
                 return (
                   <div key={kw} className="card">
