@@ -318,9 +318,10 @@ export default function MentionMonitor() {
   const [analyticsBrand,   setAnalyticsBrand]  = useState('all');
   const [analyticsDate,    setAnalyticsDate]   = useState('30d');
 
-  // Custom keyword tracking
+  // Custom keyword tracking — session only, intentionally not persisted
   const [customKeywords, setCustomKeywords] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('pulsara_custom_kw') || '[]'); } catch { return []; }
+    localStorage.removeItem('pulsara_custom_kw'); // eski kayıtları temizle
+    return [];
   });
   const [kwInput,    setKwInput]    = useState('');
   const [kwResults,  setKwResults]  = useState({}); // { keyword: [mentions] }
@@ -416,25 +417,15 @@ export default function MentionMonitor() {
   function addCustomKeyword() {
     const kw = kwInput.trim().toLowerCase();
     if (!kw || customKeywords.includes(kw)) { setKwInput(''); return; }
-    const next = [...customKeywords, kw];
-    setCustomKeywords(next);
-    localStorage.setItem('pulsara_custom_kw', JSON.stringify(next));
+    setCustomKeywords(prev => [...prev, kw]);
     setKwInput('');
     fetchKwResults(kw);
   }
 
   function removeCustomKeyword(kw) {
-    const next = customKeywords.filter(k => k !== kw);
-    setCustomKeywords(next);
-    localStorage.setItem('pulsara_custom_kw', JSON.stringify(next));
+    setCustomKeywords(prev => prev.filter(k => k !== kw));
     setKwResults(prev => { const n = { ...prev }; delete n[kw]; return n; });
   }
-
-  // Sayfa yüklendiğinde kayıtlı keyword'lerin sonuçlarını çek
-  useEffect(() => {
-    customKeywords.forEach(kw => { if (!kwResults[kw]) fetchKwResults(kw); });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const customKwStats = useMemo(() => {
     return customKeywords.map(kw => {
