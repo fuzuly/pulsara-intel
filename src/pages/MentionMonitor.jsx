@@ -81,6 +81,45 @@ function timeAgo(dateStr) {
   return `${Math.floor(diff / 86400)}g önce`;
 }
 
+// Boolean sorgu motoru — AND / OR / NOT / "tırnaklı ifade"
+// Örnek: starbucks AND şikayet NOT reklam | "yeni şube" OR açılış
+function matchesBooleanQuery(query, text) {
+  if (!query.trim()) return true;
+  const t = (text || '').toLowerCase().normalize('NFC');
+  const q = query.trim();
+
+  if (!/\b(AND|OR|NOT)\b/i.test(q) && !q.includes('"')) {
+    return t.includes(q.toLowerCase().normalize('NFC'));
+  }
+
+  const tokens = q.split(/\b(AND|OR|NOT)\b/i).map(s => s.trim()).filter(Boolean);
+  let result = null;
+  let op     = 'AND';
+  let negate = false;
+
+  for (const token of tokens) {
+    const upper = token.toUpperCase();
+    if (upper === 'AND') { op = 'AND'; continue; }
+    if (upper === 'OR')  { op = 'OR';  continue; }
+    if (upper === 'NOT') { negate = true; continue; }
+
+    const term = token.replace(/^["']|["']$/g, '').toLowerCase().normalize('NFC');
+    if (!term) continue;
+    const val  = negate ? !t.includes(term) : t.includes(term);
+    negate = false;
+
+    if (result === null)   result = val;
+    else if (op === 'AND') result = result && val;
+    else                   result = result || val;
+    op = 'AND';
+  }
+  return result ?? true;
+}
+
+function hasBooleanOps(q) {
+  return /\b(AND|OR|NOT)\b/i.test(q) || q.includes('"');
+}
+
 /* ─── Sub-components ─────────────────────────────────────────────────────── */
 
 function StatCard({ label, value, sub, color = 'text-white' }) {
@@ -383,9 +422,8 @@ export default function MentionMonitor() {
     if (filterSentiment !== 'all') items = items.filter(m => m.sentiment  === filterSentiment);
     if (filterSource    !== 'all') items = items.filter(m => m.sourceType === filterSource);
     if (searchText) {
-      const kw = searchText.toLowerCase();
       items = items.filter(m =>
-        m.title?.toLowerCase().includes(kw) || m.snippet?.toLowerCase().includes(kw)
+        matchesBooleanQuery(searchText, `${m.title || ''} ${m.snippet || ''}`)
       );
     }
     return items;
@@ -551,6 +589,82 @@ export default function MentionMonitor() {
     XLSX.writeFile(wb, `pulsara-mentions-${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
+  function exportToPDF() {
+    const data = analytics;
+    if (!data) {
+      alert('Önce Analitik sekmesini açıp "Yenile" butonuna tıklayın, ardından tekrar deneyin.');
+      return;
+    }
+    const { total, bySentiment, byBrand, topKeywords, topSources } = data;
+    const posRate = total > 0 ? Math.round((bySentiment.positive / total) * 100) : 0;
+    const now     = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const brandRows = Object.entries(byBrand || {})
+      .sort((a, b) => b[1] - a[1]).slice(0, 15)
+      .map(([id, count], i) => {
+        const brand = BRANDS.find(b => b.id === id);
+        return `<tr style="border-bottom:1px solid #eee">
+          <td style="padding:6px 10px;color:#888">${i + 1}</td>
+          <td style="padding:6px 10px;font-weight:600">${brand?.name || id}</td>
+          <td style="padding:6px 10px;text-align:center;font-weight:bold">${count}</td>
+        </tr>`;
+      }).join('');
+
+    const kwBadges = (topKeywords || []).slice(0, 20).map(({ word, count }) =>
+      `<span style="display:inline-block;background:#fff3e0;color:#c4922a;border:1px solid #f3c96b;
+        border-radius:12px;padding:3px 10px;font-size:12px;margin:3px">${word} (${count})</span>`
+    ).join('');
+
+    const srcRows = (topSources || []).slice(0, 8).map(s =>
+      `<tr style="border-bottom:1px solid #eee">
+        <td style="padding:6px 10px;font-size:13px">${s.label || s.domain}</td>
+        <td style="padding:6px 10px;text-align:center;font-weight:bold">${s.count}</td>
+      </tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
+      <title>Pulsara Intel — Rapor ${now}</title>
+      <style>
+        body{margin:0;padding:24px;font-family:Arial,sans-serif;color:#1a1a1a;background:#fff}
+        h1{color:#C4922A;font-size:22px;letter-spacing:1px;margin:0}
+        .kpi{display:flex;gap:24px;margin:20px 0;flex-wrap:wrap}
+        .kpi-box{text-align:center;padding:16px 24px;border:1px solid #eee;border-radius:8px;min-width:100px}
+        .kpi-val{font-size:28px;font-weight:700}
+        .kpi-lbl{font-size:11px;color:#888;margin-top:4px}
+        table{width:100%;border-collapse:collapse;margin-top:8px}
+        th{padding:6px 10px;font-size:11px;text-align:left;background:#f5f5f5;color:#666}
+        h3{font-size:14px;margin:24px 0 8px;color:#333}
+        @media print{body{padding:0}}
+      </style></head><body>
+      <div style="border-bottom:3px solid #C4922A;padding-bottom:12px;margin-bottom:16px">
+        <h1>PULSARA INTEL</h1>
+        <p style="margin:4px 0 0;font-size:12px;color:#888">Mention Raporu — ${now}</p>
+      </div>
+      <div class="kpi">
+        <div class="kpi-box"><div class="kpi-val" style="color:#C4922A">${total}</div><div class="kpi-lbl">Toplam Mention</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:#22c55e">${bySentiment.positive} <span style="font-size:14px">(${posRate}%)</span></div><div class="kpi-lbl">Olumlu</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:#ef4444">${bySentiment.negative}</div><div class="kpi-lbl">Olumsuz</div></div>
+        <div class="kpi-box"><div class="kpi-val" style="color:#64748b">${bySentiment.neutral}</div><div class="kpi-lbl">Nötr</div></div>
+      </div>
+      <h3>Marka Sıralaması</h3>
+      <table><thead><tr><th>#</th><th>Marka</th><th style="text-align:center">Mention</th></tr></thead>
+      <tbody>${brandRows}</tbody></table>
+      ${srcRows ? `<h3>En Aktif Kaynaklar</h3>
+      <table><thead><tr><th>Kaynak</th><th style="text-align:center">Mention</th></tr></thead>
+      <tbody>${srcRows}</tbody></table>` : ''}
+      ${kwBadges ? `<h3>Öne Çıkan Konular</h3><div style="margin-top:8px">${kwBadges}</div>` : ''}
+      <p style="margin-top:32px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px">
+        Pulsara Intel — intel.pulsaraai.com — ${now}
+      </p>
+    </body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
+  }
+
   /* ─────────────────────────────────────────────────────────────────────── */
 
   return (
@@ -694,8 +808,19 @@ export default function MentionMonitor() {
                   : `${SOURCE_META[src]?.icon} ${SOURCE_META[src]?.label}`}
               </button>
             ))}
-            <input type="text" value={searchText} onChange={e => { setSearchText(e.target.value); if (!e.target.value) setClickedWord(null); }}
-              placeholder="Anahtar kelime ara…" className="input text-xs py-1.5 w-44" />
+            <div className="relative">
+              <input type="text" value={searchText}
+                onChange={e => { setSearchText(e.target.value); if (!e.target.value) setClickedWord(null); }}
+                placeholder='Ara… veya AND/OR/NOT kullan'
+                className="input text-xs py-1.5 w-56"
+                title='Boolean: starbucks AND şikayet NOT reklam | "yeni şube" OR açılış' />
+              {hasBooleanOps(searchText) && (
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: 'rgba(168,85,247,0.25)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.4)' }}>
+                  BOOL
+                </span>
+              )}
+            </div>
             {filtered.length !== mentions.length && (
               <span className="text-[11px] text-muted">{filtered.length}/{mentions.length} gösteriliyor</span>
             )}
@@ -1320,29 +1445,55 @@ export default function MentionMonitor() {
       {/* ═══ RAPOR ═══════════════════════════════════════════════════════════ */}
       {activeTab === 'rapor' && (
         <div className="space-y-5">
+
+          {/* Export */}
           <div className="card">
             <h3 className="text-sm font-semibold text-white mb-1">Dışa Aktar</h3>
             <p className="text-xs text-muted mb-4">
-              Mevcut mention verilerini indir ({mentions.length} kayıt yüklü)
+              {mentions.length} mention yüklü — Excel tüm mention'ları, PDF analitik özetini içerir
             </p>
             <div className="flex gap-3 flex-wrap">
               <button onClick={exportToExcel}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-success/20 border border-success/30 text-success text-sm font-medium hover:bg-success/30 transition-all">
                 <Download size={14} /> Excel İndir (.xlsx)
               </button>
-              <button onClick={() => window.print()}
+              <button onClick={exportToPDF}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm font-medium hover:bg-blue-500/30 transition-all">
-                <Printer size={14} /> Yazdır / PDF Olarak Kaydet
+                <Printer size={14} /> PDF Raporu
               </button>
+            </div>
+            {!analytics && (
+              <p className="text-[11px] text-warning mt-3">
+                ⚠️ PDF için önce Analitik sekmesini aç ve Yenile'ye bas, ardından buraya dön.
+              </p>
+            )}
+          </div>
+
+          {/* Boolean sorgu yardımı */}
+          <div className="card">
+            <h3 className="text-sm font-semibold text-white mb-2">🔎 Gelişmiş Boolean Sorgu</h3>
+            <p className="text-xs text-muted mb-3">
+              Canlı Akış sekmesindeki arama kutusunda AND / OR / NOT operatörlerini ve tırnaklı ifadeleri kullanabilirsin.
+            </p>
+            <div className="space-y-2">
+              {[
+                { q: 'starbucks AND şikayet', desc: 'Starbucks hakkında şikayet içeren haberler' },
+                { q: '"yeni şube" OR açılış', desc: 'Yeni şube veya açılış haberleri (tam ifade)' },
+                { q: 'espressolab NOT reklam', desc: 'Espresso Lab haberleri, reklamlar hariç' },
+                { q: 'kahve AND (fiyat OR zam)', desc: 'Kahve fiyat/zam haberleri — NOT desteklenir' },
+              ].map(({ q, desc }) => (
+                <div key={q} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface2 border border-navy-border">
+                  <code className="text-[11px] text-caramel font-mono flex-shrink-0">{q}</code>
+                  <span className="text-[11px] text-muted">{desc}</span>
+                  <button className="ml-auto text-[10px] text-muted hover:text-caramel transition-colors flex-shrink-0"
+                    onClick={() => { setSearchText(q); setActiveTab('akis'); }}>
+                    Uygula →
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="card" style={{ borderStyle: 'dashed' }}>
-            <h3 className="text-sm font-semibold text-white mb-1">PowerPoint Raporu</h3>
-            <p className="text-xs text-muted">
-              pptxgenjs kütüphanesi projeye yüklenmiş durumda. Otomatik PPTX rapor özelliği yakında eklenecek.
-            </p>
-          </div>
         </div>
       )}
     </div>
