@@ -321,6 +321,9 @@ export default function MentionMonitor() {
   const [sov,        setSov]        = useState(null);
   const [sovLoading, setSovLoading] = useState(false);
 
+  const [sentHidden, setSentHidden] = useState({});
+  const handleSentLegend = (e) => setSentHidden(prev => ({ ...prev, [e.dataKey]: !prev[e.dataKey] }));
+
   // Custom keyword tracking — session only, intentionally not persisted
   const [customKeywords, setCustomKeywords] = useState(() => {
     localStorage.removeItem('pulsara_custom_kw'); // eski kayıtları temizle
@@ -834,13 +837,17 @@ export default function MentionMonitor() {
                           contentStyle={{ background: '#0C1420', border: '1px solid #19263A', borderRadius: 8, fontSize: 10 }}
                           labelFormatter={formatDate}
                         />
-                        <Legend iconSize={8} wrapperStyle={{ fontSize: 10 }} />
-                        <Area type="monotone" dataKey="positive" stackId="1"
-                          stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} name="Olumlu" />
-                        <Area type="monotone" dataKey="neutral" stackId="1"
-                          stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.25} name="Nötr" />
-                        <Area type="monotone" dataKey="negative" stackId="1"
-                          stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} name="Olumsuz" />
+                        <Legend iconSize={8} wrapperStyle={{ fontSize: 10, cursor: 'pointer' }}
+                          onClick={handleSentLegend} />
+                        <Area type="monotone" dataKey="positive"
+                          stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} name="Olumlu"
+                          hide={!!sentHidden['positive']} />
+                        <Area type="monotone" dataKey="neutral"
+                          stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} name="Nötr"
+                          hide={!!sentHidden['neutral']} />
+                        <Area type="monotone" dataKey="negative"
+                          stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} name="Olumsuz"
+                          hide={!!sentHidden['negative']} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
