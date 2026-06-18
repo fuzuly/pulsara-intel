@@ -337,9 +337,31 @@ export default function MentionMonitor() {
   // Word cloud click state
   const [clickedWord, setClickedWord] = useState(null);
 
+  // Şikayetvar tab filters
+  const [svBrand, setSvBrand] = useState('all');
+  const [svSort,  setSvSort]  = useState('newest');
+
   // AI clusters
   const [aiClusters,       setAiClusters]      = useState(null);
   const [clustersLoading,  setClustersLoading] = useState(false);
+
+  /* ── Şikayetvar filtrelenmiş şikayetler ─── */
+  const complaintMentions = useMemo(() => {
+    let items = mentions.filter(m => m.sourceType === 'complaint');
+    if (svBrand !== 'all') items = items.filter(m => m.brandId === svBrand);
+    return [...items].sort((a, b) => {
+      const ta = new Date(a.publishedAt || a.scrapedAt).getTime();
+      const tb = new Date(b.publishedAt || b.scrapedAt).getTime();
+      return svSort === 'oldest' ? ta - tb : tb - ta;
+    });
+  }, [mentions, svBrand, svSort]);
+
+  const complaintByBrand = useMemo(() => {
+    const all = mentions.filter(m => m.sourceType === 'complaint');
+    const map = {};
+    for (const m of all) map[m.brandId] = (map[m.brandId] || 0) + 1;
+    return map;
+  }, [mentions]);
 
   /* ── filtered (Akış tab) ─── */
   const filtered = useMemo(() => {
@@ -560,8 +582,9 @@ export default function MentionMonitor() {
         {[
           { key: 'akis',     label: '📡 Canlı Akış'    },
           { key: 'analitik', label: '📊 Analitik'       },
-          { key: 'kelime',   label: '🔍 Kelime Takibi'  },
-          { key: 'rapor',    label: '📤 Rapor & Export'  },
+          { key: 'kelime',      label: '🔍 Kelime Takibi'  },
+          { key: 'sikayetvar',  label: '⚠️ Şikayetvar'    },
+          { key: 'rapor',       label: '📤 Rapor & Export'  },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={clsx(
@@ -1173,6 +1196,114 @@ export default function MentionMonitor() {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══ ŞİKAYETVAR ═════════════════════════════════════════════════════ */}
+      {activeTab === 'sikayetvar' && (
+        <div className="space-y-5">
+
+          {/* Özet kartları */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="card text-center py-4">
+              <div className="text-2xl font-bold text-white">
+                {mentions.filter(m => m.sourceType === 'complaint').length}
+              </div>
+              <div className="text-[11px] text-muted mt-1">Toplam Şikayet</div>
+            </div>
+            <div className="card text-center py-4">
+              <div className="text-2xl font-bold text-white">
+                {Object.keys(complaintByBrand).length}
+              </div>
+              <div className="text-[11px] text-muted mt-1">Marka</div>
+            </div>
+            <div className="card text-center py-4 col-span-2">
+              <div className="text-sm font-bold text-white truncate">
+                {(() => {
+                  const top = Object.entries(complaintByBrand).sort((a,b) => b[1]-a[1])[0];
+                  if (!top) return '—';
+                  const br = BRANDS.find(b => b.id === top[0]);
+                  return `${br?.name || top[0]} (${top[1]} şikayet)`;
+                })()}
+              </div>
+              <div className="text-[11px] text-muted mt-1">En Çok Şikayet Alan</div>
+            </div>
+          </div>
+
+          {/* Filtreler */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Marka filtresi */}
+            <select
+              value={svBrand}
+              onChange={e => setSvBrand(e.target.value)}
+              className="text-xs bg-surface2 border border-navy-border rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-caramel">
+              <option value="all">Tüm Markalar</option>
+              {BRANDS.filter(b => complaintByBrand[b.id]).sort((a,b) => (complaintByBrand[b.id]||0)-(complaintByBrand[a.id]||0)).map(b => (
+                <option key={b.id} value={b.id}>{b.name} ({complaintByBrand[b.id]})</option>
+              ))}
+            </select>
+
+            {/* Sıralama */}
+            {[
+              { key: 'newest', label: 'Yeniden Eskiye' },
+              { key: 'oldest', label: 'Eskiden Yeniye' },
+            ].map(s => (
+              <button key={s.key} onClick={() => setSvSort(s.key)}
+                className={clsx('px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-all',
+                  svSort === s.key
+                    ? 'bg-caramel/20 border-caramel/40 text-caramel'
+                    : 'border-navy-border text-muted hover:text-white')}>
+                {s.label}
+              </button>
+            ))}
+
+            <span className="ml-auto text-[11px] text-muted">{complaintMentions.length} şikayet gösteriliyor</span>
+          </div>
+
+          {/* Marka bazlı dağılım çubuğu */}
+          {Object.keys(complaintByBrand).length > 0 && (
+            <div className="card space-y-2">
+              <h3 className="text-xs font-semibold text-white mb-3">Marka Bazlı Şikayet Dağılımı</h3>
+              {Object.entries(complaintByBrand)
+                .sort((a,b) => b[1]-a[1])
+                .slice(0, 10)
+                .map(([brandId, count]) => {
+                  const br    = BRANDS.find(b => b.id === brandId);
+                  const total = mentions.filter(m => m.sourceType === 'complaint').length;
+                  const pct   = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+                  return (
+                    <div key={brandId} className="flex items-center gap-2.5 cursor-pointer"
+                      onClick={() => setSvBrand(brandId === svBrand ? 'all' : brandId)}>
+                      <span className="text-[11px] w-32 truncate text-right flex-shrink-0 text-slate-300">
+                        {br?.shortName || br?.name || brandId}
+                      </span>
+                      <div className="flex-1 h-2 rounded-full bg-surface2 overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%`, backgroundColor: br?.color || '#f97316' }} />
+                      </div>
+                      <span className="text-[11px] font-bold w-6 text-right text-slate-400">{count}</span>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Şikayet listesi */}
+          {complaintMentions.length === 0 ? (
+            <div className="card text-center py-14">
+              <p className="text-sm text-muted">
+                {mentions.filter(m => m.sourceType === 'complaint').length === 0
+                  ? 'Şikayetvar verisi henüz çekilmedi. Sonraki poll döngüsünde (15 dk) gelecek.'
+                  : 'Seçili marka için şikayet bulunamadı.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {complaintMentions.map(m => (
+                <MentionCard key={m.id || m.url} mention={m} />
+              ))}
             </div>
           )}
         </div>
