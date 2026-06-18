@@ -388,7 +388,7 @@ export default function MentionMonitor() {
   const fetchSov = useCallback(async () => {
     setSovLoading(true);
     try {
-      const days = analyticsDate === 'all' ? 60 : analyticsDate === '7d' ? 7 : analyticsDate === '30d' ? 30 : 60;
+      const days = analyticsDate === 'all' ? 365 : analyticsDate === '7d' ? 7 : analyticsDate === '30d' ? 30 : analyticsDate === '90d' ? 90 : 365;
       const res  = await fetch(`${SCRAPER_BASE}/mentions/sov?days=${days}`);
       const json = await res.json();
       if (json.status === 'ok') setSov(json);
@@ -766,31 +766,21 @@ export default function MentionMonitor() {
                   </p>
                   {sov?.data && (
                     <div className="space-y-2">
-                      {sov.data.filter(d => {
-                        const b = BRANDS.find(x => x.id === d.brandId);
-                        return !!b;
-                      }).slice(0, 15).map(({ brandId, count, share }) => {
+                      {sov.data.filter(d => BRANDS.find(x => x.id === d.brandId))
+                        .slice(0, 15).map(({ brandId, count, share }) => {
                         const brand = BRANDS.find(b => b.id === brandId);
-                        const isOwn = brand?.isOwn;
                         return (
                           <div key={brandId} className="flex items-center gap-2.5">
-                            <span
-                              className="text-[11px] w-28 truncate text-right flex-shrink-0"
-                              style={{ color: isOwn ? brand.color : '#94a3b8' }}>
+                            <span className="text-[11px] w-28 truncate text-right flex-shrink-0 text-slate-300">
                               {brand.shortName || brand.name}
                             </span>
                             <div className="flex-1 h-2 rounded-full bg-surface2 overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all duration-500"
-                                style={{
-                                  width: `${share}%`,
-                                  backgroundColor: isOwn ? brand.color : 'rgba(148,163,184,0.4)',
-                                }}
+                                style={{ width: `${share}%`, backgroundColor: 'rgba(148,163,184,0.5)' }}
                               />
                             </div>
-                            <span
-                              className="text-[11px] font-bold w-9 text-right flex-shrink-0"
-                              style={{ color: isOwn ? brand.color : '#64748b' }}>
+                            <span className="text-[11px] font-bold w-9 text-right flex-shrink-0 text-slate-400">
                               {share}%
                             </span>
                             <span className="text-[10px] text-muted w-6 text-right flex-shrink-0">{count}</span>
