@@ -275,7 +275,8 @@ export default function BrandComparison() {
           <button
             onClick={handleCompare}
             disabled={selectedIds.length < 2 || loading}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-brand-gold text-black font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40"
+            className="flex items-center gap-2 px-5 py-2 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-40 hover:opacity-90"
+            style={{ background: '#C4922A', color: '#fff' }}
           >
             {loading ? <RefreshCw size={14} className="animate-spin" /> : <RefreshCw size={14} />}
             Kıyasla
