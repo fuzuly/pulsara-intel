@@ -819,18 +819,42 @@ export default function MentionMonitor() {
                   : `${SOURCE_META[src]?.icon} ${SOURCE_META[src]?.label}`}
               </button>
             ))}
-            <div className="relative">
-              <input type="text" value={searchText}
-                onChange={e => { setSearchText(e.target.value); if (!e.target.value) setClickedWord(null); }}
-                placeholder='Ara… veya AND/OR/NOT kullan'
-                className="input text-xs py-1.5 w-56"
-                title='Boolean: starbucks AND şikayet NOT reklam | "yeni şube" OR açılış' />
-              {hasBooleanOps(searchText) && (
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(168,85,247,0.25)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.4)' }}>
-                  BOOL
+            <div className="flex flex-col gap-1">
+              <div className="relative">
+                <input type="text" value={searchText}
+                  onChange={e => { setSearchText(e.target.value); if (!e.target.value) setClickedWord(null); }}
+                  placeholder="Ara…"
+                  className="input text-xs py-1.5 w-56" />
+                {hasBooleanOps(searchText) && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded"
+                    style={{ background: 'rgba(168,85,247,0.25)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.4)' }}>
+                    BOOL
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-1 flex-wrap">
+                {[
+                  { q: 'fiyat OR zam',        label: 'AND' },
+                  { q: 'fiyat OR zam',        label: 'OR'  },
+                  { q: 'şikayet NOT reklam',  label: 'NOT' },
+                ].map(({ label }) => (
+                  <span key={label}
+                    className="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-default select-none"
+                    style={{ background: 'rgba(100,116,139,0.15)', color: '#64748b', border: '1px solid rgba(100,116,139,0.2)' }}
+                    title={
+                      label === 'AND' ? 'Her iki kelime de geçmeli: starbucks AND şikayet'
+                      : label === 'OR'  ? 'Herhangi biri geçmeli: fiyat OR zam'
+                      : 'İlki geçmeli, ikincisi geçmemeli: kahve NOT reklam'
+                    }>
+                    {label}
+                  </span>
+                ))}
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-default select-none"
+                  style={{ background: 'rgba(100,116,139,0.15)', color: '#64748b', border: '1px solid rgba(100,116,139,0.2)' }}
+                  title='"yeni şube" — tam ifade araması'>
+                  "…"
                 </span>
-              )}
+              </div>
             </div>
             {filtered.length !== mentions.length && (
               <span className="text-[11px] text-muted">{filtered.length}/{mentions.length} gösteriliyor</span>
@@ -1480,30 +1504,6 @@ export default function MentionMonitor() {
             )}
           </div>
 
-          {/* Boolean sorgu yardımı */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-2">🔎 Gelişmiş Boolean Sorgu</h3>
-            <p className="text-xs text-muted mb-3">
-              Canlı Akış sekmesindeki arama kutusunda AND / OR / NOT operatörlerini ve tırnaklı ifadeleri kullanabilirsin.
-            </p>
-            <div className="space-y-2">
-              {[
-                { q: 'starbucks AND şikayet', desc: 'Starbucks + şikayet kelimesi birlikte geçen haberler' },
-                { q: '"yeni şube" OR açılış',  desc: '"Yeni şube" tam ifadesi veya açılış geçen haberler' },
-                { q: 'kahvedunyasi NOT reklam', desc: 'Kahve Dünyası haberleri, reklam içerikler hariç' },
-                { q: 'fiyat OR zam OR indirim', desc: 'Fiyat, zam veya indirim geçen tüm haberler' },
-              ].map(({ q, desc }) => (
-                <div key={q} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface2 border border-navy-border">
-                  <code className="text-[11px] text-caramel font-mono flex-shrink-0">{q}</code>
-                  <span className="text-[11px] text-muted">{desc}</span>
-                  <button className="ml-auto text-[10px] text-muted hover:text-caramel transition-colors flex-shrink-0"
-                    onClick={() => { setSearchText(q); setActiveTab('akis'); }}>
-                    Uygula →
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
 
         </div>
       )}
