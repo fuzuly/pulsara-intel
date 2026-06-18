@@ -365,7 +365,7 @@ export default function MentionMonitor() {
 
   /* ── filtered (Akış tab) ─── */
   const filtered = useMemo(() => {
-    let items = mentions;
+    let items = mentions.filter(m => m.sourceType !== 'complaint'); // şikayetler ayrı sekmede
     if (datePreset !== 'all') {
       const days = datePreset === '7d' ? 7 : datePreset === '30d' ? 30 : 90;
       const from = Date.now() - days * 86_400_000;
@@ -676,7 +676,7 @@ export default function MentionMonitor() {
                 {s === 'all' ? 'Tüm Duygular' : `${SENTIMENT_META[s].icon} ${SENTIMENT_META[s].label}`}
               </button>
             ))}
-            {['all','news','tr_news','reddit','complaint'].map(src => (
+            {['all','news','tr_news','reddit'].map(src => (
               <button key={src} onClick={() => setFilterSource(src)}
                 className={clsx('px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all',
                   filterSource === src
