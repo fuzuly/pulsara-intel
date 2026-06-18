@@ -561,7 +561,7 @@ export default function MentionMonitor() {
         <div>
           <h1 className="text-xl font-bold text-white">Canlı Mention Takibi</h1>
           <p className="text-xs text-muted mt-0.5">
-            Google Haberler + TR Haber + Reddit — 21 marka, 15 dakikada bir güncellenir
+            Google Haberler + TR Haber + Reddit — 21 marka, saatte bir güncellenir
           </p>
         </div>
         <div className="flex items-center gap-3">
