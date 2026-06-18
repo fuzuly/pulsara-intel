@@ -834,26 +834,23 @@ export default function MentionMonitor() {
               </div>
               <div className="flex gap-1 flex-wrap">
                 {[
-                  { q: 'fiyat OR zam',        label: 'AND' },
-                  { q: 'fiyat OR zam',        label: 'OR'  },
-                  { q: 'şikayet NOT reklam',  label: 'NOT' },
-                ].map(({ label }) => (
-                  <span key={label}
-                    className="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-default select-none"
-                    style={{ background: 'rgba(100,116,139,0.15)', color: '#64748b', border: '1px solid rgba(100,116,139,0.2)' }}
-                    title={
-                      label === 'AND' ? 'Her iki kelime de geçmeli: starbucks AND şikayet'
-                      : label === 'OR'  ? 'Herhangi biri geçmeli: fiyat OR zam'
-                      : 'İlki geçmeli, ikincisi geçmemeli: kahve NOT reklam'
-                    }>
-                    {label}
-                  </span>
+                  { op: ' AND ', title: 'Her iki kelime de geçmeli' },
+                  { op: ' OR ',  title: 'Herhangi biri geçmeli'     },
+                  { op: ' NOT ', title: 'Sonraki kelime geçmemeli'  },
+                ].map(({ op, title }) => (
+                  <button key={op} title={title}
+                    onClick={() => setSearchText(t => t.trimEnd() + op)}
+                    className="text-[9px] font-mono px-1.5 py-0.5 rounded transition-colors hover:border-caramel/50 hover:text-caramel"
+                    style={{ background: 'rgba(100,116,139,0.15)', color: '#64748b', border: '1px solid rgba(100,116,139,0.2)' }}>
+                    {op.trim()}
+                  </button>
                 ))}
-                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-default select-none"
-                  style={{ background: 'rgba(100,116,139,0.15)', color: '#64748b', border: '1px solid rgba(100,116,139,0.2)' }}
-                  title='"yeni şube" — tam ifade araması'>
+                <button title='Tam ifade: "yeni şube"'
+                  onClick={() => setSearchText(t => t + '""')}
+                  className="text-[9px] font-mono px-1.5 py-0.5 rounded transition-colors hover:border-caramel/50 hover:text-caramel"
+                  style={{ background: 'rgba(100,116,139,0.15)', color: '#64748b', border: '1px solid rgba(100,116,139,0.2)' }}>
                   "…"
-                </span>
+                </button>
               </div>
             </div>
             {filtered.length !== mentions.length && (
