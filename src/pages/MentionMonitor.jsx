@@ -347,7 +347,11 @@ export default function MentionMonitor() {
 
   /* ── Şikayetvar filtrelenmiş şikayetler ─── */
   const complaintMentions = useMemo(() => {
-    let items = mentions.filter(m => m.sourceType === 'complaint');
+    const svCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    let items = mentions.filter(m =>
+      m.sourceType === 'complaint' &&
+      new Date(m.publishedAt || m.scrapedAt).getTime() >= svCutoff
+    );
     if (svBrand !== 'all') items = items.filter(m => m.brandId === svBrand);
     return [...items].sort((a, b) => {
       const ta = new Date(a.publishedAt || a.scrapedAt).getTime();
@@ -357,7 +361,11 @@ export default function MentionMonitor() {
   }, [mentions, svBrand, svSort]);
 
   const complaintByBrand = useMemo(() => {
-    const all = mentions.filter(m => m.sourceType === 'complaint');
+    const svCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const all = mentions.filter(m =>
+      m.sourceType === 'complaint' &&
+      new Date(m.publishedAt || m.scrapedAt).getTime() >= svCutoff
+    );
     const map = {};
     for (const m of all) map[m.brandId] = (map[m.brandId] || 0) + 1;
     return map;
