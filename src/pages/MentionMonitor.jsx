@@ -658,11 +658,22 @@ export default function MentionMonitor() {
       </p>
     </body></html>`;
 
-    const win = window.open('', '_blank');
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    setTimeout(() => win.print(), 400);
+    // iframe ile yaz — popup blocker atlatılır
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;background:#fff';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.write(html);
+    iframe.contentDocument.close();
+
+    // Kapat butonu
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕ Kapat';
+    closeBtn.style.cssText = 'position:fixed;top:12px;right:16px;z-index:10000;padding:6px 14px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:Arial';
+    closeBtn.onclick = () => { document.body.removeChild(iframe); document.body.removeChild(closeBtn); };
+    document.body.appendChild(closeBtn);
+
+    iframe.contentWindow.focus();
+    setTimeout(() => iframe.contentWindow.print(), 400);
   }
 
   /* ─────────────────────────────────────────────────────────────────────── */
@@ -1477,10 +1488,10 @@ export default function MentionMonitor() {
             </p>
             <div className="space-y-2">
               {[
-                { q: 'starbucks AND şikayet', desc: 'Starbucks hakkında şikayet içeren haberler' },
-                { q: '"yeni şube" OR açılış', desc: 'Yeni şube veya açılış haberleri (tam ifade)' },
-                { q: 'espressolab NOT reklam', desc: 'Espresso Lab haberleri, reklamlar hariç' },
-                { q: 'kahve AND (fiyat OR zam)', desc: 'Kahve fiyat/zam haberleri — NOT desteklenir' },
+                { q: 'starbucks AND şikayet', desc: 'Starbucks + şikayet kelimesi birlikte geçen haberler' },
+                { q: '"yeni şube" OR açılış',  desc: '"Yeni şube" tam ifadesi veya açılış geçen haberler' },
+                { q: 'kahvedunyasi NOT reklam', desc: 'Kahve Dünyası haberleri, reklam içerikler hariç' },
+                { q: 'fiyat OR zam OR indirim', desc: 'Fiyat, zam veya indirim geçen tüm haberler' },
               ].map(({ q, desc }) => (
                 <div key={q} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface2 border border-navy-border">
                   <code className="text-[11px] text-caramel font-mono flex-shrink-0">{q}</code>
