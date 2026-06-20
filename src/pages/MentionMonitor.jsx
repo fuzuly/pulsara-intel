@@ -381,6 +381,9 @@ export default function MentionMonitor() {
   const [svBrand, setSvBrand] = useState('all');
   const [svSort,  setSvSort]  = useState('newest');
 
+  const [twBrand, setTwBrand] = useState('all');
+  const [twSort,  setTwSort]  = useState('newest');
+
   // AI clusters
   const [aiClusters,       setAiClusters]      = useState(null);
   const [clustersLoading,  setClustersLoading] = useState(false);
@@ -411,9 +414,26 @@ export default function MentionMonitor() {
     return map;
   }, [mentions]);
 
+  const twitterMentions = useMemo(() => {
+    let items = mentions.filter(m => m.sourceType === 'twitter');
+    if (twBrand !== 'all') items = items.filter(m => m.brandId === twBrand);
+    return [...items].sort((a, b) => {
+      const ta = new Date(a.publishedAt || a.scrapedAt).getTime();
+      const tb = new Date(b.publishedAt || b.scrapedAt).getTime();
+      return twSort === 'oldest' ? ta - tb : tb - ta;
+    });
+  }, [mentions, twBrand, twSort]);
+
+  const twitterByBrand = useMemo(() => {
+    const all = mentions.filter(m => m.sourceType === 'twitter');
+    const map = {};
+    for (const m of all) map[m.brandId] = (map[m.brandId] || 0) + 1;
+    return map;
+  }, [mentions]);
+
   /* ── filtered (Akış tab) ─── */
   const filtered = useMemo(() => {
-    let items = mentions.filter(m => m.sourceType !== 'complaint'); // şikayetler ayrı sekmede
+    let items = mentions.filter(m => m.sourceType !== 'complaint' && m.sourceType !== 'twitter'); // şikayetler ve twitter ayrı sekmede
     if (datePreset !== 'all') {
       const days = datePreset === '7d' ? 7 : datePreset === '30d' ? 30 : 90;
       const from = Date.now() - days * 86_400_000;
@@ -714,11 +734,12 @@ export default function MentionMonitor() {
       {/* Tabs */}
       <div className="flex gap-0 border-b border-navy-border overflow-x-auto no-scrollbar">
         {[
-          { key: 'akis',     label: '📡 Canlı Akış'    },
-          { key: 'analitik', label: '📊 Analitik'       },
-          { key: 'kelime',      label: '🔍 Kelime Takibi'  },
-          { key: 'sikayetvar',  label: '⚠️ Şikayetvar'    },
-          { key: 'rapor',       label: '📤 Rapor & Export'  },
+          { key: 'akis',       label: '📡 Canlı Akış'      },
+          { key: 'analitik',   label: '📊 Analitik'         },
+          { key: 'kelime',     label: '🔍 Kelime Takibi'    },
+          { key: 'sosyal',     label: '𝕏 Sosyal Medya'      },
+          { key: 'sikayetvar', label: '⚠️ Şikayetvar'       },
+          { key: 'rapor',      label: '📤 Rapor & Export'   },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={clsx(
@@ -1362,6 +1383,151 @@ export default function MentionMonitor() {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══ SOSYAL MEDYA ════════════════════════════════════════════════════ */}
+      {activeTab === 'sosyal' && (
+        <div className="space-y-5">
+
+          {/* Özet kartlar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="card text-center py-4">
+              <div className="text-2xl font-bold text-white">
+                {mentions.filter(m => m.sourceType === 'twitter').length}
+              </div>
+              <div className="text-[11px] text-muted mt-1">Toplam Tweet</div>
+            </div>
+            <div className="card text-center py-4">
+              <div className="text-2xl font-bold text-white">
+                {Object.keys(twitterByBrand).length}
+              </div>
+              <div className="text-[11px] text-muted mt-1">Marka</div>
+            </div>
+            <div className="card text-center py-4">
+              <div className="text-2xl font-bold text-success">
+                {mentions.filter(m => m.sourceType === 'twitter' && m.sentiment === 'positive').length}
+              </div>
+              <div className="text-[11px] text-muted mt-1">Olumlu</div>
+            </div>
+            <div className="card text-center py-4">
+              <div className="text-2xl font-bold text-danger">
+                {mentions.filter(m => m.sourceType === 'twitter' && m.sentiment === 'negative').length}
+              </div>
+              <div className="text-[11px] text-muted mt-1">Olumsuz</div>
+            </div>
+          </div>
+
+          {/* Marka dağılımı */}
+          {Object.keys(twitterByBrand).length > 0 && (
+            <div className="card space-y-2">
+              <h3 className="text-xs font-semibold text-white mb-3">Marka Bazlı Tweet Dağılımı</h3>
+              {Object.entries(twitterByBrand)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .map(([brandId, count]) => {
+                  const br    = BRANDS.find(b => b.id === brandId);
+                  const total = mentions.filter(m => m.sourceType === 'twitter').length;
+                  const pct   = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+                  return (
+                    <div key={brandId} className="flex items-center gap-2.5 cursor-pointer"
+                      onClick={() => setTwBrand(brandId === twBrand ? 'all' : brandId)}>
+                      <span className="text-[11px] w-32 truncate text-right flex-shrink-0 text-slate-300">
+                        {br?.shortName || br?.name || brandId}
+                      </span>
+                      <div className="flex-1 h-2 rounded-full bg-surface2 overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%`, backgroundColor: br?.color || '#1d9bf0' }} />
+                      </div>
+                      <span className="text-[11px] font-bold w-6 text-right text-slate-400">{count}</span>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Filtreler */}
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={twBrand}
+              onChange={e => setTwBrand(e.target.value)}
+              className="text-xs bg-surface2 border border-navy-border rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-caramel">
+              <option value="all">Tüm Markalar</option>
+              {BRANDS.filter(b => twitterByBrand[b.id]).sort((a, b) => (twitterByBrand[b.id] || 0) - (twitterByBrand[a.id] || 0) * -1).map(b => (
+                <option key={b.id} value={b.id}>{b.name} ({twitterByBrand[b.id]})</option>
+              ))}
+            </select>
+            {[
+              { key: 'newest', label: 'Yeniden Eskiye' },
+              { key: 'oldest', label: 'Eskiden Yeniye' },
+            ].map(s => (
+              <button key={s.key} onClick={() => setTwSort(s.key)}
+                className={clsx('px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-all',
+                  twSort === s.key
+                    ? 'bg-caramel/20 border-caramel/40 text-caramel'
+                    : 'border-navy-border text-muted hover:text-white')}>
+                {s.label}
+              </button>
+            ))}
+            <span className="ml-auto text-[11px] text-muted">{twitterMentions.length} tweet gösteriliyor</span>
+          </div>
+
+          {/* Tweet listesi */}
+          {twitterMentions.length === 0 ? (
+            <div className="card text-center py-14">
+              <p className="text-4xl mb-3">𝕏</p>
+              <p className="text-sm font-medium text-white mb-1">
+                {mentions.filter(m => m.sourceType === 'twitter').length === 0
+                  ? 'Twitter verisi henüz çekilmedi'
+                  : 'Seçili marka için tweet bulunamadı'}
+              </p>
+              <p className="text-xs text-muted">Sonraki poll döngüsünde (1 saat) tweetler görünecek.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {twitterMentions.map(m => (
+                <div key={m.id || m.url}
+                  className="flex items-start gap-3 p-3 rounded-xl border border-navy-border bg-surface hover:border-[#1d9bf0]/30 transition-all">
+                  <div className="flex-shrink-0 pt-0.5">
+                    <span className="text-[#1d9bf0] font-bold text-sm">𝕏</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-[11px] font-semibold text-[#1d9bf0]">{m.source || '@twitter'}</span>
+                      {(() => {
+                        const br = BRANDS.find(b => b.id === m.brandId);
+                        return br ? (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                            style={{ background: br.color + '22', color: br.color, border: `1px solid ${br.color}44` }}>
+                            {br.shortName}
+                          </span>
+                        ) : null;
+                      })()}
+                      {(() => {
+                        const sm = SENTIMENT_META[m.sentiment] || SENTIMENT_META.neutral;
+                        return (
+                          <span className={clsx('text-[10px] font-medium px-1.5 py-0.5 rounded border', sm.bg, sm.color)}>
+                            {sm.icon} {sm.label}
+                          </span>
+                        );
+                      })()}
+                      <span className="ml-auto text-[10px] text-muted">{timeAgo(m.publishedAt || m.scrapedAt)}</span>
+                    </div>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-white hover:text-[#1d9bf0] transition-colors leading-snug line-clamp-3">
+                      {m.title}
+                    </a>
+                    {(m.likes > 0 || m.retweets > 0) && (
+                      <div className="flex gap-3 mt-1.5 text-[10px] text-muted">
+                        {m.likes    > 0 && <span>❤️ {m.likes}</span>}
+                        {m.retweets > 0 && <span>🔁 {m.retweets}</span>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
