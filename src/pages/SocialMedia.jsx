@@ -224,146 +224,9 @@ export default function SocialMedia() {
 
       {/* ══ TWITTER ══════════════════════════════════════════════════════ */}
       {platform === 'twitter' && (
-        <div className="space-y-5">
-          {/* KPI */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Toplam Tweet',    value: tweets.length,  color: 'text-[#1d9bf0]', icon: '𝕏' },
-              { label: 'Olumlu',          value: twPositive,     color: 'text-success',   icon: '😊' },
-              { label: 'Olumsuz',         value: twNegative,     color: 'text-danger',    icon: '😟' },
-              { label: 'Nötr',            value: twNeutral,      color: 'text-muted',     icon: '😐' },
-            ].map(k => (
-              <div key={k.label} className="card text-center">
-                <div className="text-2xl mb-1">{k.icon}</div>
-                <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
-                <div className="text-xs text-muted">{k.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {twLoading && (
-            <div className="text-center text-muted text-sm py-8">Tweet'ler yükleniyor...</div>
-          )}
-
-          {!twLoading && tweets.length === 0 && (
-            <div className="card text-center py-10">
-              <div className="text-4xl mb-3">𝕏</div>
-              <p className="text-white font-medium mb-1">Henüz tweet yok</p>
-              <p className="text-xs text-muted">Twitter bağlantısı kurulduğunda burada görünecek.</p>
-            </div>
-          )}
-
-          {!twLoading && tweets.length > 0 && (
-            <>
-              {/* Marka dağılımı */}
-              {tweetBrandChart.length > 0 && (
-                <div className="card">
-                  <h3 className="text-sm font-semibold text-white mb-3">Marka Bazlı Tweet Dağılımı</h3>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <button
-                      onClick={() => setTwBrand(null)}
-                      className={clsx('px-3 py-1 rounded-full text-xs font-medium border transition-all',
-                        !twBrand ? 'bg-[#1d9bf0]/20 border-[#1d9bf0] text-[#1d9bf0]' : 'border-navy-border text-muted hover:text-white'
-                      )}
-                    >
-                      Tümü ({tweets.length})
-                    </button>
-                    {tweetBrandChart.map(b => (
-                      <button
-                        key={b.brandId}
-                        onClick={() => setTwBrand(twBrand === b.brandId ? null : b.brandId)}
-                        className={clsx('px-3 py-1 rounded-full text-xs font-medium border transition-all',
-                          twBrand === b.brandId
-                            ? 'text-white border-transparent'
-                            : 'border-navy-border text-muted hover:text-white'
-                        )}
-                        style={twBrand === b.brandId ? { background: b.color + '33', borderColor: b.color, color: b.color } : {}}
-                      >
-                        {b.name} ({b.count})
-                      </button>
-                    ))}
-                  </div>
-                  <ResponsiveContainer width="100%" height={180}>
-                    <BarChart data={tweetBrandChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
-                      <XAxis dataKey="name" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{ background: '#1a2744', border: '1px solid #2A3A55', borderRadius: 8, fontSize: 12 }} />
-                      <Bar dataKey="count" name="Tweet" radius={[4, 4, 0, 0]}>
-                        {tweetBrandChart.map(b => <Cell key={b.brandId} fill={b.color} opacity={twBrand && twBrand !== b.brandId ? 0.3 : 1} />)}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-
-              {/* Sıralama + tweet listesi */}
-              <div className="card">
-                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                  <h3 className="text-sm font-semibold text-white">
-                    Tweet'ler ({filteredTweets.length})
-                  </h3>
-                  <div className="flex gap-1">
-                    {[{ key: 'date', label: 'Tarih' }, { key: 'likes', label: '❤️ Beğeni' }, { key: 'retweets', label: '🔁 RT' }].map(s => (
-                      <button
-                        key={s.key}
-                        onClick={() => setTwSort(s.key)}
-                        className={clsx('px-3 py-1 rounded-lg text-xs font-medium border transition-all',
-                          twSort === s.key
-                            ? 'bg-[#1d9bf0]/20 border-[#1d9bf0] text-[#1d9bf0]'
-                            : 'border-navy-border text-muted hover:text-white'
-                        )}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                  {filteredTweets.slice(0, 50).map((t, i) => {
-                    const brand = BRAND_MAP[t.brandId] || {};
-                    return (
-                      <a
-                        key={t.url || i}
-                        href={t.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block border border-navy-border rounded-xl p-3 hover:border-[#1d9bf0]/40 transition-all"
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="text-[#1d9bf0] font-bold text-lg flex-shrink-0 mt-0.5">𝕏</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className="text-xs font-semibold text-[#1d9bf0]">{t.source}</span>
-                              {brand.name && (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: (brand.color || '#8B9BB4') + '22', color: brand.color || '#8B9BB4', border: `1px solid ${(brand.color || '#8B9BB4')}44` }}>
-                                  {brand.name}
-                                </span>
-                              )}
-                              <span className={clsx('text-[10px] px-2 py-0.5 rounded-full font-medium ml-auto flex-shrink-0',
-                                t.sentiment === 'positive' ? 'bg-success/10 text-success border border-success/20'
-                                  : t.sentiment === 'negative' ? 'bg-danger/10 text-danger border border-danger/20'
-                                  : 'bg-muted/10 text-muted border border-muted/20'
-                              )}>
-                                {t.sentiment === 'positive' ? 'Olumlu' : t.sentiment === 'negative' ? 'Olumsuz' : 'Nötr'}
-                              </span>
-                            </div>
-                            <p className="text-sm text-white/90 leading-relaxed line-clamp-3">{t.snippet || t.title}</p>
-                            <div className="flex items-center gap-4 mt-2 text-[10px] text-muted">
-                              <span>❤️ {(t.likes || 0).toLocaleString('tr-TR')}</span>
-                              <span>🔁 {(t.retweets || 0).toLocaleString('tr-TR')}</span>
-                              <span>{t.publishedAt ? new Date(t.publishedAt).toLocaleDateString('tr-TR') : ''}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          )}
+        <div className="card text-center py-16">
+          <div className="text-5xl mb-4">𝕏</div>
+          <h3 className="text-lg font-semibold text-white mb-2">Twitter / X Analizi Yakında</h3>
         </div>
       )}
 
@@ -674,9 +537,6 @@ export default function SocialMedia() {
         <div className="card text-center py-16">
           <div className="text-5xl mb-4">🎵</div>
           <h3 className="text-lg font-semibold text-white mb-2">TikTok Analizi Yakında</h3>
-          <p className="text-sm text-muted max-w-md mx-auto leading-relaxed">
-            TikTok Business API entegrasyonu planlanmaktadır. Marka hesaplarının video performansı, takipçi büyümesi ve etkileşim metrikleri burada görüntülenecek.
-          </p>
         </div>
       )}
     </div>
