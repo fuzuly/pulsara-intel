@@ -224,9 +224,132 @@ export default function SocialMedia() {
 
       {/* ══ TWITTER ══════════════════════════════════════════════════════ */}
       {platform === 'twitter' && (
-        <div className="card text-center py-16">
-          <div className="text-5xl mb-4">𝕏</div>
-          <h3 className="text-lg font-semibold text-white mb-2">Twitter / X Analizi Yakında</h3>
+        <div className="space-y-5">
+          {/* Yükleniyor */}
+          {twLoading && (
+            <div className="card text-center py-12">
+              <div className="text-3xl mb-3 animate-pulse">𝕏</div>
+              <p className="text-muted text-sm">Tweet'ler yükleniyor...</p>
+            </div>
+          )}
+
+          {/* Veri yok — tetikleme butonu */}
+          {!twLoading && tweets.length === 0 && (
+            <div className="card text-center py-12">
+              <div className="text-4xl mb-3">𝕏</div>
+              <h3 className="text-base font-semibold text-white mb-1">Henüz tweet verisi yok</h3>
+              <p className="text-xs text-muted mb-4">Apify ilk çekimi günde 1 kez otomatik çalışır.<br />Şimdi başlatmak için aşağıdaki butona tıkla.</p>
+              <button
+                onClick={() => {
+                  fetch(`${API_BASE}/api/twitter/run`).catch(() => {});
+                  setTimeout(() => {
+                    setTwLoading(true);
+                    fetch(`${API_BASE}/api/mentions?sourceType=twitter&limit=100`, { signal: AbortSignal.timeout(90000) })
+                      .then(r => r.json())
+                      .then(json => { if (json.status === 'ok') setTweets(json.data || []); })
+                      .catch(() => {})
+                      .finally(() => setTwLoading(false));
+                  }, 65000);
+                }}
+                className="px-5 py-2 rounded-lg bg-caramel/20 border border-caramel text-caramel text-sm font-medium hover:bg-caramel/30 transition-all"
+              >
+                Apify ile Şimdi Çek (~60 sn)
+              </button>
+            </div>
+          )}
+
+          {/* Veri var */}
+          {!twLoading && tweets.length > 0 && (
+            <>
+              {/* Özet kartlar */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Toplam Tweet',   value: tweets.length,  color: 'text-caramel', icon: '𝕏' },
+                  { label: 'Olumlu',         value: twPositive,     color: 'text-success', icon: '😊' },
+                  { label: 'Olumsuz',        value: twNegative,     color: 'text-danger',  icon: '😟' },
+                  { label: 'Takip Edilen Marka', value: tweetBrandChart.length, color: 'text-info', icon: '🏷️' },
+                ].map(k => (
+                  <div key={k.label} className="card">
+                    <div className="text-2xl mb-1">{k.icon}</div>
+                    <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
+                    <div className="text-xs text-muted">{k.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Marka filtre + sıralama */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <button
+                  onClick={() => setTwBrand(null)}
+                  className={clsx('px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                    twBrand === null ? 'bg-caramel/20 border-caramel text-caramel' : 'bg-surface border-navy-border text-muted hover:text-white')}
+                >
+                  Tümü ({tweets.length})
+                </button>
+                {tweetBrandChart.map(b => (
+                  <button
+                    key={b.brandId}
+                    onClick={() => setTwBrand(b.brandId)}
+                    className={clsx('px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                      twBrand === b.brandId ? 'border-current' : 'bg-surface border-navy-border text-muted hover:text-white')}
+                    style={twBrand === b.brandId ? { backgroundColor: `${b.color}20`, borderColor: b.color, color: b.color } : {}}
+                  >
+                    {b.name} ({b.count})
+                  </button>
+                ))}
+                <div className="ml-auto flex gap-1">
+                  {[['date','Tarih'],['likes','Beğeni'],['retweets','RT']].map(([v,l]) => (
+                    <button
+                      key={v}
+                      onClick={() => setTwSort(v)}
+                      className={clsx('px-2.5 py-1 rounded text-[11px] font-medium border transition-all',
+                        twSort === v ? 'bg-white/10 border-white/30 text-white' : 'bg-surface border-navy-border text-muted hover:text-white')}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tweet listesi */}
+              <div className="space-y-2">
+                {filteredTweets.slice(0, 50).map((t, i) => {
+                  const brand = BRAND_MAP[t.brandId] || {};
+                  return (
+                    <div key={i} className="card hover:border-white/20 transition-all">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className="text-xs font-semibold text-muted">{t.source}</span>
+                            {t.brandId && (
+                              <span className="text-[10px] font-bold rounded-full px-2 py-0.5 border"
+                                style={{ backgroundColor: `${brand.color || '#8B9BB4'}18`, borderColor: `${brand.color || '#8B9BB4'}40`, color: brand.color || '#8B9BB4' }}>
+                                {brand.shortName || t.brandId}
+                              </span>
+                            )}
+                            <span className={clsx('text-[10px] font-semibold rounded-full px-2 py-0.5 border ml-auto',
+                              t.sentiment === 'positive' ? 'bg-success/10 border-success/30 text-success'
+                              : t.sentiment === 'negative' ? 'bg-danger/10 border-danger/30 text-danger'
+                              : 'bg-muted/10 border-muted/20 text-muted')}>
+                              {t.sentiment === 'positive' ? 'Olumlu' : t.sentiment === 'negative' ? 'Olumsuz' : 'Nötr'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-white leading-relaxed line-clamp-3">{t.snippet || t.title}</p>
+                          <div className="flex items-center gap-3 mt-2 text-[11px] text-muted">
+                            {t.publishedAt && <span>{new Date(t.publishedAt).toLocaleDateString('tr-TR')}</span>}
+                            {t.likes > 0 && <span>♥ {t.likes.toLocaleString('tr-TR')}</span>}
+                            {t.retweets > 0 && <span>🔁 {t.retweets.toLocaleString('tr-TR')}</span>}
+                            <a href={t.url} target="_blank" rel="noreferrer" className="ml-auto text-caramel hover:underline">Twitter'da Gör →</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-muted text-center">Tweet'ler Apify üzerinden günde 1 kez çekilmektedir.</p>
+            </>
+          )}
         </div>
       )}
 
