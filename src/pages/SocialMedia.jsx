@@ -414,7 +414,7 @@ export default function SocialMedia() {
 
         {/* Own sentiment highlight */}
         {ownSent && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { label: 'Olumlu Yorum', value: `%${ownSent.positive}`, color: 'text-success', bg: 'border-success/20', icon: '😊' },
               { label: 'Nötr Yorum',   value: `%${ownSent.neutral}`,  color: 'text-muted',   bg: 'border-muted/20',   icon: '😐' },

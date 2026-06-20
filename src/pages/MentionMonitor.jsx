@@ -711,7 +711,7 @@ export default function MentionMonitor() {
       {analytics?.storm?.isStorm && <StormAlert storm={analytics.storm} />}
 
       {/* Tabs */}
-      <div className="flex gap-0 border-b border-navy-border">
+      <div className="flex gap-0 border-b border-navy-border overflow-x-auto no-scrollbar">
         {[
           { key: 'akis',     label: '📡 Canlı Akış'    },
           { key: 'analitik', label: '📊 Analitik'       },
@@ -721,7 +721,7 @@ export default function MentionMonitor() {
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={clsx(
-              'px-5 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px',
+              'px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-all -mb-px whitespace-nowrap flex-shrink-0',
               activeTab === tab.key
                 ? 'border-caramel text-caramel'
                 : 'border-transparent text-muted hover:text-white'
@@ -824,7 +824,7 @@ export default function MentionMonitor() {
                 <input type="text" value={searchText}
                   onChange={e => { setSearchText(e.target.value); if (!e.target.value) setClickedWord(null); }}
                   placeholder="Ara…"
-                  className="input text-xs py-1.5 w-56" />
+                  className="input text-xs py-1.5 w-full sm:w-56" />
                 {hasBooleanOps(searchText) && (
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded"
                     style={{ background: 'rgba(168,85,247,0.25)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.4)' }}>

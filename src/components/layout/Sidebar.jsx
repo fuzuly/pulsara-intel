@@ -1,19 +1,36 @@
+import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, LogOut, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, ExternalLink, X } from 'lucide-react';
 import { NAV_ITEMS } from '../../constants/routes';
 import { useAuth } from '../../context/AuthContext';
 import clsx from 'clsx';
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const location = useLocation();
   const { logout } = useAuth();
 
+  useEffect(() => {
+    onMobileClose?.();
+  }, [location.pathname]);
+
   return (
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className={clsx(
+          'fixed inset-0 bg-black/60 z-20 md:hidden transition-opacity duration-300',
+          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={onMobileClose}
+      />
+
     <aside
       className={clsx(
         'fixed top-0 left-0 h-screen z-30 flex flex-col transition-all duration-300 ease-in-out',
         'bg-navy-light border-r border-navy-border',
-        collapsed ? 'w-14' : 'w-56'
+        collapsed ? 'w-14' : 'w-56',
+        // Mobile: slide in/out as drawer; desktop: always visible
+        mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       )}
     >
       {/* Logo */}
@@ -133,13 +150,21 @@ export default function Sidebar({ collapsed, onToggle }) {
 
         <button
           onClick={onToggle}
-          className="w-full flex items-center justify-center gap-2 py-2 px-2.5 rounded-sm text-muted hover:text-white hover:bg-surface2/40 transition-colors text-xs"
+          className="hidden md:flex w-full items-center justify-center gap-2 py-2 px-2.5 rounded-sm text-muted hover:text-white hover:bg-surface2/40 transition-colors text-xs"
           title={collapsed ? 'Genişlet' : 'Daralt'}
         >
           {collapsed
             ? <ChevronRight size={14} />
             : <><ChevronLeft size={14} /><span>Daralt</span></>
           }
+        </button>
+
+        {/* Mobile: close drawer button */}
+        <button
+          onClick={onMobileClose}
+          className="md:hidden w-full flex items-center justify-center gap-2 py-2 px-2.5 rounded-sm text-muted hover:text-white hover:bg-surface2/40 transition-colors text-xs"
+        >
+          <X size={14} /><span>Kapat</span>
         </button>
 
         {!collapsed && (
@@ -149,5 +174,6 @@ export default function Sidebar({ collapsed, onToggle }) {
         )}
       </div>
     </aside>
+    </>
   );
 }

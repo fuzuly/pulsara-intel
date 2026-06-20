@@ -169,7 +169,7 @@ export default function Dashboard() {
           title="Rekabet İstihbarat Özeti"
           subtitle="İzlenen markalar, sosyal medya ve Google Maps verisinden türetilmiştir"
         />
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
           {KPI_CARDS.map(card => (
             <div key={card.label} className="card flex flex-col gap-2">
               <div className="flex items-center justify-end h-5">

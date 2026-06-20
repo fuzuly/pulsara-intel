@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
-import { Download, RefreshCw, Search } from 'lucide-react';
+import { Download, RefreshCw, Search, Menu } from 'lucide-react';
 import { NAV_ITEMS } from '../../constants/routes';
 import { useExport } from '../../hooks/useExport';
 import { useAuth } from '../../context/AuthContext';
 import GlobalSearch from '../common/GlobalSearch';
 import clsx from 'clsx';
 
-export default function TopBar({ sidebarCollapsed }) {
+export default function TopBar({ sidebarCollapsed, onMobileMenuOpen }) {
   const location = useLocation();
   const [clock, setClock] = useState(new Date());
   const [showSearch, setShowSearch] = useState(false);
@@ -38,17 +38,25 @@ export default function TopBar({ sidebarCollapsed }) {
   }, []);
 
   const timeStr = clock.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const dateStr = clock.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-
 
   return (
     <header
       className={clsx(
         'fixed top-0 right-0 z-20 h-14 flex flex-col bg-navy-light border-b border-navy-border transition-all duration-300',
-        sidebarCollapsed ? 'left-14' : 'left-56'
+        'left-0',
+        sidebarCollapsed ? 'md:left-14' : 'md:left-56'
       )}
     >
-      <div className="flex items-center gap-4 px-5 h-full">
+      <div className="flex items-center gap-3 px-4 h-full">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMobileMenuOpen}
+          className="md:hidden flex items-center justify-center w-8 h-8 text-muted hover:text-white flex-shrink-0"
+          aria-label="Menü"
+        >
+          <Menu size={18} />
+        </button>
+
         {/* Page title */}
         <div className="flex items-center gap-2.5 min-w-0">
           {currentPage?.icon && (
@@ -89,7 +97,7 @@ export default function TopBar({ sidebarCollapsed }) {
           </div>
 
           {/* Separator */}
-          <div className="w-px h-5 bg-navy-border" />
+          <div className="hidden xl:block w-px h-5 bg-navy-border" />
 
           {/* Quick export */}
           <div className="relative group">
@@ -131,7 +139,6 @@ export default function TopBar({ sidebarCollapsed }) {
           </div>
         </div>
       </div>
-
 
       {showSearch && createPortal(
         <GlobalSearch onClose={() => setShowSearch(false)} />,
