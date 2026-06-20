@@ -26,6 +26,7 @@ const SOURCE_META = {
   tr_news:   { label: 'TR Haber',    icon: '📰' },
   reddit:    { label: 'Reddit',      icon: '💬' },
   complaint: { label: 'Şikayetvar',  icon: '⚠️' },
+  twitter:   { label: 'Twitter/X',   icon: '𝕏'  },
 };
 
 const EMOTION_META = {
@@ -809,7 +810,7 @@ export default function MentionMonitor() {
                 {s === 'all' ? 'Tüm Duygular' : `${SENTIMENT_META[s].icon} ${SENTIMENT_META[s].label}`}
               </button>
             ))}
-            {['all','news','tr_news','reddit'].map(src => (
+            {['all','news','tr_news','reddit','twitter'].map(src => (
               <button key={src} onClick={() => setFilterSource(src)}
                 className={clsx('px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all',
                   filterSource === src
