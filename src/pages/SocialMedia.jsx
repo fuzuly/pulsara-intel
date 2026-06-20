@@ -28,37 +28,30 @@ const USERNAME_TO_BRAND = {
   'laos.coffee':       'laos',
 };
 
+const PLATFORMS = [
+  { key: 'twitter',   label: 'Twitter / X',  icon: '𝕏' },
+  { key: 'instagram', label: 'Instagram',     icon: '📸' },
+  { key: 'tiktok',    label: 'TikTok',        icon: '🎵' },
+];
+
+/* ── Statik hesaplamalar (platform bağımsız) ─────────────────────────────── */
+
 const mapsData = googleMapsRatings.map(d => {
   const brand = BRAND_MAP[d.brand] || {};
-  return {
-    ...d,
-    brandName: brand.name || d.brand,
-    color: brand.color || '#8B9BB4',
-    isOwn: brand.isOwn || false,
-    shortName: brand.shortName || d.brand,
-  };
+  return { ...d, brandName: brand.name || d.brand, color: brand.color || '#8B9BB4', isOwn: brand.isOwn || false, shortName: brand.shortName || d.brand };
 }).sort((a, b) => b.rating - a.rating);
 
 const sentChartData = sentimentData.map(d => {
   const brand = BRAND_MAP[d.brand] || {};
-  return {
-    name: brand.shortName || d.brand,
-    fullName: brand.name || d.brand,
-    color: brand.color || '#8B9BB4',
-    isOwn: brand.isOwn || false,
-    positive: d.positive,
-    neutral: d.neutral,
-    negative: d.negative,
-    topComplaints: d.topComplaints,
-    topPraises: d.topPraises,
-  };
+  return { name: brand.shortName || d.brand, fullName: brand.name || d.brand, color: brand.color || '#8B9BB4', isOwn: brand.isOwn || false, positive: d.positive, neutral: d.neutral, negative: d.negative, topComplaints: d.topComplaints, topPraises: d.topPraises };
 }).sort((a, b) => b.positive - a.positive);
 
-const ownMaps = mapsData.find(d => d.isOwn);
-const ownSent = sentChartData.find(d => d.isOwn);
-
-const TREND_ICON = { up: '↑', down: '↓', stable: '→' };
+const ownMaps  = mapsData.find(d => d.isOwn);
+const ownSent  = sentChartData.find(d => d.isOwn);
+const TREND_ICON  = { up: '↑', down: '↓', stable: '→' };
 const TREND_COLOR = { up: 'text-success', down: 'text-danger', stable: 'text-muted' };
+
+/* ── Küçük bileşenler ────────────────────────────────────────────────────── */
 
 function StarRating({ rating }) {
   const full = Math.floor(rating);
@@ -71,14 +64,9 @@ function StarRating({ rating }) {
 }
 
 function RiskLight({ rating, trend }) {
-  const red = rating < 4.0 || (rating < 4.2 && trend === 'down');
+  const red    = rating < 4.0 || (rating < 4.2 && trend === 'down');
   const yellow = !red && (rating < 4.3 || trend === 'down');
-  return (
-    <span className={clsx(
-      'inline-block h-3 w-3 rounded-full',
-      red ? 'bg-danger' : yellow ? 'bg-warning' : 'bg-success'
-    )} />
-  );
+  return <span className={clsx('inline-block h-3 w-3 rounded-full', red ? 'bg-danger' : yellow ? 'bg-warning' : 'bg-success')} />;
 }
 
 const IgTooltip = ({ active, payload }) => {
@@ -111,17 +99,27 @@ const SentTooltip = ({ active, payload, label }) => {
   return (
     <div className="bg-surface border border-navy-border rounded-lg px-3 py-2 shadow-xl text-xs">
       <p className="font-semibold text-white mb-1">{label}</p>
-      {payload.map(p => (
-        <p key={p.dataKey} style={{ color: p.fill }}>%{p.value} {p.name}</p>
-      ))}
+      {payload.map(p => <p key={p.dataKey} style={{ color: p.fill }}>%{p.value} {p.name}</p>)}
     </div>
   );
 };
 
+/* ── Ana bileşen ─────────────────────────────────────────────────────────── */
+
 export default function SocialMedia() {
-  const [profiles, setProfiles] = useState(instagramProfilesFallback);
+  const [platform, setPlatform] = useState('instagram');
+
+  /* Instagram */
+  const [profiles, setProfiles]       = useState(instagramProfilesFallback);
   const [igUpdatedAt, setIgUpdatedAt] = useState(null);
 
+  /* Twitter */
+  const [tweets, setTweets]     = useState([]);
+  const [twLoading, setTwLoading] = useState(false);
+  const [twBrand, setTwBrand]   = useState(null);
+  const [twSort, setTwSort]     = useState('date');
+
+  /* Instagram API fetch (bir kez) */
   useEffect(() => {
     fetch(`${API_BASE}/api/instagram`, { signal: AbortSignal.timeout(10000) })
       .then(r => r.json())
@@ -131,414 +129,556 @@ export default function SocialMedia() {
           setIgUpdatedAt(json.updatedAt);
         }
       })
-      .catch(() => {}); // statik fallback kalır
+      .catch(() => {});
   }, []);
 
+  /* Twitter fetch — platform değişince tetiklenir */
+  useEffect(() => {
+    if (platform !== 'twitter') return;
+    setTwLoading(true);
+    fetch(`${API_BASE}/api/mentions?sourceType=twitter&limit=100`, { signal: AbortSignal.timeout(12000) })
+      .then(r => r.json())
+      .then(json => { if (json.status === 'ok') setTweets(json.data || []); })
+      .catch(() => {})
+      .finally(() => setTwLoading(false));
+  }, [platform]);
+
+  /* Instagram igData */
   const igData = useMemo(() => profiles.map(p => {
-    const post = instagramPosts.find(x => x.username === p.username) || {};
+    const post    = instagramPosts.find(x => x.username === p.username) || {};
     const brandId = p.brandId || USERNAME_TO_BRAND[p.username];
-    const brand = BRAND_MAP[brandId] || {};
+    const brand   = BRAND_MAP[brandId] || {};
     return {
-      username: p.username,
-      brandId,
+      username: p.username, brandId,
       brandName: brand.name || p.username,
       color: brand.color || '#8B9BB4',
       isOwn: brand.isOwn || false,
       shortName: brand.shortName || p.username.slice(0, 5),
-      followers: p.followers,
-      posts: p.posts,
-      avgLikes: post.avgLikes || 0,
-      avgComments: post.avgComments || 0,
-      engagementRate: post.engagementRate || 0,
-      maxLikes: post.maxLikes || 0,
+      followers: p.followers, posts: p.posts,
+      avgLikes: post.avgLikes || 0, avgComments: post.avgComments || 0,
+      engagementRate: post.engagementRate || 0, maxLikes: post.maxLikes || 0,
       maxViews: post.maxViews || null,
-      verified: p.verified ?? false,
-      isBusinessAccount: p.isBusinessAccount ?? false,
+      verified: p.verified ?? false, isBusinessAccount: p.isBusinessAccount ?? false,
       following: p.following ?? 0,
     };
   }).sort((a, b) => b.engagementRate - a.engagementRate), [profiles]);
 
-  const own = igData.find(d => d.isOwn);
+  const own     = igData.find(d => d.isOwn);
   const ownRank = igData.findIndex(d => d.isOwn) + 1;
 
+  /* Twitter türetilmiş veriler */
+  const twitterByBrand = useMemo(() => {
+    const map = {};
+    for (const t of tweets) {
+      map[t.brandId] = (map[t.brandId] || 0) + 1;
+    }
+    return map;
+  }, [tweets]);
+
+  const tweetBrandChart = useMemo(() =>
+    Object.entries(twitterByBrand)
+      .map(([brandId, count]) => {
+        const brand = BRAND_MAP[brandId] || {};
+        return { brandId, count, name: brand.shortName || brandId, color: brand.color || '#8B9BB4' };
+      })
+      .sort((a, b) => b.count - a.count),
+  [twitterByBrand]);
+
+  const filteredTweets = useMemo(() => {
+    let list = twBrand ? tweets.filter(t => t.brandId === twBrand) : tweets;
+    if (twSort === 'likes')    list = [...list].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    if (twSort === 'retweets') list = [...list].sort((a, b) => (b.retweets || 0) - (a.retweets || 0));
+    if (twSort === 'date')     list = [...list].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    return list;
+  }, [tweets, twBrand, twSort]);
+
+  const twPositive = tweets.filter(t => t.sentiment === 'positive').length;
+  const twNegative = tweets.filter(t => t.sentiment === 'negative').length;
+  const twNeutral  = tweets.filter(t => t.sentiment === 'neutral').length;
+
+  /* ── Render ──────────────────────────────────────────────────────────── */
   return (
-    <div className="space-y-10 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <SectionHeader
-        title="Sosyal Medya & İtibar Analizi"
-        subtitle="Instagram performansı · Google Maps itibarı · Duygu analizi — Haziran 2026"
+        title="Sosyal Medya Analizi"
+        subtitle="Platform bazlı performans ve marka görünürlüğü"
       />
 
-      {/* ── SECTION 1: Instagram ─────────────────────────────────── */}
-      <section className="space-y-5">
-        <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
-          <span>📸</span> Instagram Performansı
-        </h2>
+      {/* Platform seçici */}
+      <div className="flex gap-2 flex-wrap">
+        {PLATFORMS.map(p => (
+          <button
+            key={p.key}
+            onClick={() => setPlatform(p.key)}
+            className={clsx(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border',
+              platform === p.key
+                ? 'bg-caramel/20 border-caramel text-caramel'
+                : 'bg-surface border-navy-border text-muted hover:text-white hover:border-white/20'
+            )}
+          >
+            <span>{p.icon}</span> {p.label}
+          </button>
+        ))}
+      </div>
 
-        {/* KPI row */}
-        {own && (
+      {/* ══ TWITTER ══════════════════════════════════════════════════════ */}
+      {platform === 'twitter' && (
+        <div className="space-y-5">
+          {/* KPI */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Espressolab Takipçi',   value: formatLargeNumber(own.followers),      color: 'text-caramel', icon: '👥' },
-              { label: 'Etkileşim Oranı',        value: `%${own.engagementRate}`,              color: 'text-success', icon: '💬' },
-              { label: 'Etkileşim Sıralaması',   value: `#${ownRank} / ${igData.length}`,     color: 'text-success', icon: '🏆' },
-              { label: 'Takip Edilen Hesap',     value: igData.length,                         color: 'text-info',    icon: '📊' },
+              { label: 'Toplam Tweet',    value: tweets.length,  color: 'text-[#1d9bf0]', icon: '𝕏' },
+              { label: 'Olumlu',          value: twPositive,     color: 'text-success',   icon: '😊' },
+              { label: 'Olumsuz',         value: twNegative,     color: 'text-danger',    icon: '😟' },
+              { label: 'Nötr',            value: twNeutral,      color: 'text-muted',     icon: '😐' },
             ].map(k => (
-              <div key={k.label} className="card">
+              <div key={k.label} className="card text-center">
                 <div className="text-2xl mb-1">{k.icon}</div>
                 <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
                 <div className="text-xs text-muted">{k.label}</div>
               </div>
             ))}
           </div>
-        )}
 
-        {/* Öne Çıkan Bulgular */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {[
-            { icon: '🏆', color: 'text-success',  border: 'border-success/20',     title: 'Sektör Lideri: %1.28 Etkileşim', desc: 'Espressolab %1.28 · 52.736 max beğeni (viral post) — sektörün en yüksek engagement oranı' },
-            { icon: '📉', color: 'text-danger',   border: 'border-danger/20',      title: 'Gloria Jean\'s: Boş Kalabalık',   desc: '61.749 takipçiyle %0.11 etkileşim — içerik stratejisi çalışmıyor, pazar fırsatı var' },
-            { icon: '💬', color: 'text-warning',  border: 'border-warning/20',     title: 'Nevada: Tartışmalı İçerik',       desc: 'Ort. 46 yorum — like oranı düşük ama yorum yüksek, negatif tartışma riski taşıyor' },
-            { icon: '🔍', color: 'text-blue-400', border: 'border-blue-500/20',    title: 'Mikel: Like Gizleme Anomalisi',   desc: 'Ort. 1 beğeni · 104 yorum — Instagram like gizleme politikası uyguluyor olabilir' },
-            { icon: '💡', color: 'text-caramel',  border: 'border-caramel/20',     title: 'GUA: Az Takipçi, Güçlü Etki',    desc: '15.651 takipçiyle %0.82 etkileşim — Kahve Dünyası\'nın etkileşim oranını geçiyor' },
-          ].map(f => (
-            <div key={f.title} className={`card border ${f.border}`}>
-              <div className="flex items-start gap-2">
-                <span className="text-lg flex-shrink-0">{f.icon}</span>
-                <div>
-                  <p className={`text-xs font-semibold ${f.color} mb-1`}>{f.title}</p>
-                  <p className="text-[11px] text-muted leading-relaxed">{f.desc}</p>
+          {twLoading && (
+            <div className="text-center text-muted text-sm py-8">Tweet'ler yükleniyor...</div>
+          )}
+
+          {!twLoading && tweets.length === 0 && (
+            <div className="card text-center py-10">
+              <div className="text-4xl mb-3">𝕏</div>
+              <p className="text-white font-medium mb-1">Henüz tweet yok</p>
+              <p className="text-xs text-muted">Twitter bağlantısı kurulduğunda burada görünecek.</p>
+            </div>
+          )}
+
+          {!twLoading && tweets.length > 0 && (
+            <>
+              {/* Marka dağılımı */}
+              {tweetBrandChart.length > 0 && (
+                <div className="card">
+                  <h3 className="text-sm font-semibold text-white mb-3">Marka Bazlı Tweet Dağılımı</h3>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <button
+                      onClick={() => setTwBrand(null)}
+                      className={clsx('px-3 py-1 rounded-full text-xs font-medium border transition-all',
+                        !twBrand ? 'bg-[#1d9bf0]/20 border-[#1d9bf0] text-[#1d9bf0]' : 'border-navy-border text-muted hover:text-white'
+                      )}
+                    >
+                      Tümü ({tweets.length})
+                    </button>
+                    {tweetBrandChart.map(b => (
+                      <button
+                        key={b.brandId}
+                        onClick={() => setTwBrand(twBrand === b.brandId ? null : b.brandId)}
+                        className={clsx('px-3 py-1 rounded-full text-xs font-medium border transition-all',
+                          twBrand === b.brandId
+                            ? 'text-white border-transparent'
+                            : 'border-navy-border text-muted hover:text-white'
+                        )}
+                        style={twBrand === b.brandId ? { background: b.color + '33', borderColor: b.color, color: b.color } : {}}
+                      >
+                        {b.name} ({b.count})
+                      </button>
+                    ))}
+                  </div>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <BarChart data={tweetBrandChart} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
+                      <XAxis dataKey="name" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{ background: '#1a2744', border: '1px solid #2A3A55', borderRadius: 8, fontSize: 12 }} />
+                      <Bar dataKey="count" name="Tweet" radius={[4, 4, 0, 0]}>
+                        {tweetBrandChart.map(b => <Cell key={b.brandId} fill={b.color} opacity={twBrand && twBrand !== b.brandId ? 0.3 : 1} />)}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* Sıralama + tweet listesi */}
+              <div className="card">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <h3 className="text-sm font-semibold text-white">
+                    Tweet'ler ({filteredTweets.length})
+                  </h3>
+                  <div className="flex gap-1">
+                    {[{ key: 'date', label: 'Tarih' }, { key: 'likes', label: '❤️ Beğeni' }, { key: 'retweets', label: '🔁 RT' }].map(s => (
+                      <button
+                        key={s.key}
+                        onClick={() => setTwSort(s.key)}
+                        className={clsx('px-3 py-1 rounded-lg text-xs font-medium border transition-all',
+                          twSort === s.key
+                            ? 'bg-[#1d9bf0]/20 border-[#1d9bf0] text-[#1d9bf0]'
+                            : 'border-navy-border text-muted hover:text-white'
+                        )}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                  {filteredTweets.slice(0, 50).map((t, i) => {
+                    const brand = BRAND_MAP[t.brandId] || {};
+                    return (
+                      <a
+                        key={t.url || i}
+                        href={t.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block border border-navy-border rounded-xl p-3 hover:border-[#1d9bf0]/40 transition-all"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-[#1d9bf0] font-bold text-lg flex-shrink-0 mt-0.5">𝕏</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="text-xs font-semibold text-[#1d9bf0]">{t.source}</span>
+                              {brand.name && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: (brand.color || '#8B9BB4') + '22', color: brand.color || '#8B9BB4', border: `1px solid ${(brand.color || '#8B9BB4')}44` }}>
+                                  {brand.name}
+                                </span>
+                              )}
+                              <span className={clsx('text-[10px] px-2 py-0.5 rounded-full font-medium ml-auto flex-shrink-0',
+                                t.sentiment === 'positive' ? 'bg-success/10 text-success border border-success/20'
+                                  : t.sentiment === 'negative' ? 'bg-danger/10 text-danger border border-danger/20'
+                                  : 'bg-muted/10 text-muted border border-muted/20'
+                              )}>
+                                {t.sentiment === 'positive' ? 'Olumlu' : t.sentiment === 'negative' ? 'Olumsuz' : 'Nötr'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-white/90 leading-relaxed line-clamp-3">{t.snippet || t.title}</p>
+                            <div className="flex items-center gap-4 mt-2 text-[10px] text-muted">
+                              <span>❤️ {(t.likes || 0).toLocaleString('tr-TR')}</span>
+                              <span>🔁 {(t.retweets || 0).toLocaleString('tr-TR')}</span>
+                              <span>{t.publishedAt ? new Date(t.publishedAt).toLocaleDateString('tr-TR') : ''}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ══ INSTAGRAM ════════════════════════════════════════════════════ */}
+      {platform === 'instagram' && (
+        <div className="space-y-5">
+          <section className="space-y-5">
+            <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
+              <span>📸</span> Instagram Performansı
+            </h2>
+
+            {own && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Espressolab Takipçi',  value: formatLargeNumber(own.followers),   color: 'text-caramel', icon: '👥' },
+                  { label: 'Etkileşim Oranı',       value: `%${own.engagementRate}`,           color: 'text-success', icon: '💬' },
+                  { label: 'Etkileşim Sıralaması',  value: `#${ownRank} / ${igData.length}`,  color: 'text-success', icon: '🏆' },
+                  { label: 'Takip Edilen Hesap',    value: igData.length,                      color: 'text-info',    icon: '📊' },
+                ].map(k => (
+                  <div key={k.label} className="card">
+                    <div className="text-2xl mb-1">{k.icon}</div>
+                    <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
+                    <div className="text-xs text-muted">{k.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {[
+                { icon: '🏆', color: 'text-success',  border: 'border-success/20',  title: 'Sektör Lideri: %1.28 Etkileşim', desc: 'Espressolab %1.28 · 52.736 max beğeni (viral post) — sektörün en yüksek engagement oranı' },
+                { icon: '📉', color: 'text-danger',   border: 'border-danger/20',   title: "Gloria Jean's: Boş Kalabalık",    desc: '61.749 takipçiyle %0.11 etkileşim — içerik stratejisi çalışmıyor, pazar fırsatı var' },
+                { icon: '💬', color: 'text-warning',  border: 'border-warning/20',  title: 'Nevada: Tartışmalı İçerik',       desc: 'Ort. 46 yorum — like oranı düşük ama yorum yüksek, negatif tartışma riski taşıyor' },
+                { icon: '🔍', color: 'text-blue-400', border: 'border-blue-500/20', title: 'Mikel: Like Gizleme Anomalisi',   desc: 'Ort. 1 beğeni · 104 yorum — Instagram like gizleme politikası uyguluyor olabilir' },
+                { icon: '💡', color: 'text-caramel',  border: 'border-caramel/20',  title: 'GUA: Az Takipçi, Güçlü Etki',    desc: "15.651 takipçiyle %0.82 etkileşim — Kahve Dünyası'nın etkileşim oranını geçiyor" },
+              ].map(f => (
+                <div key={f.title} className={`card border ${f.border}`}>
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg flex-shrink-0">{f.icon}</span>
+                    <div>
+                      <p className={`text-xs font-semibold ${f.color} mb-1`}>{f.title}</p>
+                      <p className="text-[11px] text-muted leading-relaxed">{f.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Charts row */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          {/* Engagement bar chart */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-3">Etkileşim Oranı Karşılaştırması (%)</h3>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={igData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
-                <XAxis dataKey="shortName" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `%${v}`} />
-                <Tooltip content={<EngTooltip />} />
-                <Bar dataKey="engagementRate" radius={[4, 4, 0, 0]}>
-                  {igData.map(d => (
-                    <Cell key={d.username} fill={d.color} opacity={d.isOwn ? 1 : 0.65} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+              <div className="card">
+                <h3 className="text-sm font-semibold text-white mb-3">Etkileşim Oranı Karşılaştırması (%)</h3>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={igData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
+                    <XAxis dataKey="shortName" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `%${v}`} />
+                    <Tooltip content={<EngTooltip />} />
+                    <Bar dataKey="engagementRate" radius={[4, 4, 0, 0]}>
+                      {igData.map(d => <Cell key={d.username} fill={d.color} opacity={d.isOwn ? 1 : 0.65} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
 
-          {/* Scatter: followers vs engagement, bubble=posts */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-1">Takipçi × Etkileşim (kabarcık = gönderi sayısı)</h3>
-            <p className="text-[10px] text-muted mb-3">Sol-üst: az takipçi, yüksek etkileşim = verimli içerik stratejisi</p>
-            <ResponsiveContainer width="100%" height={245}>
-              <ScatterChart margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
-                <XAxis
-                  dataKey="followers"
-                  name="Takipçi"
-                  type="number"
-                  tick={{ fill: '#8B9BB4', fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={v => formatLargeNumber(v)}
-                />
-                <YAxis
-                  dataKey="engagementRate"
-                  name="Etkileşim"
-                  type="number"
-                  tick={{ fill: '#8B9BB4', fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={v => `%${v}`}
-                />
-                <ZAxis dataKey="posts" range={[50, 500]} />
-                <Tooltip content={<IgTooltip />} />
-                {igData.map(d => (
-                  <Scatter key={d.username} name={d.brandName} data={[d]} fill={d.color} opacity={d.isOwn ? 1 : 0.7} />
-                ))}
-              </ScatterChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+              <div className="card">
+                <h3 className="text-sm font-semibold text-white mb-1">Takipçi × Etkileşim (kabarcık = gönderi sayısı)</h3>
+                <p className="text-[10px] text-muted mb-3">Sol-üst: az takipçi, yüksek etkileşim = verimli içerik stratejisi</p>
+                <ResponsiveContainer width="100%" height={245}>
+                  <ScatterChart margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
+                    <XAxis dataKey="followers" name="Takipçi" type="number" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => formatLargeNumber(v)} />
+                    <YAxis dataKey="engagementRate" name="Etkileşim" type="number" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `%${v}`} />
+                    <ZAxis dataKey="posts" range={[50, 500]} />
+                    <Tooltip content={<IgTooltip />} />
+                    {igData.map(d => <Scatter key={d.username} name={d.brandName} data={[d]} fill={d.color} opacity={d.isOwn ? 1 : 0.7} />)}
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        {/* Detail table */}
-        <div className="card">
-          <h3 className="text-sm font-semibold text-white mb-4">Instagram Hesap Detay Tablosu</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-navy-border">
-                  {['Hesap', 'Takipçi', 'Takip', 'Gönderi', 'Ort. Beğeni', 'Max Beğeni', 'Ort. Yorum', 'Etkileşim', 'Max Görüntülenme', 'Doğrulandı', 'Hesap Türü'].map(h => (
-                    <th key={h} className="table-header py-3 px-3 text-left whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {igData.map(d => (
-                  <tr key={d.username} className={clsx('table-row', d.isOwn && 'bg-caramel/5')}>
-                    <td className="table-cell">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
-                        <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>
-                          {d.brandName}
-                        </span>
-                              </div>
-                      <div className="text-[10px] text-muted mt-0.5">@{d.username}</div>
-                    </td>
-                    <td className="table-cell text-white font-medium">{formatLargeNumber(d.followers)}</td>
-                    <td className="table-cell text-muted">{d.following.toLocaleString('tr-TR')}</td>
-                    <td className="table-cell text-muted">{d.posts.toLocaleString('tr-TR')}</td>
-                    <td className="table-cell text-white">{formatLargeNumber(d.avgLikes)}</td>
-                    <td className="table-cell text-white">{formatLargeNumber(d.maxLikes)}</td>
-                    <td className="table-cell text-muted">{d.avgComments}</td>
-                    <td className="table-cell">
-                      <span className={clsx(
-                        'font-bold',
-                        d.engagementRate >= 2 ? 'text-success'
-                          : d.engagementRate >= 1 ? 'text-warning'
-                          : 'text-danger'
-                      )}>
-                        %{d.engagementRate}
-                      </span>
-                    </td>
-                    <td className="table-cell text-muted">
-                      {d.maxViews ? formatLargeNumber(d.maxViews) : '—'}
-                    </td>
-                    <td className="table-cell">
-                      {d.verified
-                        ? <span className="text-xs font-semibold text-blue-400 bg-blue-400/10 border border-blue-400/30 rounded-full px-2 py-0.5">✓ Doğrulandı</span>
-                        : <span className="text-xs text-muted">—</span>}
-                    </td>
-                    <td className="table-cell">
-                      {d.isBusinessAccount
-                        ? <span className="text-xs font-semibold text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">İşletme</span>
-                        : <span className="text-xs text-muted bg-muted/10 border border-muted/20 rounded-full px-2 py-0.5">Kişisel</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-[10px] text-muted mt-3">
-            ✅ Takipçi verileri Instagram Public API ile canlı çekilmektedir.
-            {igUpdatedAt && ` Son güncelleme: ${new Date(igUpdatedAt).toLocaleDateString('tr-TR')}.`}
-            {' '}Etkileşim = (beğeni + yorum) / takipçi × 100.
-          </p>
-        </div>
-      </section>
-
-      {/* ── SECTION 2: Google Maps ───────────────────────────────── */}
-      <section className="space-y-5">
-        <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
-          <span>🗺️</span> Google Maps İtibar Skoru
-        </h2>
-
-        {/* Critical alert */}
-        {mapsData.find(d => d.brand === 'kahvedunyasi') && (
-          <div className="flex items-start gap-3 bg-danger/10 border border-danger/30 rounded-xl px-4 py-3">
-            <span className="text-danger text-xl flex-shrink-0">⚠️</span>
-            <div>
-              <p className="text-sm font-semibold text-danger mb-0.5">Kritik: Kahve Dünyası İtibar Riski</p>
-              <p className="text-xs text-white/80">
-                Google Maps ortalaması <strong className="text-danger">3.64 ⭐</strong> ile en düşük seviyede ve düşüş eğiliminde.
-                67.200+ yorum — personel tutarsızlığı ve temizlik şikayetleri dominant.
-                Rakipler için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti öne çıkarılmalı.
+            <div className="card">
+              <h3 className="text-sm font-semibold text-white mb-4">Instagram Hesap Detay Tablosu</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-navy-border">
+                      {['Hesap', 'Takipçi', 'Takip', 'Gönderi', 'Ort. Beğeni', 'Max Beğeni', 'Ort. Yorum', 'Etkileşim', 'Max Görüntülenme', 'Doğrulandı', 'Hesap Türü'].map(h => (
+                        <th key={h} className="table-header py-3 px-3 text-left whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {igData.map(d => (
+                      <tr key={d.username} className={clsx('table-row', d.isOwn && 'bg-caramel/5')}>
+                        <td className="table-cell">
+                          <div className="flex items-center gap-2">
+                            <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                            <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>{d.brandName}</span>
+                          </div>
+                          <div className="text-[10px] text-muted mt-0.5">@{d.username}</div>
+                        </td>
+                        <td className="table-cell text-white font-medium">{formatLargeNumber(d.followers)}</td>
+                        <td className="table-cell text-muted">{d.following.toLocaleString('tr-TR')}</td>
+                        <td className="table-cell text-muted">{d.posts.toLocaleString('tr-TR')}</td>
+                        <td className="table-cell text-white">{formatLargeNumber(d.avgLikes)}</td>
+                        <td className="table-cell text-white">{formatLargeNumber(d.maxLikes)}</td>
+                        <td className="table-cell text-muted">{d.avgComments}</td>
+                        <td className="table-cell">
+                          <span className={clsx('font-bold',
+                            d.engagementRate >= 2 ? 'text-success' : d.engagementRate >= 1 ? 'text-warning' : 'text-danger'
+                          )}>%{d.engagementRate}</span>
+                        </td>
+                        <td className="table-cell text-muted">{d.maxViews ? formatLargeNumber(d.maxViews) : '—'}</td>
+                        <td className="table-cell">
+                          {d.verified
+                            ? <span className="text-xs font-semibold text-blue-400 bg-blue-400/10 border border-blue-400/30 rounded-full px-2 py-0.5">✓ Doğrulandı</span>
+                            : <span className="text-xs text-muted">—</span>}
+                        </td>
+                        <td className="table-cell">
+                          {d.isBusinessAccount
+                            ? <span className="text-xs font-semibold text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">İşletme</span>
+                            : <span className="text-xs text-muted bg-muted/10 border border-muted/20 rounded-full px-2 py-0.5">Kişisel</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[10px] text-muted mt-3">
+                ✅ Takipçi verileri Instagram Public API ile canlı çekilmektedir.
+                {igUpdatedAt && ` Son güncelleme: ${new Date(igUpdatedAt).toLocaleDateString('tr-TR')}.`}
+                {' '}Etkileşim = (beğeni + yorum) / takipçi × 100.
               </p>
             </div>
-          </div>
-        )}
+          </section>
 
-        {/* Rating cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-          {mapsData.map(d => (
-            <div key={d.brand} className={clsx('card text-center', d.isOwn && 'border-caramel/30')}>
-              <div className="text-xs font-semibold mb-2 truncate" style={{ color: d.color }}>{d.shortName}</div>
-              <div className={clsx('text-2xl font-bold mb-1', d.isOwn ? 'text-caramel' : 'text-white')}>
-                {d.rating}
+          {/* Google Maps */}
+          <section className="space-y-5">
+            <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
+              <span>🗺️</span> Google Maps İtibar Skoru
+            </h2>
+            {mapsData.find(d => d.brand === 'kahvedunyasi') && (
+              <div className="flex items-start gap-3 bg-danger/10 border border-danger/30 rounded-xl px-4 py-3">
+                <span className="text-danger text-xl flex-shrink-0">⚠️</span>
+                <div>
+                  <p className="text-sm font-semibold text-danger mb-0.5">Kritik: Kahve Dünyası İtibar Riski</p>
+                  <p className="text-xs text-white/80">
+                    Google Maps ortalaması <strong className="text-danger">3.64 ⭐</strong> ile en düşük seviyede ve düşüş eğiliminde.
+                    67.200+ yorum — personel tutarsızlığı ve temizlik şikayetleri dominant.
+                    Rakipler için <strong className="text-success">pazar fırsatı</strong>: müşteri memnuniyeti öne çıkarılmalı.
+                  </p>
+                </div>
               </div>
-              <StarRating rating={d.rating} />
-              <div className={clsx('text-xs font-semibold mt-1', TREND_COLOR[d.ratingTrend])}>
-                {TREND_ICON[d.ratingTrend]} {d.ratingTrend === 'up' ? 'Yükseliyor' : d.ratingTrend === 'down' ? 'Düşüyor' : 'Stabil'}
-              </div>
-              <div className="text-[10px] text-muted mt-1">{formatLargeNumber(d.reviewCount)} yorum</div>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
+              {mapsData.map(d => (
+                <div key={d.brand} className={clsx('card text-center', d.isOwn && 'border-caramel/30')}>
+                  <div className="text-xs font-semibold mb-2 truncate" style={{ color: d.color }}>{d.shortName}</div>
+                  <div className={clsx('text-2xl font-bold mb-1', d.isOwn ? 'text-caramel' : 'text-white')}>{d.rating}</div>
+                  <StarRating rating={d.rating} />
+                  <div className={clsx('text-xs font-semibold mt-1', TREND_COLOR[d.ratingTrend])}>
+                    {TREND_ICON[d.ratingTrend]} {d.ratingTrend === 'up' ? 'Yükseliyor' : d.ratingTrend === 'down' ? 'Düşüyor' : 'Stabil'}
+                  </div>
+                  <div className="text-[10px] text-muted mt-1">{formatLargeNumber(d.reviewCount)} yorum</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {/* Risk traffic light table */}
-        <div className="card">
-          <h3 className="text-sm font-semibold text-white mb-4">İtibar Risk Tablosu</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-navy-border">
-                  {['Marka', 'Puan', 'Trend', 'Yorum Sayısı', 'Şube', 'Risk Seviyesi'].map(h => (
-                    <th key={h} className="table-header py-3 px-3 text-left whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mapsData.map(d => {
-                  const isRed = d.rating < 4.0 || (d.rating < 4.2 && d.ratingTrend === 'down');
-                  const isYellow = !isRed && (d.rating < 4.3 || d.ratingTrend === 'down');
-                  const riskLabel = isRed ? 'Yüksek Risk' : isYellow ? 'Orta Risk' : 'Düşük Risk';
-                  return (
-                    <tr key={d.brand} className={clsx('table-row', d.isOwn && 'bg-caramel/5')}>
-                      <td className="table-cell">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
-                          <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>
-                            {d.brandName}
-                          </span>
-                                  </div>
-                      </td>
-                      <td className="table-cell">
-                        <span className={clsx('font-bold', d.rating >= 4.4 ? 'text-success' : d.rating >= 4.0 ? 'text-warning' : 'text-danger')}>
-                          {d.rating} ⭐
-                        </span>
-                      </td>
-                      <td className={clsx('table-cell font-semibold', TREND_COLOR[d.ratingTrend])}>
-                        {TREND_ICON[d.ratingTrend]} {d.ratingTrend === 'up' ? 'Artıyor' : d.ratingTrend === 'down' ? 'Azalıyor' : 'Stabil'}
-                      </td>
-                      <td className="table-cell text-muted">{d.reviewCount.toLocaleString('tr-TR')}</td>
-                      <td className="table-cell text-muted">{d.branches}</td>
-                      <td className="table-cell">
-                        <div className="flex items-center gap-2">
-                          <RiskLight rating={d.rating} trend={d.ratingTrend} />
-                          <span className={clsx('text-xs font-semibold', isRed ? 'text-danger' : isYellow ? 'text-warning' : 'text-success')}>
-                            {riskLabel}
-                          </span>
-                        </div>
-                      </td>
+            <div className="card">
+              <h3 className="text-sm font-semibold text-white mb-4">İtibar Risk Tablosu</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-navy-border">
+                      {['Marka', 'Puan', 'Trend', 'Yorum Sayısı', 'Şube', 'Risk Seviyesi'].map(h => (
+                        <th key={h} className="table-header py-3 px-3 text-left whitespace-nowrap">{h}</th>
+                      ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION 3: Sentiment ─────────────────────────────────── */}
-      <section className="space-y-5">
-        <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
-          <span>🧠</span> Duygu Analizi
-        </h2>
-
-        {/* Own sentiment highlight */}
-        {ownSent && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { label: 'Olumlu Yorum', value: `%${ownSent.positive}`, color: 'text-success', bg: 'border-success/20', icon: '😊' },
-              { label: 'Nötr Yorum',   value: `%${ownSent.neutral}`,  color: 'text-muted',   bg: 'border-muted/20',   icon: '😐' },
-              { label: 'Olumsuz Yorum',value: `%${ownSent.negative}`, color: 'text-danger',  bg: 'border-danger/20',  icon: '😟' },
-            ].map(k => (
-              <div key={k.label} className={`card border ${k.bg} text-center`}>
-                <div className="text-2xl mb-1">{k.icon}</div>
-                <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
-                <div className="text-xs text-muted">Espressolab {k.label}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Stacked bar */}
-        <div className="card">
-          <h3 className="text-sm font-semibold text-white mb-3">Marka Bazlı Duygu Dağılımı (%)</h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={sentChartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
-              <XAxis dataKey="name" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `%${v}`} domain={[0, 100]} />
-              <Tooltip content={<SentTooltip />} />
-              <Bar dataKey="positive" name="Olumlu"  stackId="s" fill="#22c55e" />
-              <Bar dataKey="neutral"  name="Nötr"    stackId="s" fill="#475569" />
-              <Bar dataKey="negative" name="Olumsuz" stackId="s" fill="#ef4444" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Complaint badges per brand */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {sentChartData.map(d => (
-            <div key={d.name} className={clsx('card', d.isOwn && 'border-caramel/30')}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
-                <span className={clsx('text-sm font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>{d.fullName}</span>
-                <span className="ml-auto text-xs font-bold text-success">%{d.positive}</span>
-              </div>
-              <div className="space-y-1.5">
-                <p className="text-[10px] text-muted uppercase tracking-wider">Başlıca Şikayetler</p>
-                <div className="flex flex-wrap gap-1">
-                  {d.topComplaints.map(c => (
-                    <span key={c} className="text-[10px] bg-danger/10 text-danger border border-danger/20 rounded-full px-2 py-0.5">{c}</span>
-                  ))}
-                </div>
-                <p className="text-[10px] text-muted uppercase tracking-wider mt-2">Öne Çıkan Olumlu</p>
-                <div className="flex flex-wrap gap-1">
-                  {d.topPraises.map(p => (
-                    <span key={p} className="text-[10px] bg-success/10 text-success border border-success/20 rounded-full px-2 py-0.5">{p}</span>
-                  ))}
-                </div>
+                  </thead>
+                  <tbody>
+                    {mapsData.map(d => {
+                      const isRed    = d.rating < 4.0 || (d.rating < 4.2 && d.ratingTrend === 'down');
+                      const isYellow = !isRed && (d.rating < 4.3 || d.ratingTrend === 'down');
+                      const riskLabel = isRed ? 'Yüksek Risk' : isYellow ? 'Orta Risk' : 'Düşük Risk';
+                      return (
+                        <tr key={d.brand} className={clsx('table-row', d.isOwn && 'bg-caramel/5')}>
+                          <td className="table-cell">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                              <span className={clsx('font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>{d.brandName}</span>
+                            </div>
+                          </td>
+                          <td className="table-cell">
+                            <span className={clsx('font-bold', d.rating >= 4.4 ? 'text-success' : d.rating >= 4.0 ? 'text-warning' : 'text-danger')}>
+                              {d.rating} ⭐
+                            </span>
+                          </td>
+                          <td className={clsx('table-cell font-semibold', TREND_COLOR[d.ratingTrend])}>
+                            {TREND_ICON[d.ratingTrend]} {d.ratingTrend === 'up' ? 'Artıyor' : d.ratingTrend === 'down' ? 'Azalıyor' : 'Stabil'}
+                          </td>
+                          <td className="table-cell text-muted">{d.reviewCount.toLocaleString('tr-TR')}</td>
+                          <td className="table-cell text-muted">{d.branches}</td>
+                          <td className="table-cell">
+                            <div className="flex items-center gap-2">
+                              <RiskLight rating={d.rating} trend={d.ratingTrend} />
+                              <span className={clsx('text-xs font-semibold', isRed ? 'text-danger' : isYellow ? 'text-warning' : 'text-success')}>
+                                {riskLabel}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ))}
+          </section>
+
+          {/* Sentiment */}
+          <section className="space-y-5">
+            <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
+              <span>🧠</span> Duygu Analizi
+            </h2>
+            {ownSent && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { label: 'Olumlu Yorum',  value: `%${ownSent.positive}`, color: 'text-success', bg: 'border-success/20', icon: '😊' },
+                  { label: 'Nötr Yorum',    value: `%${ownSent.neutral}`,  color: 'text-muted',   bg: 'border-muted/20',   icon: '😐' },
+                  { label: 'Olumsuz Yorum', value: `%${ownSent.negative}`, color: 'text-danger',  bg: 'border-danger/20',  icon: '😟' },
+                ].map(k => (
+                  <div key={k.label} className={`card border ${k.bg} text-center`}>
+                    <div className="text-2xl mb-1">{k.icon}</div>
+                    <div className={`text-2xl font-bold ${k.color}`}>{k.value}</div>
+                    <div className="text-xs text-muted">Espressolab {k.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="card">
+              <h3 className="text-sm font-semibold text-white mb-3">Marka Bazlı Duygu Dağılımı (%)</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={sentChartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2A3A55" />
+                  <XAxis dataKey="name" tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#8B9BB4', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `%${v}`} domain={[0, 100]} />
+                  <Tooltip content={<SentTooltip />} />
+                  <Bar dataKey="positive" name="Olumlu"  stackId="s" fill="#22c55e" />
+                  <Bar dataKey="neutral"  name="Nötr"    stackId="s" fill="#475569" />
+                  <Bar dataKey="negative" name="Olumsuz" stackId="s" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {sentChartData.map(d => (
+                <div key={d.name} className={clsx('card', d.isOwn && 'border-caramel/30')}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                    <span className={clsx('text-sm font-semibold', d.isOwn ? 'text-caramel' : 'text-white')}>{d.fullName}</span>
+                    <span className="ml-auto text-xs font-bold text-success">%{d.positive}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-muted uppercase tracking-wider">Başlıca Şikayetler</p>
+                    <div className="flex flex-wrap gap-1">
+                      {d.topComplaints.map(c => (
+                        <span key={c} className="text-[10px] bg-danger/10 text-danger border border-danger/20 rounded-full px-2 py-0.5">{c}</span>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted uppercase tracking-wider mt-2">Öne Çıkan Olumlu</p>
+                    <div className="flex flex-wrap gap-1">
+                      {d.topPraises.map(p => (
+                        <span key={p} className="text-[10px] bg-success/10 text-success border border-success/20 rounded-full px-2 py-0.5">{p}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* AI Aksiyon */}
+          <section className="space-y-4">
+            <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
+              <span>🤖</span> AI Aksiyon Planı
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="card border-success/20">
+                <div className="text-2xl mb-2">📈</div>
+                <h4 className="text-sm font-semibold text-white mb-2">Instagram Avantajını Koru</h4>
+                <p className="text-xs text-muted leading-relaxed">Espressolab <strong className="text-success">%1.28 etkileşim</strong> ile sektör ortalamasının (~%1) 2 katı performans gösteriyor. Reels ve kısa video formatı bu başarının temel sürücüsü.</p>
+              </div>
+              <div className="card border-warning/20">
+                <div className="text-2xl mb-2">🗺️</div>
+                <h4 className="text-sm font-semibold text-white mb-2">Kahve Dünyası Açığını Değerlendir</h4>
+                <p className="text-xs text-muted leading-relaxed">Kahve Dünyası'nın 3.64 ⭐ skoru ve düşüş trendi rakipler için doğrudan müşteri kazanım fırsatı sunuyor. Google Maps yorumlarına hızlı yanıt veren markalar bu boşluktan en çok yararlanıyor.</p>
+              </div>
+              <div className="card border-info/20">
+                <div className="text-2xl mb-2">💡</div>
+                <h4 className="text-sm font-semibold text-white mb-2">Takipçi Büyütme Hedefi</h4>
+                <p className="text-xs text-muted leading-relaxed">Mevcut 192K takipçiyle Starbucks TR (235K) ve KD (327K) arasında anlamlı açık var. Etkileşim kalitesi üstün olsa da kitle genişletmek için influencer iş birlikleri kritik öncelik.</p>
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
+      )}
 
-      {/* ── SECTION 4: AI Action Plan ────────────────────────────── */}
-      <section className="space-y-5">
-        <h2 className="text-base font-bold text-white border-b border-navy-border pb-2 flex items-center gap-2">
-          <span>🤖</span> AI Aksiyon Planı
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card border-success/20">
-            <div className="text-2xl mb-2">📈</div>
-            <h4 className="text-sm font-semibold text-white mb-2">Instagram Avantajını Koru</h4>
-            <p className="text-xs text-muted leading-relaxed">
-              Espressolab <strong className="text-success">%1.28 etkileşim</strong> ile sektör ortalamasının (~%1) 2 katı performans gösteriyor.
-              Reels ve kısa video formatı bu başarının temel sürücüsü.
-            </p>
-          </div>
-          <div className="card border-warning/20">
-            <div className="text-2xl mb-2">🗺️</div>
-            <h4 className="text-sm font-semibold text-white mb-2">Kahve Dünyası Açığını Değerlendir</h4>
-            <p className="text-xs text-muted leading-relaxed">
-              Kahve Dünyası'nın 3.64 ⭐ skoru ve düşüş trendi, özellikle temizlik ve personel şikayetleri
-              rakipler için doğrudan müşteri kazanım fırsatı sunuyor. Google Maps yorumlarına
-              hızlı yanıt veren markalar bu boşluktan en çok yararlanıyor.
-            </p>
-          </div>
-          <div className="card border-info/20">
-            <div className="text-2xl mb-2">💡</div>
-            <h4 className="text-sm font-semibold text-white mb-2">Takipçi Büyütme Hedefi</h4>
-            <p className="text-xs text-muted leading-relaxed">
-              Mevcut 192K takipçiyle Starbucks TR (235K) ve KD (327K) arasında anlamlı açık var.
-              Etkileşim kalitesi üstün olsa da kitle genişletmek için influencer iş birlikleri ve
-              şehir bazlı kampanyalar kritik öncelik.
-            </p>
-          </div>
-        </div>
-
-        {/* Source footnote */}
-        <div className="flex items-start gap-3 bg-blue-900/20 border border-blue-500/20 rounded-xl p-3 text-xs">
-          <span className="text-blue-400 text-base mt-0.5">🔍</span>
-          <p className="text-muted">
-            <strong className="text-blue-300">Kaynaklar: </strong>
-            Instagram takipçi ve etkileşim verileri 100'er post analizi (Haziran 2026) ile doğrulanmıştır.
-            Google Maps puanları Google Places API ve manuel doğrulama kombinasyonuyla alınmıştır.
-            Duygu analizi sosyal medya yorumları ve Google Maps yorumlarının yapısal analizine dayanmaktadır.
+      {/* ══ TIKTOK ═══════════════════════════════════════════════════════ */}
+      {platform === 'tiktok' && (
+        <div className="card text-center py-16">
+          <div className="text-5xl mb-4">🎵</div>
+          <h3 className="text-lg font-semibold text-white mb-2">TikTok Analizi Yakında</h3>
+          <p className="text-sm text-muted max-w-md mx-auto leading-relaxed">
+            TikTok Business API entegrasyonu planlanmaktadır. Marka hesaplarının video performansı, takipçi büyümesi ve etkileşim metrikleri burada görüntülenecek.
           </p>
         </div>
-      </section>
+      )}
     </div>
   );
 }
