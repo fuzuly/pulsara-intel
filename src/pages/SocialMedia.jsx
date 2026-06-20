@@ -1,3 +1,4 @@
+import { useState, useEffect, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis,
@@ -5,11 +6,13 @@ import {
 import SectionHeader from '../components/common/SectionHeader';
 import { BRAND_MAP } from '../constants/brands';
 import { formatLargeNumber } from '../utils/formatters';
-import instagramProfiles from '../data/instagramProfiles.json';
+import instagramProfilesFallback from '../data/instagramProfiles.json';
 import instagramPosts from '../data/instagramPosts.json';
 import googleMapsRatings from '../data/googleMapsRatings.json';
 import sentimentData from '../data/sentimentData.json';
 import clsx from 'clsx';
+
+const API_BASE = import.meta.env.VITE_SCRAPER_URL || 'https://espressolab-scraper-production.up.railway.app';
 
 const USERNAME_TO_BRAND = {
   espressolabtr:       'espressolab',
@@ -24,30 +27,6 @@ const USERNAME_TO_BRAND = {
   'nevadacoffee.tr':   'nevada',
   'laos.coffee':       'laos',
 };
-
-const igData = instagramProfiles.map(p => {
-  const post = instagramPosts.find(x => x.username === p.username) || {};
-  const brandId = USERNAME_TO_BRAND[p.username];
-  const brand = BRAND_MAP[brandId] || {};
-  return {
-    username: p.username,
-    brandId,
-    brandName: brand.name || p.username,
-    color: brand.color || '#8B9BB4',
-    isOwn: brand.isOwn || false,
-    shortName: brand.shortName || p.username.slice(0, 5),
-    followers: p.followers,
-    posts: p.posts,
-    avgLikes: post.avgLikes || 0,
-    avgComments: post.avgComments || 0,
-    engagementRate: post.engagementRate || 0,
-    maxLikes: post.maxLikes || 0,
-    maxViews: post.maxViews || null,
-    verified: p.verified ?? false,
-    isBusinessAccount: p.isBusinessAccount ?? false,
-    following: p.following ?? 0,
-  };
-}).sort((a, b) => b.engagementRate - a.engagementRate);
 
 const mapsData = googleMapsRatings.map(d => {
   const brand = BRAND_MAP[d.brand] || {};
@@ -75,8 +54,6 @@ const sentChartData = sentimentData.map(d => {
   };
 }).sort((a, b) => b.positive - a.positive);
 
-const own = igData.find(d => d.isOwn);
-const ownRank = igData.findIndex(d => d.isOwn) + 1;
 const ownMaps = mapsData.find(d => d.isOwn);
 const ownSent = sentChartData.find(d => d.isOwn);
 
@@ -142,6 +119,48 @@ const SentTooltip = ({ active, payload, label }) => {
 };
 
 export default function SocialMedia() {
+  const [profiles, setProfiles] = useState(instagramProfilesFallback);
+  const [igUpdatedAt, setIgUpdatedAt] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/instagram`, { signal: AbortSignal.timeout(10000) })
+      .then(r => r.json())
+      .then(json => {
+        if (json.status === 'ok' && json.data?.length) {
+          setProfiles(json.data);
+          setIgUpdatedAt(json.updatedAt);
+        }
+      })
+      .catch(() => {}); // statik fallback kalır
+  }, []);
+
+  const igData = useMemo(() => profiles.map(p => {
+    const post = instagramPosts.find(x => x.username === p.username) || {};
+    const brandId = p.brandId || USERNAME_TO_BRAND[p.username];
+    const brand = BRAND_MAP[brandId] || {};
+    return {
+      username: p.username,
+      brandId,
+      brandName: brand.name || p.username,
+      color: brand.color || '#8B9BB4',
+      isOwn: brand.isOwn || false,
+      shortName: brand.shortName || p.username.slice(0, 5),
+      followers: p.followers,
+      posts: p.posts,
+      avgLikes: post.avgLikes || 0,
+      avgComments: post.avgComments || 0,
+      engagementRate: post.engagementRate || 0,
+      maxLikes: post.maxLikes || 0,
+      maxViews: post.maxViews || null,
+      verified: p.verified ?? false,
+      isBusinessAccount: p.isBusinessAccount ?? false,
+      following: p.following ?? 0,
+    };
+  }).sort((a, b) => b.engagementRate - a.engagementRate), [profiles]);
+
+  const own = igData.find(d => d.isOwn);
+  const ownRank = igData.findIndex(d => d.isOwn) + 1;
+
   return (
     <div className="space-y-10 animate-fade-in">
       <SectionHeader
@@ -308,8 +327,9 @@ export default function SocialMedia() {
             </table>
           </div>
           <p className="text-[10px] text-muted mt-3">
-            ✅ Veriler BoomSocial.com ve Instagram Public API ile doğrulanmıştır (Haziran 2026).
-            Etkileşim = (beğeni + yorum) / takipçi × 100.
+            ✅ Takipçi verileri Instagram Public API ile canlı çekilmektedir.
+            {igUpdatedAt && ` Son güncelleme: ${new Date(igUpdatedAt).toLocaleDateString('tr-TR')}.`}
+            {' '}Etkileşim = (beğeni + yorum) / takipçi × 100.
           </p>
         </div>
       </section>
